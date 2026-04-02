@@ -578,15 +578,8 @@ function getOtherBrigadeObjs() {
 // ================================================================
 // WORKERS per brigade
 // ================================================================
-const BRIGADE_WORKERS = {
-  shulga: ['Шульга Артем','Гончаренко Михайло','Кравчатий Юрій','Патенко Сергій','Андрущенко Саша','Щерба Вадим','Щербенко Сергій','Бобришев Сергій','Патенко Дмитро','Попович Владислав','Сафонов Роман','Симаков Михайло','Суббот Юрій'],
-  nalyvayko: ['Наливайко Віталій','Данильчук Олексій','Годун Саша','Василишин Ігор','Хільчук','Євчук Микола','Забейда Андрій','Іванощак Богдан','Главук Микола','Наливайко Степан','Петрина Руслан','Примак Андрій','Стецюк Тарас','Швидкий Василь','Юхимець Саша','Гоголь Павло','Левчук Олег','Наливайко Юрій','Нищота Дмитро','Опанасюк Петро','Грищук Тарас','Колесник Володимир','Кулик Юрій','Рибак Ігор'],
-  gena: ['Вітрочка Геннадій','Баняс Роман','Білик Роман','Демʼянчук Іван','Деркачук Микола','Дідик','Макаренко Костя','Макарчук Андрій','Максим Молодий','Олексійчук Саша','Сандуляк'],
-  milan: ['Мілан Молодий','Гончук Вова','Лакатош Іван','Міговк','Бердалик Мирослав','Свищо Михайло','Тхорик','Михайленко','Ціцей Іван'],
-  yura: ['Алєксін Юра','Олінчук Сергій','Рижий Саша','Педченко Максим','Аксюта Андрій','Карюкін Саша','Данилець Олег','Кондратенко Володимир','Пацерін Стас','Фішер Михайло','Щуковський Кирило'],
-  besarab: ['Безсараб Саша','Аністрат Саша','Каналош Ярослав','Касінець Юра','Андрущенко Влад','Копичак Іван','Мусійченко Роман','Бруснік Віктор','Пилипців Микола','Кадай Андрій','Дмитришин Павло','Кадай Дмитро','Паздерський Роман','Чепляк Юрій','Торола Василь','Шуляк Роман'],
-  olsh: ['Ошовський Саша','Жук Олег','Крестов Євген','Кульбаченко Роман','Лінік Максим','Матус Артур','Мусійченко Роман'],
-};
+// BRIGADE_WORKERS — заповнюється з Довідника при вході
+const BRIGADE_WORKERS = {};
 
 // All workers flat list for cross-brigade search
 const ALL_WORKERS = [...new Set(Object.values(BRIGADE_WORKERS).flat())].sort();
@@ -594,131 +587,23 @@ const ALL_WORKERS = [...new Set(Object.values(BRIGADE_WORKERS).flat())].sort();
 // ================================================================
 // TECH LIST (from PDF)
 // ================================================================
-const TECH_LIST = [
-  {name:'Bitelli BB621', num:'52795 ВК'},
-  {name:'Bobcat E50', num:'53314 ВК'},
-  {name:'Bobcat S750', num:'53304 ВК'},
-  {name:'Bomag BW135AD', num:'52793 ВК'},
-  {name:'Case 695 Super R', num:'Т01932 ВК'},
-  {name:'Develon SD300N', num:'60502 ВК'},
-  {name:'Doosan DH60-7', num:'T01936 ВК'},
-  {name:'Doosan SD300N (58965)', num:'58965 ВК'},
-  {name:'Doosan SD300N (T01934)', num:'T01934 ВК'},
-  {name:'Doosan SD300N Long', num:'Б/Н'},
-  {name:'Hamm HD075V', num:'55833 ВК'},
-  {name:'Hamm HD90', num:'58338 ВК'},
-  {name:'Hidromek HMK-102B', num:'б/н'},
-  {name:'JCB 3CX білий', num:'33625 АМ'},
-  {name:'JCB 3CX жовтий', num:'58954 ВК'},
-  {name:'JCB 535V125', num:'35826 АМ'},
-  {name:'JCB JS160W', num:'44462 ВК'},
-  {name:'JCB JZ140HD', num:'Т01855 ВК'},
-  {name:'LIUGONG CLG4165', num:'52792 ВК'},
-  {name:'STA VH850AK', num:'52794 ВК'},
-  {name:'Terex', num:'Б/Н'},
-  {name:'Vogele 1800 сірий', num:'58337 ВК'},
-  {name:'Vogele 1800 помаранч.', num:'48637 ВК'},
-  {name:'Volvo BL71B', num:'52788 ВК'},
-  {name:'Volvo EC55D', num:'Б/Н'},
-  {name:'Volvo EW180C', num:'Т01659 ВК'},
-  {name:'Wirtgen W 100 Fi', num:'57753 ВК'},
-  {name:'ZTL50G', num:'01792 АО'},
-];
+// TECH_LIST — дані приходять з Довідника
+const TECH_LIST = [];
 
 // ================================================================
 // TRANSPORT (легкові, буси, вантажні — НЕ спецтехніка)
 // ================================================================
-const TRANSPORT_LIST = [
-  'Ford Transit СВ0476ЕМ','Ford Transit 85T ВК8551АР','I-VAN A07A ВК0975АІ',
-  'Mercedes Vario ВК8216АВ','Mercedes 711D ВК5034ІС','Mercedes 812D ВК0529ВА',
-  'VW Caravelle АО7955МТ','VW LT35 ВК6249АЕ','VW LT35 ВС0026НР','VW LT35 ВК3430ІН',
-  'VW LT35 ВК1566НН','VW LT35 ВК2767ІК','VW LT35 ВК3655ІТ','VW LT35 АО1318ІІ',
-  'VW LT35D ВК3326ІК','VW Transporter ВК3802НМ','VW Transporter ВС7529ЕВ',
-  'VW Transporter ВО8502ЕТ','Dacia Duster АО4842ІЕ','Ssang Yong ВК5443ЕХ',
-  'Nissan Juke ВК2808ВК','Skoda Kodiaq ВС3306ХА','Lexus LX КА5022МК','Lexus LX KT1352АВ',
-  'DAF CF 85 ВК5143ІС','DAF CF 85 ВК8808СА','DAF XF ВК1520ІЕ','DAF XF ВК4412НМ',
-  'DAF XF ВК4382ІЕ','MAN 26.513 ВК2571НЕ','MAN 32.322 АВ9469АМ',
-  'Mercedes 1213 ВК5256АТ','Scania G420 ВХ3298АЕ','Volvo FM ВК8050СМ',
-  'Volvo FM ВК3239СО','Volvo FM9 АО6190НА','Volvo FMX КА0324МН','Volvo FMX КА0163МН',
-  'ГАЗ-5301 ВК3608ІТ','ЗИЛ 133 ВК9952ІІ','Камаз МДК АО7626ВА',
-  'КрАЗ 250 АА6434ТР','КрАЗ 255 ВК3593ІМ','КрАЗ 255Б СА4039ІЕ',
-  'КрАЗ 260B ВС1284НЕ','КрАЗ 65055 АО3656ВВ','МАЗ 5551 АО6984АС',
-  'Scania 124 АО2651АВ','ПАЗ ВК0043АА','ПАЗ ВК7420ВС',
-];
+// TRANSPORT_LIST — дані приходять з Довідника
+const TRANSPORT_LIST = [];
 
 // ================================================================
 // WORKS & MATS DB (same as v1, kept for brevity)
 // ================================================================
-const WORKS_DB = [
-  {name:"Демонтаж дверних коробок в кам'яних стінах з відбиванням штукатурки в укосах",group:"Демонтажні роботи",unit:"шт"},
-  {name:"Знімання дверних полотен",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Знімання наличників",group:"Демонтажні роботи",unit:"м"},
-  {name:"Розбирання непоштукатуреної обшивки каркасно-обшивних дерев'яних стін",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Розбирання облицювання стін з керамічних глазурованих плиток",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Відбивання штукатурки по цеглі та бетону зі стін",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Розбирання покриттів підлог з щитового паркету",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Розбирання дощатих основ щитового паркету",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Розбирання цегляних перегородок та стін",group:"Демонтажні роботи",unit:"м³"},
-  {name:"Демонтаж схованої електропроводки",group:"Демонтажні роботи",unit:"м"},
-  {name:"Демонтаж армстронгу",group:"Позапроектна",unit:"м²"},
-  {name:"Мурування окремих ділянок внутрішніх стін із цегли",group:"Загальнобудівельні роботи",unit:"м³"},
-  {name:"Готування кладкових цементно-вапняних розчинів, марка 50",group:"Загальнобудівельні роботи",unit:"м³"},
-  {name:"Улаштування перегородок з газобетонних блоків 150мм при висоті до 4м",group:"Загальнобудівельні роботи",unit:"м²"},
-  {name:"Монтаж перегородок збірно-розбірних з алюмінієвих сплавів зі склінням",group:"Загальнобудівельні роботи",unit:"м²"},
-  {name:"Установлення металевих дверних коробок із навішуванням дверних полотен",group:"Дверні конструкції",unit:"м²"},
-  {name:"Заповнення дверних прорізів ламінованими дверними блоками",group:"Дверні конструкції",unit:"блок"},
-  {name:"Просте штукатурення поверхонь стін всередені будівлі",group:"Оздоблювальні роботи",unit:"м²"},
-  {name:"Поліпшене штукатурення поверхонь стін всередені будівлі",group:"Оздоблювальні роботи",unit:"м²"},
-  {name:"Ремонт штукатурки внутрішніх стін, площа до 20 м²",group:"Оздоблювальні роботи",unit:"м²"},
-  {name:"Штукатурення плоских поверхонь віконних та дверних укосів",group:"Оздоблювальні роботи",unit:"м²"},
-  {name:"Прокладання проводів при схованій проводці",group:"Електромонтажні роботи",unit:"м"},
-  {name:"Ізоляція оголених проводів та демонтаж розеток 4-блокові",group:"Електромонтажні роботи",unit:"шт"},
-  {name:"Навантаження сміття вручну",group:"Інші роботи",unit:"т"},
-  {name:"Укладання асфальту",group:"Дорожні роботи",unit:"м²"},
-  {name:"Планування підстилаючого шару",group:"Дорожні роботи",unit:"пог.м"},
-  {name:"Фрезерування дорожнього покриття",group:"Дорожні роботи",unit:"м²"},
-  {name:"Влаштування основи з щебеню",group:"Дорожні роботи",unit:"м²"},
-  {name:"Розробка ґрунту екскаватором",group:"Земляні роботи",unit:"м³"},
-  {name:"Зворотне засипання ґрунту",group:"Земляні роботи",unit:"м³"},
-  {name:"Планування ґрунту бульдозером",group:"Земляні роботи",unit:"м²"},
-  {name:"Монтаж каналізаційних труб",group:"Каналізація",unit:"пог.м"},
-  {name:"Улаштування оглядових колодязів",group:"Каналізація",unit:"шт"},
-];
+// WORKS_DB — дані приходять з Довідника
+const WORKS_DB = [];
 
-const MATS_DB = [
-  {name:"Алюмінієвий каркас 12мм у комплекті з кріпленням",group:"Гіпсокартонні системи",unit:"м"},
-  {name:"Анкер-дюбель",group:"Кріпильні вироби",unit:"шт"},
-  {name:"Анкер-розпірний вбивний 6х35",group:"Кріпильні вироби",unit:"шт"},
-  {name:"Блоки газобетонні т.100 мм",group:"Цегла, блоки, бетонні вироби",unit:"м³"},
-  {name:"Блоки стінові 100*200*610/500",group:"Цегла, блоки, бетонні вироби",unit:"шт"},
-  {name:"Вапно будівельне негашене грудкове, сорт 1",group:"Сухі суміші, розчини",unit:"т"},
-  {name:"Вимикач автоматичний однополюсний 10А",group:"Електрообладнання",unit:"шт"},
-  {name:"Вимикач автоматичний однополюсний 16А",group:"Електрообладнання",unit:"шт"},
-  {name:"Вимикач двоклавішний",group:"Електромонтажні матеріали",unit:"шт"},
-  {name:"Витяжний вентилятор 50 м³/год 7Вт",group:"Вентиляція",unit:"шт"},
-  {name:"Дюбель ударний 6*40 гриб",group:"Кріпильні вироби",unit:"шт"},
-  {name:"Дюбель ударний 6*40 потай",group:"Кріпильні вироби",unit:"шт"},
-  {name:"Піна-клей монтажна пістолетна 750мл",group:"Кріпильні вироби",unit:"шт"},
-  {name:"Плівка захисна 20мк 4*5м",group:"Витратні матеріали",unit:"шт"},
-  {name:"Плівка захисна 60мк 4*5м",group:"Витратні матеріали",unit:"шт"},
-  {name:"Плівка для гідроізоляції 200мк 1,5м",group:"Витратні матеріали",unit:"м"},
-  {name:"Респіратор з клапаном протиаерозольний",group:"Витратні матеріали",unit:"шт"},
-  {name:"Рукавички",group:"Витратні матеріали",unit:"шт"},
-  {name:"Саморіз по металу 3,5*9,5 (1000шт)",group:"Кріпильні вироби",unit:"кор"},
-  {name:"Стрічка малярна 38мм*50",group:"Оздоблювальні матеріали",unit:"шт"},
-  {name:"Шпаклівка фінішна гіпсова НР-фініш 25кг",group:"Оздоблювальні матеріали",unit:"шт"},
-  {name:"Штукатурка цементно-вапняна Р403 24кг",group:"Сухі суміші, розчини",unit:"шт"},
-  {name:"Кріплення для штукатурних маяків уп.100шт",group:"Кріпильні вироби",unit:"кор"},
-  {name:"Щебінь фр.20-40",group:"Нерудні матеріали",unit:"м³"},
-  {name:"Щебінь фр.5-20",group:"Нерудні матеріали",unit:"м³"},
-  {name:"Пісок річковий",group:"Нерудні матеріали",unit:"м³"},
-  {name:"Асфальтобетон гарячий",group:"Дорожні матеріали",unit:"т"},
-  {name:"Бітумна емульсія",group:"Дорожні матеріали",unit:"т"},
-  {name:"Труба каналізаційна ПВХ SN8 ⌀200",group:"Каналізація",unit:"пог.м"},
-  {name:"Труба каналізаційна ПВХ SN8 ⌀315",group:"Каналізація",unit:"пог.м"},
-  {name:"Люк чавунний тип Т",group:"Каналізація",unit:"шт"},
-  {name:"Цемент М400 50кг",group:"Сухі суміші, розчини",unit:"шт"},
-];
+// MATS_DB — дані приходять з Довідника
+const MATS_DB = [];
 
 // ================================================================
 // STATE
@@ -751,7 +636,7 @@ function updateHeaderDate() {
 // ================================================================
 // PIN — пін-коди бригадирів (4 цифри → ключ у USERS)
 // ================================================================
-const SCRIPT_URL_REF = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
+// URL не потрібен — google.script.run звертається напряму
 
 // PIN_MAP будується динамічно з Довідника (див. loadPinMap)
 // Резервні піни на випадок недоступності мережі:
@@ -839,35 +724,28 @@ function startApp(userKey) {
   // Показуємо лоадер поверх форми
   showFormLoader('Завантаження даних...');
 
-  // Запит до Довідника
-  fetch(SCRIPT_URL_REF + '?action=getReference&brigade=' + userKey)
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) throw new Error(data.error || 'Помилка довідника');
+  // Запит до Довідника через fetch
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
+  fetch(SCRIPT_URL + '?action=getReference&brigade=' + userKey)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.ok) { hideFormLoader(); alert('Помилка: ' + data.error); return; }
 
-      // Зберігаємо в кеш
       REFERENCE_CACHE[userKey] = data;
-
-      // Оновлюємо PIN_MAP з реальними пінами довідника (якщо прийшли)
-      // (скрипт поки не повертає піни — безпека, але можна додати)
-
-      // Оновлюємо currentUser даними з довідника
       currentUser.name    = data.brigadierName || u.name;
       currentUser.objType = data.objType || u.objType;
       document.getElementById('h-name').textContent = currentUser.name;
 
-      // Записуємо дані у глобальні змінні для сумісності з існуючими функціями
       BRIGADE_WORKERS[userKey] = data.workers || [];
       BRIGADE_OBJ[userKey]     = data.objects || [];
       if (data.allActiveObjects) currentUser.allActiveObjects = data.allActiveObjects;
-      if (data.works)   window._WORKS_DB_LIVE = data.works;
-      if (data.mats)    window._MATS_DB_LIVE  = data.mats;
-      if (data.tech)    window._TECH_LIVE      = data.tech;
-      if (data.transport) window._TRANSPORT_LIVE = data.transport;
+      if (data.works)     window._WORKS_DB_LIVE    = data.works;
+      if (data.mats)      window._MATS_DB_LIVE     = data.mats;
+      if (data.tech)      window._TECH_LIVE        = data.tech;
+      if (data.transport) window._TRANSPORT_LIVE   = data.transport;
 
       hideFormLoader();
 
-      // Показуємо всі секції
       ['obj-section','time-section','workers-section','works-section',
        'mats-section','tech-section','transport-section','notes-section','submit-section']
         .forEach(id => document.getElementById(id).style.display = 'block');
@@ -882,22 +760,10 @@ function startApp(userKey) {
       updateProgress();
       window.scrollTo(0, 0);
     })
-    .catch(err => {
+    .catch(function(err) {
       hideFormLoader();
-      console.warn('Довідник недоступний, використовую локальні дані:', err);
-      // Fallback — використовуємо захардкоджені дані
-      ['obj-section','time-section','workers-section','works-section',
-       'mats-section','tech-section','transport-section','notes-section','submit-section']
-        .forEach(id => document.getElementById(id).style.display = 'block');
-      state = { obj:null, objCity:null, objStreet:null, workers:[], works:[], mats:[], tech:{}, transport:[], workerHours:{} };
-      buildObjSection();
-      buildWorkerTags();
-      buildTechSection();
-      buildTransportSection();
-      buildMatsDeliveryBlock();
-      buildTimeSelects();
-      updateProgress();
-      window.scrollTo(0, 0);
+      alert('Помилка завантаження даних. Перевірте інтернет.
+' + err);
     });
 }
 
@@ -2446,7 +2312,7 @@ function submitForm() {
   if (state.workers.length===0) { alert('Оберіть хоча б одного працівника'); return; }
   if (state.works.length===0) { alert('Додайте хоча б одну виконану роботу'); return; }
 
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
+  // google.script.run не потребує URL
 
   const times = getTimeValues();
   const payload = {
@@ -2473,15 +2339,16 @@ function submitForm() {
   document.getElementById('loading-overlay').style.display = 'flex';
   window.scrollTo(0, 0);
 
-  fetch(SCRIPT_URL, {
+  const SCRIPT_URL_POST = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
+  fetch(SCRIPT_URL_POST, {
     method: 'POST',
     body: JSON.stringify(payload),
     headers: { 'Content-Type': 'text/plain' }
   })
-  .then(r => r.json())
-  .then(data => {
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    document.getElementById('loading-overlay').style.display = 'none';
     if (data.success) {
-      document.getElementById('loading-overlay').style.display = 'none';
       document.getElementById('preview-screen').style.display = 'none';
       document.getElementById('main-form').style.display = 'none';
       document.getElementById('success-details').innerHTML =
@@ -2491,13 +2358,13 @@ function submitForm() {
         `<br><br><span style="font-size:12px;opacity:.6">ID: ${data.reportId}</span>`;
       document.getElementById('success-overlay').style.display = 'flex';
     } else {
-      document.getElementById('loading-overlay').style.display = 'none';
       alert('Помилка: ' + (data.error || 'невідома'));
     }
   })
-  .catch(err => {
+  .catch(function(err) {
     document.getElementById('loading-overlay').style.display = 'none';
-    alert('Помилка з\'єднання. Перевірте інтернет і спробуйте ще раз.\n' + err);
+    alert('Помилка зʼєднання. Перевірте інтернет.
+' + err);
   });
 }
 
