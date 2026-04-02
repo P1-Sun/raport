@@ -1,0 +1,2524 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Рапорт бригадира</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F4F2ED; --surface:#fff; --surface2:#F0EDE6; --border:#D8D4CC;
+  --focus:#2A5C3F; --text:#1A1A18; --text2:#5A5750; --text3:#9A958E;
+  --accent:#2A5C3F; --accent-l:#E8F2EC; --accent-d:#1E4A2E;
+  --danger:#C0392B; --warn:#C8873A;
+  --tag-bg:#EFF7F2; --tag-border:#B8D9C4; --tag-text:#1E4A2E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
+.app-wrap{max-width:760px;margin:0 auto}
+
+.brig-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.brig-btn{padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface);cursor:pointer;text-align:left;transition:all .15s;font-family:inherit}
+.brig-btn:hover{border-color:var(--accent);background:var(--accent-l)}
+.brig-btn.active{border-color:var(--accent);background:var(--accent-l)}
+.brig-btn .brig-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+.brig-btn .brig-sub{font-size:12px;color:var(--text3);margin-top:3px}
+
+/* LOGIN CSS kept minimal - not used */
+
+/* HEADER */
+.header{background:var(--accent);padding:20px 24px 16px;position:sticky;top:0;z-index:100;text-align:center}
+.header-inner{max-width:760px;margin:0 auto}
+.header-name{color:#fff;font-size:22px;font-weight:600;letter-spacing:-0.3px;line-height:1.2}
+.header-date{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px;font-family:'IBM Plex Mono',monospace}
+.date-btn{padding:4px 11px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.55);transition:all .15s;user-select:none}
+.date-btn:hover{color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.5)}
+.date-btn.active{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.6)}
+.date-btn-today{padding:6px 18px;border-radius:20px;font-size:14px;font-weight:700;cursor:pointer;border:2px solid rgba(255,255,255,.8);color:#fff;background:rgba(255,255,255,.15);transition:all .15s;user-select:none}
+.date-btn-today.active{background:#fff;color:var(--accent);border-color:#fff}
+.logout-btn{background:rgba(255,255,255,.15);border:none;color:#fff;font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit}
+.progress-bar{height:3px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:10px}
+.progress-fill{height:100%;background:#7EC8A0;border-radius:2px;transition:width .4s}
+
+/* SECTIONS */
+.section{background:var(--surface);margin:10px 12px;border-radius:12px;border:1px solid var(--border)}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--surface2);background:var(--surface2)}
+.section-title{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.6px;text-transform:uppercase;padding-left:10px;border-left:3px solid var(--accent)}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.badge-req{background:#FDE8E5;color:#8B2012}
+.badge-opt{background:var(--surface);color:var(--text3);border:1px solid var(--border)}
+.section-body{padding:14px 16px 18px}
+
+/* FIELDS */
+.field{margin-bottom:13px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:13px;color:var(--text2);font-weight:500;margin-bottom:4px}
+.field input,.field select,.field textarea{
+  width:100%;font-family:'IBM Plex Sans',sans-serif;font-size:14px;
+  padding:9px 12px;border:1px solid var(--border);border-radius:8px;
+  background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;-webkit-appearance:none
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{resize:none;line-height:1.5}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* TIME ROW */
+.time-row{display:flex;gap:10px;align-items:stretch}
+.time-block{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+.time-block label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;text-align:center}
+.time-selects{display:flex;gap:4px;align-items:center}
+.time-sel{width:72px;font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;padding:7px 8px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none;cursor:pointer;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;background-image:none}
+.time-sel:focus{border-color:var(--accent)}
+.time-sep{font-size:18px;font-weight:700;color:var(--text3);flex-shrink:0}
+.time-calc{background:var(--accent-l);border:1px solid var(--tag-border);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.time-calc-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.time-calc-val{font-size:16px;font-weight:700;color:var(--accent);font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+
+/* OBJ PILLS */
+.obj-pills{display:flex;flex-wrap:wrap;gap:6px}
+.obj-pill{padding:7px 13px;border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;background:var(--surface);transition:all .15s;white-space:nowrap}
+.obj-pill:hover{border-color:var(--accent)}
+.obj-pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* WORKER / TECH TAGS */
+.tag-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.wtag{padding:6px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;background:var(--surface);transition:all .15s;user-select:none}
+.wtag:hover{border-color:var(--accent)}
+.wtag.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+
+/* TECH — компактні теги + розгортання тільки активних */
+.tech-tags-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.tech-tag-btn{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:var(--surface);transition:all .15s;user-select:none;white-space:nowrap;font-family:inherit}
+.tech-tag-btn:hover{border-color:var(--accent);background:var(--accent-l)}
+.tech-tag-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.fuel-src-btn{padding:6px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text2);transition:all .15s;user-select:none;font-family:inherit}
+.fuel-src-btn:hover{border-color:var(--accent);color:var(--accent)}
+.fuel-src-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tech-panels{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.tech-panel{background:var(--tag-bg);border:1px solid var(--tag-border);border-radius:10px;padding:12px 14px;animation:fadeIn .2s ease}
+.tech-panel-title{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px}
+.tech-panel-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tech-panel-row label{font-size:12px;color:var(--text2);font-weight:500;display:block;margin-bottom:5px}
+.tech-panel-row input{width:100%;font-family:'IBM Plex Mono',monospace;font-size:15px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
+.tech-panel-row input:focus{border-color:var(--accent)}
+.tech-panel-summary{font-size:12px;color:var(--text3);margin-top:8px;font-family:'IBM Plex Mono',monospace}
+
+/* SEARCH */
+.search-wrap{position:relative}
+.si{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.search-wrap input{padding-left:34px !important}
+.dd-list{position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;z-index:500;box-shadow:0 8px 32px rgba(0,0,0,.15);max-height:420px;overflow-y:auto}
+.dd-item{padding:9px 13px;cursor:pointer;border-bottom:1px solid var(--surface2);transition:background .1s}
+.dd-item:last-child{border-bottom:none}
+.dd-item:hover{background:var(--accent-l)}
+.dd-name{font-size:14px;color:var(--text);line-height:1.3}
+.dd-name mark{background:#C8E8D4;color:var(--accent);border-radius:2px;padding:0 1px;font-style:normal}
+.dd-meta{font-size:12px;color:var(--text3);margin-top:1px}
+.dd-empty{padding:13px;text-align:center;font-size:13px;color:var(--text3)}
+
+/* ADDED ITEMS */
+.items-list{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.added-item{background:#D4EDE1;border:1.5px solid #8DC9AB;border-radius:10px;padding:10px 12px;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+.added-main{display:flex;align-items:center;gap:8px}
+.added-info{flex:1;min-width:0}
+.added-name{font-size:13px;font-weight:600;color:#1A3D28;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.added-group{font-size:11px;color:#3B7A56;margin-top:2px}
+.qty-wrap{display:flex;align-items:center;gap:4px}
+.qty-input{width:70px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:6px 8px;border:1px solid #8DC9AB;border-radius:7px;background:#fff;color:var(--text);outline:none}
+.qty-input:focus{border-color:var(--accent)}
+.unit-input-small{width:52px;font-size:13px;padding:6px 7px;border:1px solid #8DC9AB;border-radius:7px;background:#fff;color:var(--text);outline:none;font-family:inherit}
+.unit-input-small:focus{border-color:var(--accent)}
+.remove-btn{background:none;border:none;cursor:pointer;color:#3B7A56;font-size:20px;line-height:1;padding:0 2px;flex-shrink:0;transition:color .15s}
+.remove-btn:hover{color:var(--danger)}
+
+/* MAT EXTRA FIELDS */
+.mat-extra{margin-top:8px;padding-top:8px;border-top:1px dashed var(--tag-border);display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mat-extra input{width:100%;font-size:13px;padding:6px 9px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none;font-family:inherit}
+.mat-extra input:focus{border-color:var(--accent)}
+.mat-extra input::placeholder{color:var(--text3);font-size:12px}
+
+/* MANUAL ROW */
+.or-div{display:flex;align-items:center;gap:8px;margin:12px 0}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--border)}
+.or-div span{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.sub-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.sub-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.manual-row{display:flex;gap:7px;align-items:center}
+.manual-row input:first-child{flex:1}
+.manual-row .mq{width:68px}
+.manual-row .mu{width:54px}
+.add-manual-btn{background:none;border:1px solid var(--accent);color:var(--accent);border-radius:7px;padding:7px 11px;font-size:18px;cursor:pointer;line-height:1;transition:all .15s}
+.add-manual-btn:hover{background:var(--accent-l)}
+
+/* TRANSPORT SECTION */
+.transport-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.transport-item{background:var(--tag-bg);border:1px solid var(--tag-border);border-radius:8px;padding:10px 12px}
+.transport-item-header{display:flex;align-items:center;gap:8px}
+.transport-item-name{flex:1;font-size:13px;font-weight:500}
+.transport-fuel-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.transport-fuel-row input{font-size:13px;padding:6px 9px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none;font-family:inherit;width:100%}
+
+/* SUBMIT */
+.preview-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.preview-card-header{background:var(--surface2);padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.preview-card-title{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;padding-left:8px;border-left:3px solid var(--accent)}
+.preview-card-body{padding:10px 14px}
+.preview-row{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--surface2);font-size:14px}
+.preview-row:last-child{border-bottom:none}
+.preview-label{color:var(--text2);font-size:13px}
+.preview-val{color:var(--text);font-weight:600}
+.preview-badge{display:inline-block;font-size:13px;padding:3px 10px;border-radius:10px;margin:2px 2px 0 0}
+.preview-empty{font-size:13px;color:var(--text3);font-style:italic;padding:8px 0}
+.submit-btn{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all .15s}
+.submit-btn:hover{background:var(--accent-d)}
+.submit-btn:active{transform:scale(.99)}
+
+/* SUCCESS */
+.success-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;text-align:center}
+.success-icon{width:64px;height:64px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.success-title{font-size:22px;font-weight:600;margin-bottom:8px}
+.success-sub{font-size:15px;color:var(--text2);margin-bottom:28px;line-height:1.6}
+.new-btn{padding:12px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
+
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239A958E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px !important}
+
+/* ===== PIN SCREEN ===== */
+#pin-screen{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.pin-app-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:28px}
+.pin-brig-name{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-0.3px;text-align:center}
+.pin-hint{font-size:14px;color:rgba(255,255,255,.55);margin-bottom:32px}
+.pin-dots{display:flex;gap:14px;margin-bottom:36px}
+.pin-dot{width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .18s}
+.pin-dot.filled{background:#fff;transform:scale(1.12)}
+.pin-dot.error{background:#ff6b6b}
+.pin-grid{display:grid;grid-template-columns:repeat(3,80px);gap:12px}
+.pin-key{width:80px;height:80px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:26px;font-weight:600;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s;user-select:none;-webkit-tap-highlight-color:transparent}
+.pin-key:active{background:rgba(255,255,255,.35);transform:scale(.92)}
+.pin-key.k-del{font-size:22px}
+.pin-key.k-empty{visibility:hidden;cursor:default}
+.pin-msg{min-height:20px;margin-top:18px;font-size:13px;font-weight:600;color:#ffb3b3;text-align:center}
+@keyframes pinShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.pin-shake{animation:pinShake .35s ease}
+</style>
+</head>
+<body>
+
+<!-- ==================== PIN SCREEN ==================== -->
+<div id="pin-screen">
+  <div class="pin-app-label">Щоденний рапорт</div>
+  <div class="pin-brig-name" id="pin-brig-name">Введіть пін-код</div>
+  <div class="pin-hint">для входу у свій звіт</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-grid">
+    <button class="pin-key" onclick="pinPress('1')">1</button>
+    <button class="pin-key" onclick="pinPress('2')">2</button>
+    <button class="pin-key" onclick="pinPress('3')">3</button>
+    <button class="pin-key" onclick="pinPress('4')">4</button>
+    <button class="pin-key" onclick="pinPress('5')">5</button>
+    <button class="pin-key" onclick="pinPress('6')">6</button>
+    <button class="pin-key" onclick="pinPress('7')">7</button>
+    <button class="pin-key" onclick="pinPress('8')">8</button>
+    <button class="pin-key" onclick="pinPress('9')">9</button>
+    <button class="pin-key k-empty" disabled></button>
+    <button class="pin-key" onclick="pinPress('0')">0</button>
+    <button class="pin-key k-del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-msg" id="pin-msg"></div>
+</div>
+
+<div class="app-wrap" id="app-wrap" style="display:none">
+<!-- ==================== MAIN FORM ==================== -->
+<div id="main-form">
+  <div class="header">
+    <div class="header-inner">
+      <div id="h-name" class="header-name">Щоденний рапорт</div>
+      <div id="h-date" class="header-date"></div>
+      <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:10px" id="date-btns">
+        <div class="date-btn-today active" id="dbtn-0" onclick="selectReportDate(0)">Сьогодні</div>
+        <div class="date-btn" id="dbtn-1" onclick="selectReportDate(1)">Вчора</div>
+        <div class="date-btn" id="dbtn-2" onclick="selectReportDate(2)">Позавчора</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- БРИГАДИР -->
+  <div class="section">
+    <div class="section-header"><span class="section-title">Бригадир</span><span class="badge badge-req">обов'язково</span></div>
+    <div class="section-body">
+      <div class="brig-grid" id="brig-grid"></div>
+    </div>
+  </div>
+
+  <!-- OBJ -->
+  <div class="section" id="obj-section" style="display:none">
+    <div class="section-header"><span class="section-title">Об'єкт</span><span class="badge badge-req">обов'язково</span></div>
+    <div class="section-body" id="obj-body"></div>
+  </div>
+
+  <!-- TIME -->
+  <div class="section" id="time-section" style="display:none">
+    <div class="section-header"><span class="section-title">Час та тривалість</span><span class="badge badge-req">обов'язково</span></div>
+    <div class="section-body">
+      <div class="time-row">
+        <div class="time-block">
+          <label>Початок</label>
+          <div class="time-selects">
+            <select class="time-sel" id="ts-h" onchange="calcTime()"></select>
+            <span class="time-sep">:</span>
+            <select class="time-sel" id="ts-m" onchange="calcTime()"></select>
+          </div>
+        </div>
+        <div class="time-block">
+          <label>Кінець</label>
+          <div class="time-selects">
+            <select class="time-sel" id="te-h" onchange="calcTime()"></select>
+            <span class="time-sep">:</span>
+            <select class="time-sel" id="te-m" onchange="calcTime()"></select>
+          </div>
+        </div>
+        <div class="time-calc">
+          <span class="time-calc-label">Разом</span>
+          <span class="time-calc-val" id="time-calc">9 год 30 хв</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKERS -->
+  <div class="section" id="workers-section" style="display:none">
+    <div class="section-header"><span class="section-title">Працівники</span><span class="badge badge-req">обов'язково</span></div>
+    <div class="section-body">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div id="select-all-btn" onclick="toggleSelectAllWorkers()"
+          style="font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;padding:4px 10px;border:1px solid var(--tag-border);border-radius:6px;background:var(--accent-l);user-select:none">
+          Вибрати всіх
+        </div>
+        <span style="font-size:12px;color:var(--text3)" id="workers-count-label">Обрано: 0</span>
+      </div>
+      <div class="tag-wrap" id="worker-tags"></div>
+
+      <!-- Додаткові теги вручну доданих -->
+      <div class="tag-wrap" id="worker-extra-tags" style="margin-top:4px"></div>
+
+      <!-- Кнопка індивідуальних годин -->
+      <div style="margin-top:10px">
+        <div id="worker-hours-btn" onclick="toggleWorkerHours()"
+          style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);user-select:none">
+          <span>⏱</span> Змінити години індивідуально <span id="hours-arrow">▾</span>
+        </div>
+      </div>
+      <div id="worker-hours-box" style="display:none;margin-top:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px">
+        <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Години роботи — індивідуально</div>
+        <div id="worker-hours-list"></div>
+      </div>
+
+      <div class="or-div"><span>або додати іншого</span></div>
+
+      <!-- Пошук + кнопка додати -->
+      <div style="display:flex;gap:8px;align-items:flex-start;position:relative">
+        <input type="text" id="worker-search" placeholder="Пошук або ввід вручну..." autocomplete="off"
+          style="flex:1;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+          oninput="filterWorkers()" onfocus="this.style.borderColor='var(--accent)';filterWorkers()"
+          onblur="setTimeout(()=>{document.getElementById('worker-dd').style.display='none'},200);this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')addExtraWorker()">
+        <div class="dd-list" id="worker-dd" style="display:none;top:calc(100% + 3px)"></div>
+        <div onclick="addExtraWorker()"
+          style="padding:9px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">
+          Додати
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:12px">
+        <label>Примітки (відсутні, понаднормові)</label>
+        <input type="text" id="worker-notes" placeholder="необов'язково">
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKS -->
+  <div class="section" id="works-section" style="display:none">
+    <div class="section-header"><span class="section-title">Виконані роботи</span><span class="badge badge-req">обов'язково</span></div>
+    <div class="section-body" style="display:flex;flex-direction:column;gap:10px">
+      <div id="works-list"></div>
+      <div class="sub-card">
+        <div class="sub-label">Зі списку кошторису</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative">
+          <div style="position:relative;flex:2;min-width:200px">
+            <input type="text" id="work-search" placeholder="Пошук роботи зі списку кошторису..." autocomplete="off"
+              style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box"
+              oninput="filterDD('work')" onfocus="this.style.borderColor='var(--accent)';filterDD('work')"
+              onblur="setTimeout(()=>document.getElementById('work-dd').style.display='none',300);this.style.borderColor='var(--border)'">
+            <div class="dd-list" id="work-dd" style="display:none"></div>
+          </div>
+          <input type="number" id="w-qty" placeholder="К-сть" min="0"
+            style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          <input type="text" id="w-unit" placeholder="од."
+            style="width:60px;font-family:inherit;font-size:14px;padding:9px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          <div onclick="addWorkFromFields()"
+            style="padding:9px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">Додати</div>
+        </div>
+      </div>
+      <div class="sub-card">
+        <div class="sub-label">Інші роботи</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="text" id="ew-name" placeholder="Назва роботи"
+            style="flex:1;min-width:160px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          <input type="number" id="ew-qty" placeholder="К-сть" min="0"
+            style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          <input type="text" id="ew-unit" placeholder="од."
+            style="width:60px;font-family:inherit;font-size:14px;padding:9px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);user-select:none;white-space:nowrap;transition:all .15s" id="lbl-partial">
+            <input type="radio" name="work-type" value="partial" checked style="accent-color:var(--accent);cursor:pointer" onchange="updateWorkTypeLabel()">
+            частина кошторисної
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);user-select:none;white-space:nowrap;transition:all .15s" id="lbl-extra">
+            <input type="radio" name="work-type" value="extra" style="accent-color:var(--accent);cursor:pointer" onchange="updateWorkTypeLabel()">
+            не за кошторисом
+          </label>
+          <div onclick="addManualWork()"
+            style="margin-left:auto;padding:9px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">Додати</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATS -->
+  <div class="section" id="mats-section" style="display:none">
+    <div class="section-header"><span class="section-title">Матеріали</span><span class="badge badge-opt">якщо були</span></div>
+    <div class="section-body" style="display:flex;flex-direction:column;gap:10px">
+
+      <!-- Зі списку кошторису — завжди -->
+      <div id="mats-list"></div>
+      <div class="sub-card">
+        <div class="sub-label">Зі списку кошторису</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative">
+          <div style="position:relative;flex:2;min-width:200px">
+            <input type="text" id="mat-search" placeholder="Пошук матеріалу зі списку кошторису..." autocomplete="off"
+              style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box"
+              oninput="filterDD('mat')" onfocus="this.style.borderColor='var(--accent)';filterDD('mat')"
+              onblur="setTimeout(()=>document.getElementById('mat-dd').style.display='none',300);this.style.borderColor='var(--border)'">
+            <div class="dd-list" id="mat-dd" style="display:none"></div>
+          </div>
+          <input type="number" id="m-qty" placeholder="К-сть" min="0"
+            style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          <input type="text" id="m-unit" placeholder="од."
+            style="width:60px;font-family:inherit;font-size:14px;padding:9px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          <div onclick="addMatFromFields()"
+            style="padding:9px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">Додати</div>
+        </div>
+      </div>
+
+      <!-- Поставка (для дорожників) / Документ+Фото (для решти) — будується JS -->
+      <div id="mats-delivery-block"></div>
+
+    </div>
+  </div>
+
+  <!-- TECH -->
+  <div class="section" id="tech-section" style="display:none">
+    <div class="section-header"><span class="section-title">Спецтехніка</span><span class="badge badge-opt">якщо була</span></div>
+    <div class="section-body">
+      <!-- Додана техніка -->
+      <div id="tech-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:10px" id="tech-hint">Натисніть на техніку щоб вказати дані</p>
+      <div class="tech-tags-wrap" id="tech-wrap"></div>
+      <div class="tech-panels" id="tech-panels"></div>
+    </div>
+  </div>
+
+  <!-- TRANSPORT -->
+  <div class="section" id="transport-section" style="display:none">
+    <div class="section-header"><span class="section-title">Заправка транспорту</span><span class="badge badge-opt">якщо заправляли</span></div>
+    <div class="section-body">
+      <div id="transport-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:10px" id="trans-hint">Оберіть авто щоб вказати дані заправки</p>
+      <div class="tech-tags-wrap" id="trans-wrap"></div>
+      <div class="tech-panels" id="trans-panels"></div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="section" id="notes-section" style="display:none">
+    <div class="section-header"><span class="section-title">Примітки</span><span class="badge badge-opt">необов'язково</span></div>
+    <div class="section-body">
+      <div class="field">
+        <textarea id="notes" rows="3" placeholder="Поломки, затримки, нестандартні ситуації..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="submit-section" id="submit-section" style="display:none">
+    <div style="display:flex;gap:10px">
+      <button class="submit-btn" style="background:var(--surface2);color:var(--accent);border:1.5px solid var(--accent);flex:1" onclick="showPreview()">Переглянути</button>
+      <button class="submit-btn" style="flex:1" onclick="submitForm()">Відправити рапорт</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIEW SCREEN -->
+<div class="app-wrap" id="preview-screen" style="display:none;padding-bottom:60px">
+  <div style="background:var(--accent);padding:20px 24px 16px;position:sticky;top:0;z-index:100;text-align:center">
+    <div style="color:#fff;font-size:18px;font-weight:600">Перегляд рапорту</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:3px;font-family:'IBM Plex Mono',monospace" id="preview-date"></div>
+  </div>
+  <div id="preview-body" style="padding:12px"></div>
+  <div style="padding:20px;display:flex;gap:10px">
+    <button onclick="closePreview()" style="flex:1;padding:14px;background:var(--surface2);color:var(--accent);border:1.5px solid var(--accent);border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">← Редагувати</button>
+    <button id="preview-submit-btn" onclick="submitForm()" style="flex:1;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">Відправити рапорт</button>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:1000;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+  <div style="background:#fff;border-radius:16px;padding:36px 48px;text-align:center;max-width:300px">
+    <div style="margin-bottom:20px">
+      <svg width="48" height="48" viewBox="0 0 48 48" style="animation:spin 1s linear infinite">
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#E8F2EC" stroke-width="4"/>
+        <path d="M24 4 a20 20 0 0 1 20 20" fill="none" stroke="#2A5C3F" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div style="font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:6px">Відправляємо рапорт...</div>
+    <div style="font-size:13px;color:#888">Зазвичай займає 5–15 секунд</div>
+  </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div id="success-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:999;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center">
+  <div style="width:80px;height:80px;background:#2A5C3F;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:24px">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><path d="M8 18l7 7 13-14" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div style="font-size:24px;font-weight:700;color:#1a1a1a;margin-bottom:8px">Рапорт відправлено!</div>
+  <div id="success-details" style="font-size:14px;color:#555;line-height:1.6;margin-bottom:36px;max-width:320px"></div>
+  <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px">
+    <button onclick="newReport()" style="padding:14px;background:#2A5C3F;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">
+      📋 Подати ще один рапорт
+    </button>
+    <button onclick="window.close()" style="padding:14px;background:transparent;color:#888;border:1.5px solid #ddd;border-radius:10px;font-family:inherit;font-size:15px;cursor:pointer">
+      ✕ Закрити сторінку
+    </button>
+  </div>
+</div>
+
+</div><!-- /app-wrap -->
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+/* MAT TAGS */
+.mat-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.mat-tag-blue{background:#E6F1FB;color:#0C447C;border-color:#B8D4F0}
+
+</style>
+
+<script>
+// ================================================================
+// USERS — логін:пароль:ім'я:бригада
+// Щоб змінити пароль — знайдіть рядок і замініть значення після двокрапки
+// ================================================================
+const USERS = {
+  'besarab':   { pass:'Besarab2026',  name:'Бесараб Олександр',  brigade:'besarab',   objType:'fixed'   },
+  'nalyvayko': { pass:'Nalyv2026',    name:'Наливайко Віталій',  brigade:'nalyvayko', objType:'fixed'   },
+  'gena':      { pass:'Gena2026',     name:'Молодий Геннадій',   brigade:'gena',      objType:'fixed'   },
+  'milan':     { pass:'Milan2026',    name:'Молодий Мілан',      brigade:'milan',     objType:'address' },
+  'shulga':    { pass:'Shulga2026',   name:'Шульга Артем',       brigade:'shulga',    objType:'street'  },
+  'yura':      { pass:'Yura2026',     name:'Алєксін Юра',        brigade:'yura',      objType:'street'  },
+  'olsh':      { pass:'Olsh2026',     name:'Ольшовський Саша',   brigade:'olsh',      objType:'address' },
+};
+// objType:
+//   'fixed'   — кнопки фіксованих обʼєктів + "+ інший"  (Бесараб, Геннадій, Наливайко)
+//   'street'  — два поля: Нас. пункт + Вулиця            (Алєксін, Шульга)
+//   'address' — два поля + кнопка "Обʼєкт іншої бригади" (Мілан, Ольшовський)
+
+// ================================================================
+// OBJ per brigade
+// ================================================================
+const BRIGADE_OBJ = {
+  besarab:   ['ЧОП М-25','Каналізація КІД ЕНЕРГО'],
+  nalyvayko: ['Перечин','Ужгород ОВА','Ільниця (дах + фасад)','Ільниця (благоустрій)'],
+  gena:      ['Ужгород, вул. Карпатська Україна'],
+  milan:     [], // objType:'address' — вводить вручну
+  shulga:    [], // objType:'street'  — вводить вручну
+  yura:      [], // objType:'street'  — вводить вручну
+  olsh:      [], // objType:'address' — вводить вручну
+};
+
+// Всі активні обʼєкти інших бригад — для кнопки "Обʼєкт іншої бригади"
+function getOtherBrigadeObjs() {
+  // Якщо є живі дані з Довідника — використовуємо їх
+  if (currentUser.allActiveObjects) return currentUser.allActiveObjects;
+  // Fallback — з локальних даних
+  const myBrigade = currentUser.brigade;
+  const result = [];
+  Object.entries(BRIGADE_OBJ).forEach(([brig, objs]) => {
+    if (brig === myBrigade) return;
+    const brigUser = Object.values(USERS).find(u => u.brigade === brig);
+    const brigName = brigUser ? brigUser.name : brig;
+    objs.forEach(o => result.push({ obj: o, brigadier: brigName }));
+  });
+  return result;
+}
+
+// ================================================================
+// WORKERS per brigade
+// ================================================================
+const BRIGADE_WORKERS = {
+  shulga: ['Шульга Артем','Гончаренко Михайло','Кравчатий Юрій','Патенко Сергій','Андрущенко Саша','Щерба Вадим','Щербенко Сергій','Бобришев Сергій','Патенко Дмитро','Попович Владислав','Сафонов Роман','Симаков Михайло','Суббот Юрій'],
+  nalyvayko: ['Наливайко Віталій','Данильчук Олексій','Годун Саша','Василишин Ігор','Хільчук','Євчук Микола','Забейда Андрій','Іванощак Богдан','Главук Микола','Наливайко Степан','Петрина Руслан','Примак Андрій','Стецюк Тарас','Швидкий Василь','Юхимець Саша','Гоголь Павло','Левчук Олег','Наливайко Юрій','Нищота Дмитро','Опанасюк Петро','Грищук Тарас','Колесник Володимир','Кулик Юрій','Рибак Ігор'],
+  gena: ['Вітрочка Геннадій','Баняс Роман','Білик Роман','Демʼянчук Іван','Деркачук Микола','Дідик','Макаренко Костя','Макарчук Андрій','Максим Молодий','Олексійчук Саша','Сандуляк'],
+  milan: ['Мілан Молодий','Гончук Вова','Лакатош Іван','Міговк','Бердалик Мирослав','Свищо Михайло','Тхорик','Михайленко','Ціцей Іван'],
+  yura: ['Алєксін Юра','Олінчук Сергій','Рижий Саша','Педченко Максим','Аксюта Андрій','Карюкін Саша','Данилець Олег','Кондратенко Володимир','Пацерін Стас','Фішер Михайло','Щуковський Кирило'],
+  besarab: ['Безсараб Саша','Аністрат Саша','Каналош Ярослав','Касінець Юра','Андрущенко Влад','Копичак Іван','Мусійченко Роман','Бруснік Віктор','Пилипців Микола','Кадай Андрій','Дмитришин Павло','Кадай Дмитро','Паздерський Роман','Чепляк Юрій','Торола Василь','Шуляк Роман'],
+  olsh: ['Ошовський Саша','Жук Олег','Крестов Євген','Кульбаченко Роман','Лінік Максим','Матус Артур','Мусійченко Роман'],
+};
+
+// All workers flat list for cross-brigade search
+const ALL_WORKERS = [...new Set(Object.values(BRIGADE_WORKERS).flat())].sort();
+
+// ================================================================
+// TECH LIST (from PDF)
+// ================================================================
+const TECH_LIST = [
+  {name:'Bitelli BB621', num:'52795 ВК'},
+  {name:'Bobcat E50', num:'53314 ВК'},
+  {name:'Bobcat S750', num:'53304 ВК'},
+  {name:'Bomag BW135AD', num:'52793 ВК'},
+  {name:'Case 695 Super R', num:'Т01932 ВК'},
+  {name:'Develon SD300N', num:'60502 ВК'},
+  {name:'Doosan DH60-7', num:'T01936 ВК'},
+  {name:'Doosan SD300N (58965)', num:'58965 ВК'},
+  {name:'Doosan SD300N (T01934)', num:'T01934 ВК'},
+  {name:'Doosan SD300N Long', num:'Б/Н'},
+  {name:'Hamm HD075V', num:'55833 ВК'},
+  {name:'Hamm HD90', num:'58338 ВК'},
+  {name:'Hidromek HMK-102B', num:'б/н'},
+  {name:'JCB 3CX білий', num:'33625 АМ'},
+  {name:'JCB 3CX жовтий', num:'58954 ВК'},
+  {name:'JCB 535V125', num:'35826 АМ'},
+  {name:'JCB JS160W', num:'44462 ВК'},
+  {name:'JCB JZ140HD', num:'Т01855 ВК'},
+  {name:'LIUGONG CLG4165', num:'52792 ВК'},
+  {name:'STA VH850AK', num:'52794 ВК'},
+  {name:'Terex', num:'Б/Н'},
+  {name:'Vogele 1800 сірий', num:'58337 ВК'},
+  {name:'Vogele 1800 помаранч.', num:'48637 ВК'},
+  {name:'Volvo BL71B', num:'52788 ВК'},
+  {name:'Volvo EC55D', num:'Б/Н'},
+  {name:'Volvo EW180C', num:'Т01659 ВК'},
+  {name:'Wirtgen W 100 Fi', num:'57753 ВК'},
+  {name:'ZTL50G', num:'01792 АО'},
+];
+
+// ================================================================
+// TRANSPORT (легкові, буси, вантажні — НЕ спецтехніка)
+// ================================================================
+const TRANSPORT_LIST = [
+  'Ford Transit СВ0476ЕМ','Ford Transit 85T ВК8551АР','I-VAN A07A ВК0975АІ',
+  'Mercedes Vario ВК8216АВ','Mercedes 711D ВК5034ІС','Mercedes 812D ВК0529ВА',
+  'VW Caravelle АО7955МТ','VW LT35 ВК6249АЕ','VW LT35 ВС0026НР','VW LT35 ВК3430ІН',
+  'VW LT35 ВК1566НН','VW LT35 ВК2767ІК','VW LT35 ВК3655ІТ','VW LT35 АО1318ІІ',
+  'VW LT35D ВК3326ІК','VW Transporter ВК3802НМ','VW Transporter ВС7529ЕВ',
+  'VW Transporter ВО8502ЕТ','Dacia Duster АО4842ІЕ','Ssang Yong ВК5443ЕХ',
+  'Nissan Juke ВК2808ВК','Skoda Kodiaq ВС3306ХА','Lexus LX КА5022МК','Lexus LX KT1352АВ',
+  'DAF CF 85 ВК5143ІС','DAF CF 85 ВК8808СА','DAF XF ВК1520ІЕ','DAF XF ВК4412НМ',
+  'DAF XF ВК4382ІЕ','MAN 26.513 ВК2571НЕ','MAN 32.322 АВ9469АМ',
+  'Mercedes 1213 ВК5256АТ','Scania G420 ВХ3298АЕ','Volvo FM ВК8050СМ',
+  'Volvo FM ВК3239СО','Volvo FM9 АО6190НА','Volvo FMX КА0324МН','Volvo FMX КА0163МН',
+  'ГАЗ-5301 ВК3608ІТ','ЗИЛ 133 ВК9952ІІ','Камаз МДК АО7626ВА',
+  'КрАЗ 250 АА6434ТР','КрАЗ 255 ВК3593ІМ','КрАЗ 255Б СА4039ІЕ',
+  'КрАЗ 260B ВС1284НЕ','КрАЗ 65055 АО3656ВВ','МАЗ 5551 АО6984АС',
+  'Scania 124 АО2651АВ','ПАЗ ВК0043АА','ПАЗ ВК7420ВС',
+];
+
+// ================================================================
+// WORKS & MATS DB (same as v1, kept for brevity)
+// ================================================================
+const WORKS_DB = [
+  {name:"Демонтаж дверних коробок в кам'яних стінах з відбиванням штукатурки в укосах",group:"Демонтажні роботи",unit:"шт"},
+  {name:"Знімання дверних полотен",group:"Демонтажні роботи",unit:"м²"},
+  {name:"Знімання наличників",group:"Демонтажні роботи",unit:"м"},
+  {name:"Розбирання непоштукатуреної обшивки каркасно-обшивних дерев'яних стін",group:"Демонтажні роботи",unit:"м²"},
+  {name:"Розбирання облицювання стін з керамічних глазурованих плиток",group:"Демонтажні роботи",unit:"м²"},
+  {name:"Відбивання штукатурки по цеглі та бетону зі стін",group:"Демонтажні роботи",unit:"м²"},
+  {name:"Розбирання покриттів підлог з щитового паркету",group:"Демонтажні роботи",unit:"м²"},
+  {name:"Розбирання дощатих основ щитового паркету",group:"Демонтажні роботи",unit:"м²"},
+  {name:"Розбирання цегляних перегородок та стін",group:"Демонтажні роботи",unit:"м³"},
+  {name:"Демонтаж схованої електропроводки",group:"Демонтажні роботи",unit:"м"},
+  {name:"Демонтаж армстронгу",group:"Позапроектна",unit:"м²"},
+  {name:"Мурування окремих ділянок внутрішніх стін із цегли",group:"Загальнобудівельні роботи",unit:"м³"},
+  {name:"Готування кладкових цементно-вапняних розчинів, марка 50",group:"Загальнобудівельні роботи",unit:"м³"},
+  {name:"Улаштування перегородок з газобетонних блоків 150мм при висоті до 4м",group:"Загальнобудівельні роботи",unit:"м²"},
+  {name:"Монтаж перегородок збірно-розбірних з алюмінієвих сплавів зі склінням",group:"Загальнобудівельні роботи",unit:"м²"},
+  {name:"Установлення металевих дверних коробок із навішуванням дверних полотен",group:"Дверні конструкції",unit:"м²"},
+  {name:"Заповнення дверних прорізів ламінованими дверними блоками",group:"Дверні конструкції",unit:"блок"},
+  {name:"Просте штукатурення поверхонь стін всередені будівлі",group:"Оздоблювальні роботи",unit:"м²"},
+  {name:"Поліпшене штукатурення поверхонь стін всередені будівлі",group:"Оздоблювальні роботи",unit:"м²"},
+  {name:"Ремонт штукатурки внутрішніх стін, площа до 20 м²",group:"Оздоблювальні роботи",unit:"м²"},
+  {name:"Штукатурення плоских поверхонь віконних та дверних укосів",group:"Оздоблювальні роботи",unit:"м²"},
+  {name:"Прокладання проводів при схованій проводці",group:"Електромонтажні роботи",unit:"м"},
+  {name:"Ізоляція оголених проводів та демонтаж розеток 4-блокові",group:"Електромонтажні роботи",unit:"шт"},
+  {name:"Навантаження сміття вручну",group:"Інші роботи",unit:"т"},
+  {name:"Укладання асфальту",group:"Дорожні роботи",unit:"м²"},
+  {name:"Планування підстилаючого шару",group:"Дорожні роботи",unit:"пог.м"},
+  {name:"Фрезерування дорожнього покриття",group:"Дорожні роботи",unit:"м²"},
+  {name:"Влаштування основи з щебеню",group:"Дорожні роботи",unit:"м²"},
+  {name:"Розробка ґрунту екскаватором",group:"Земляні роботи",unit:"м³"},
+  {name:"Зворотне засипання ґрунту",group:"Земляні роботи",unit:"м³"},
+  {name:"Планування ґрунту бульдозером",group:"Земляні роботи",unit:"м²"},
+  {name:"Монтаж каналізаційних труб",group:"Каналізація",unit:"пог.м"},
+  {name:"Улаштування оглядових колодязів",group:"Каналізація",unit:"шт"},
+];
+
+const MATS_DB = [
+  {name:"Алюмінієвий каркас 12мм у комплекті з кріпленням",group:"Гіпсокартонні системи",unit:"м"},
+  {name:"Анкер-дюбель",group:"Кріпильні вироби",unit:"шт"},
+  {name:"Анкер-розпірний вбивний 6х35",group:"Кріпильні вироби",unit:"шт"},
+  {name:"Блоки газобетонні т.100 мм",group:"Цегла, блоки, бетонні вироби",unit:"м³"},
+  {name:"Блоки стінові 100*200*610/500",group:"Цегла, блоки, бетонні вироби",unit:"шт"},
+  {name:"Вапно будівельне негашене грудкове, сорт 1",group:"Сухі суміші, розчини",unit:"т"},
+  {name:"Вимикач автоматичний однополюсний 10А",group:"Електрообладнання",unit:"шт"},
+  {name:"Вимикач автоматичний однополюсний 16А",group:"Електрообладнання",unit:"шт"},
+  {name:"Вимикач двоклавішний",group:"Електромонтажні матеріали",unit:"шт"},
+  {name:"Витяжний вентилятор 50 м³/год 7Вт",group:"Вентиляція",unit:"шт"},
+  {name:"Дюбель ударний 6*40 гриб",group:"Кріпильні вироби",unit:"шт"},
+  {name:"Дюбель ударний 6*40 потай",group:"Кріпильні вироби",unit:"шт"},
+  {name:"Піна-клей монтажна пістолетна 750мл",group:"Кріпильні вироби",unit:"шт"},
+  {name:"Плівка захисна 20мк 4*5м",group:"Витратні матеріали",unit:"шт"},
+  {name:"Плівка захисна 60мк 4*5м",group:"Витратні матеріали",unit:"шт"},
+  {name:"Плівка для гідроізоляції 200мк 1,5м",group:"Витратні матеріали",unit:"м"},
+  {name:"Респіратор з клапаном протиаерозольний",group:"Витратні матеріали",unit:"шт"},
+  {name:"Рукавички",group:"Витратні матеріали",unit:"шт"},
+  {name:"Саморіз по металу 3,5*9,5 (1000шт)",group:"Кріпильні вироби",unit:"кор"},
+  {name:"Стрічка малярна 38мм*50",group:"Оздоблювальні матеріали",unit:"шт"},
+  {name:"Шпаклівка фінішна гіпсова НР-фініш 25кг",group:"Оздоблювальні матеріали",unit:"шт"},
+  {name:"Штукатурка цементно-вапняна Р403 24кг",group:"Сухі суміші, розчини",unit:"шт"},
+  {name:"Кріплення для штукатурних маяків уп.100шт",group:"Кріпильні вироби",unit:"кор"},
+  {name:"Щебінь фр.20-40",group:"Нерудні матеріали",unit:"м³"},
+  {name:"Щебінь фр.5-20",group:"Нерудні матеріали",unit:"м³"},
+  {name:"Пісок річковий",group:"Нерудні матеріали",unit:"м³"},
+  {name:"Асфальтобетон гарячий",group:"Дорожні матеріали",unit:"т"},
+  {name:"Бітумна емульсія",group:"Дорожні матеріали",unit:"т"},
+  {name:"Труба каналізаційна ПВХ SN8 ⌀200",group:"Каналізація",unit:"пог.м"},
+  {name:"Труба каналізаційна ПВХ SN8 ⌀315",group:"Каналізація",unit:"пог.м"},
+  {name:"Люк чавунний тип Т",group:"Каналізація",unit:"шт"},
+  {name:"Цемент М400 50кг",group:"Сухі суміші, розчини",unit:"шт"},
+];
+
+// ================================================================
+// STATE
+// ================================================================
+let currentUser = { name:'', brigade:'' };
+let state = { obj:null, objCity:null, objStreet:null, workers:[], works:[], mats:[], tech:{}, transport:[], workerHours:{} };
+let reportDateOffset = 0; // 0=сьогодні, 1=вчора, 2=позавчора
+
+function getReportDate() {
+  const d = new Date();
+  d.setDate(d.getDate() - reportDateOffset);
+  return d;
+}
+
+function selectReportDate(offset) {
+  reportDateOffset = offset;
+  document.getElementById('dbtn-0').classList.toggle('active', offset === 0);
+  document.getElementById('dbtn-1').classList.toggle('active', offset === 1);
+  document.getElementById('dbtn-2').classList.toggle('active', offset === 2);
+  updateHeaderDate();
+}
+
+function updateHeaderDate() {
+  const d = getReportDate();
+  const days = ['неділя','понеділок','вівторок','середа','четвер','п\'ятниця','субота'];
+  document.getElementById('h-date').textContent =
+    d.toLocaleDateString('uk-UA') + ' · ' + days[d.getDay()];
+}
+
+// ================================================================
+// PIN — пін-коди бригадирів (4 цифри → ключ у USERS)
+// ================================================================
+const SCRIPT_URL_REF = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
+
+// PIN_MAP будується динамічно з Довідника (див. loadPinMap)
+// Резервні піни на випадок недоступності мережі:
+const PIN_MAP_FALLBACK = {
+  '5665': 'besarab',
+  '1488': 'nalyvayko',
+  '2408': 'gena',
+  '2806': 'milan',
+  '0903': 'shulga',
+  '0101': 'yura',
+  '2502': 'olsh',
+};
+let PIN_MAP = { ...PIN_MAP_FALLBACK };
+
+// Дані з довідника — заповнюються при завантаженні
+let REFERENCE_CACHE = {};
+
+let pinBuffer = '';
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(checkPin, 130);
+}
+
+function pinDel() {
+  if (!pinBuffer.length) return;
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-msg').textContent = '';
+  document.getElementById('pin-brig-name').textContent = 'Введіть пін-код';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('pd' + i);
+    d.classList.toggle('filled', i < pinBuffer.length);
+    d.classList.remove('error');
+  }
+}
+
+function checkPin() {
+  const key = PIN_MAP[pinBuffer];
+  if (key && USERS[key]) {
+    // Правильний пін — входимо
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('app-wrap').style.display = 'block';
+    startApp(key);
+  } else {
+    // Неправильний пін
+    for (let i = 0; i < 4; i++) {
+      const d = document.getElementById('pd' + i);
+      d.classList.remove('filled');
+      d.classList.add('error');
+    }
+    const dots = document.getElementById('pin-dots');
+    dots.classList.add('pin-shake');
+    document.getElementById('pin-msg').textContent = 'Невірний пін-код. Спробуйте ще раз.';
+    document.getElementById('pin-brig-name').textContent = 'Введіть пін-код';
+    setTimeout(() => {
+      dots.classList.remove('pin-shake');
+      for (let i = 0; i < 4; i++) document.getElementById('pd' + i).classList.remove('error');
+      pinBuffer = '';
+    }, 650);
+  }
+}
+
+// ================================================================
+// APP START — завантажує дані з Довідника
+// ================================================================
+function startApp(userKey) {
+  // Базова інфо з USERS (ім'я, objType) — поки грузяться дані
+  const u = USERS[userKey];
+  currentUser = { login: userKey, ...u };
+  document.getElementById('h-name').textContent = u.name;
+  updateHeaderDate();
+
+  // Показуємо форму з лоадером
+  document.getElementById('app-wrap').style.display = 'block';
+  document.getElementById('main-form').style.display = 'block';
+  const brigSection = document.querySelector('.section:has(#brig-grid)');
+  if (brigSection) brigSection.style.display = 'none';
+
+  // Показуємо лоадер поверх форми
+  showFormLoader('Завантаження даних...');
+
+  // Запит до Довідника
+  fetch(SCRIPT_URL_REF + '?action=getReference&brigade=' + userKey)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) throw new Error(data.error || 'Помилка довідника');
+
+      // Зберігаємо в кеш
+      REFERENCE_CACHE[userKey] = data;
+
+      // Оновлюємо PIN_MAP з реальними пінами довідника (якщо прийшли)
+      // (скрипт поки не повертає піни — безпека, але можна додати)
+
+      // Оновлюємо currentUser даними з довідника
+      currentUser.name    = data.brigadierName || u.name;
+      currentUser.objType = data.objType || u.objType;
+      document.getElementById('h-name').textContent = currentUser.name;
+
+      // Записуємо дані у глобальні змінні для сумісності з існуючими функціями
+      BRIGADE_WORKERS[userKey] = data.workers || [];
+      BRIGADE_OBJ[userKey]     = data.objects || [];
+      if (data.allActiveObjects) currentUser.allActiveObjects = data.allActiveObjects;
+      if (data.works)   window._WORKS_DB_LIVE = data.works;
+      if (data.mats)    window._MATS_DB_LIVE  = data.mats;
+      if (data.tech)    window._TECH_LIVE      = data.tech;
+      if (data.transport) window._TRANSPORT_LIVE = data.transport;
+
+      hideFormLoader();
+
+      // Показуємо всі секції
+      ['obj-section','time-section','workers-section','works-section',
+       'mats-section','tech-section','transport-section','notes-section','submit-section']
+        .forEach(id => document.getElementById(id).style.display = 'block');
+
+      state = { obj:null, objCity:null, objStreet:null, workers:[], works:[], mats:[], tech:{}, transport:[], workerHours:{} };
+      buildObjSection();
+      buildWorkerTags();
+      buildTechSection();
+      buildTransportSection();
+      buildMatsDeliveryBlock();
+      buildTimeSelects();
+      updateProgress();
+      window.scrollTo(0, 0);
+    })
+    .catch(err => {
+      hideFormLoader();
+      console.warn('Довідник недоступний, використовую локальні дані:', err);
+      // Fallback — використовуємо захардкоджені дані
+      ['obj-section','time-section','workers-section','works-section',
+       'mats-section','tech-section','transport-section','notes-section','submit-section']
+        .forEach(id => document.getElementById(id).style.display = 'block');
+      state = { obj:null, objCity:null, objStreet:null, workers:[], works:[], mats:[], tech:{}, transport:[], workerHours:{} };
+      buildObjSection();
+      buildWorkerTags();
+      buildTechSection();
+      buildTransportSection();
+      buildMatsDeliveryBlock();
+      buildTimeSelects();
+      updateProgress();
+      window.scrollTo(0, 0);
+    });
+}
+
+function showFormLoader(msg) {
+  let el = document.getElementById('form-loader');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'form-loader';
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px';
+    el.innerHTML = `
+      <svg width="40" height="40" viewBox="0 0 40 40" style="animation:spin 1s linear infinite">
+        <circle cx="20" cy="20" r="16" fill="none" stroke="#E8F2EC" stroke-width="4"/>
+        <path d="M20 4 a16 16 0 0 1 16 16" fill="none" stroke="#2A5C3F" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <div id="form-loader-msg" style="font-size:14px;color:var(--text2);font-family:'IBM Plex Sans',sans-serif"></div>`;
+    document.body.appendChild(el);
+  }
+  document.getElementById('form-loader-msg').textContent = msg;
+  el.style.display = 'flex';
+}
+
+function hideFormLoader() {
+  const el = document.getElementById('form-loader');
+  if (el) el.style.display = 'none';
+}
+
+function selectBrigadier(idx) {
+  const keys = Object.keys(USERS);
+  const key = keys[idx];
+  const u = USERS[key];
+  currentUser = { login:key, ...u };
+  document.getElementById('h-name').textContent = u.name;
+  state = { obj:null, objCity:null, objStreet:null, workers:[], works:[], mats:[], tech:{}, transport:[], workerHours:{} };
+  ['works-list','mats-list','transport-list'].forEach(id => document.getElementById(id).innerHTML = '');
+  document.getElementById('worker-notes').value = '';
+  document.getElementById('notes').value = '';
+
+  // Показуємо всі секції
+  ['obj-section','time-section','workers-section','works-section',
+   'mats-section','tech-section','transport-section','notes-section','submit-section']
+    .forEach(id => document.getElementById(id).style.display = 'block');
+
+  buildObjSection();
+  buildWorkerTags();
+  buildTechSection();
+  buildTransportSection();
+  updateProgress();
+  document.querySelectorAll('.brig-btn').forEach((b,i) => b.classList.toggle('active', i === idx));
+  document.getElementById('obj-section').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function buildObjSection() {
+  const body = document.getElementById('obj-body');
+  body.innerHTML = '';
+  const objType = currentUser.objType || 'fixed';
+
+  if (objType === 'street') {
+    // ── Алєксін, Шульга: просто два поля ──────────────────────────────
+    body.appendChild(buildAddressFields(false));
+
+  } else if (objType === 'address') {
+    // ── Мілан, Ольшовський: два поля + кнопка "інша бригада" ──────────
+    body.appendChild(buildAddressFields(true));
+
+  } else {
+    // ── fixed: кнопки + "+ інший" ─────────────────────────────────────
+    const objs = BRIGADE_OBJ[currentUser.brigade] || [];
+    const pills = document.createElement('div');
+    pills.className = 'obj-pills';
+    pills.style.alignItems = 'center';
+
+    objs.forEach(o => {
+      const p = document.createElement('div'); p.className='obj-pill'; p.textContent=o;
+      p.onclick = () => {
+        state.obj = o; state.objCity = null; state.objStreet = null;
+        document.querySelectorAll('.obj-pill').forEach(x => x.classList.remove('active'));
+        const cr = document.getElementById('obj-custom-row');
+        if (cr) { cr.style.display = 'none'; document.getElementById('obj-custom-inp').value = ''; }
+        p.classList.add('active');
+        updateProgress();
+      };
+      pills.appendChild(p);
+    });
+
+    // кнопка "+ інший"
+    const addBtn = document.createElement('div');
+    addBtn.style.cssText = 'padding:6px 11px;border:1px dashed var(--accent);border-radius:20px;font-size:13px;color:var(--accent);cursor:pointer;white-space:nowrap;user-select:none;transition:background .15s';
+    addBtn.textContent = '+ інший';
+    addBtn.onmouseenter = () => addBtn.style.background = 'var(--accent-l)';
+    addBtn.onmouseleave = () => addBtn.style.background = 'transparent';
+    addBtn.onclick = () => {
+      const row = document.getElementById('obj-custom-row');
+      row.style.display = 'flex';
+      document.getElementById('obj-custom-inp').focus();
+      document.querySelectorAll('.obj-pill').forEach(x => x.classList.remove('active'));
+      state.obj = null; updateProgress();
+    };
+    pills.appendChild(addBtn);
+    body.appendChild(pills);
+
+    const row = document.createElement('div');
+    row.id = 'obj-custom-row';
+    row.style.cssText = 'display:none;gap:8px;align-items:center;margin-top:10px';
+    row.innerHTML = `
+      <input id="obj-custom-inp" type="text" placeholder="Назва об'єкта або адреса"
+        style="flex:1;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--accent);border-radius:8px;background:var(--surface);color:var(--text);outline:none">
+      <div onclick="addCustomObj()" style="padding:8px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">Додати</div>
+      <div onclick="closeCustomObj()" style="font-size:20px;color:var(--text3);cursor:pointer;line-height:1;padding:0 4px;flex-shrink:0">×</div>`;
+    row.querySelector('input').onkeydown = (e) => { if (e.key === 'Enter') addCustomObj(); };
+    body.appendChild(row);
+  }
+}
+
+function buildAddressFields(showOtherBrigade) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:10px';
+
+  // Поле: Населений пункт
+  const cityWrap = document.createElement('div');
+  cityWrap.innerHTML = `
+    <label style="display:block;font-size:13px;color:var(--text2);font-weight:500;margin-bottom:4px">Населений пункт</label>
+    <input id="obj-city" type="text" placeholder="напр. Рівне, Луцьк, с. Великий Жолудськ..."
+      style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box">`;
+  const cityInp = cityWrap.querySelector('input');
+  cityInp.oninput = () => { state.objCity = cityInp.value.trim()||null; updateObjFromAddress(); };
+  cityInp.onfocus = () => cityInp.style.borderColor = 'var(--accent)';
+  cityInp.onblur  = () => cityInp.style.borderColor = 'var(--border)';
+  wrap.appendChild(cityWrap);
+
+  // Поле: Вулиця
+  const streetWrap = document.createElement('div');
+  streetWrap.innerHTML = `
+    <label style="display:block;font-size:13px;color:var(--text2);font-weight:500;margin-bottom:4px">Вулиця</label>
+    <input id="obj-street" type="text" placeholder="напр. вул. Соборна, вул. Незалежності..."
+      style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box">`;
+  const streetInp = streetWrap.querySelector('input');
+  streetInp.oninput = () => { state.objStreet = streetInp.value.trim()||null; updateObjFromAddress(); };
+  streetInp.onfocus = () => streetInp.style.borderColor = 'var(--accent)';
+  streetInp.onblur  = () => streetInp.style.borderColor = 'var(--border)';
+  wrap.appendChild(streetWrap);
+
+  if (showOtherBrigade) {
+    // Роздільник
+    const divider = document.createElement('div');
+    divider.style.cssText = 'display:flex;align-items:center;gap:8px;margin:2px 0';
+    divider.innerHTML = `<div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">або</span><div style="flex:1;height:1px;background:var(--border)"></div>`;
+    wrap.appendChild(divider);
+
+    // Кнопка "Обʼєкт іншої бригади"
+    const otherBtn = document.createElement('div');
+    otherBtn.id = 'other-brig-btn';
+    otherBtn.style.cssText = 'padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;background:var(--surface);transition:all .15s;display:flex;align-items:center;justify-content:space-between;user-select:none';
+    otherBtn.innerHTML = `<span>Обʼєкт іншої бригади</span><span id="other-brig-arrow" style="font-size:11px">▾</span>`;
+    otherBtn.onclick = toggleOtherBrigObjs;
+    wrap.appendChild(otherBtn);
+
+    // Список обʼєктів інших бригад (прихований)
+    const otherList = document.createElement('div');
+    otherList.id = 'other-brig-list';
+    otherList.style.cssText = 'display:none;flex-direction:column;gap:4px';
+    wrap.appendChild(otherList);
+  }
+
+  return wrap;
+}
+
+function updateObjFromAddress() {
+  const city = (document.getElementById('obj-city') ? document.getElementById('obj-city').value.trim() : null) || state.objCity;
+  const street = (document.getElementById('obj-street') ? document.getElementById('obj-street').value.trim() : null) || state.objStreet;
+  // obj залишається null якщо обрали обʼєкт іншої бригади — тоді використовуємо state.obj
+  // Якщо заповнені поля адреси — скидаємо вибір іншої бригади
+  if (city || street) {
+    state.obj = null; // адреса зберігається окремо
+    // зняти виділення з кнопок іншої бригади
+    document.querySelectorAll('.other-brig-pill').forEach(x => x.classList.remove('active'));
+  }
+  updateProgress();
+}
+
+function toggleOtherBrigObjs() {
+  const list = document.getElementById('other-brig-list');
+  const arrow = document.getElementById('other-brig-arrow');
+  const isOpen = list.style.display !== 'none';
+  if (isOpen) {
+    list.style.display = 'none';
+    arrow.textContent = '▾';
+    return;
+  }
+  // Будуємо список
+  list.innerHTML = '';
+  const objs = getOtherBrigadeObjs();
+  if (objs.length === 0) {
+    list.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:8px 12px">Немає активних обʼєктів інших бригад</div>';
+  } else {
+    let lastBrig = null;
+    objs.forEach(item => {
+      if (item.brigadier !== lastBrig) {
+        const lbl = document.createElement('div');
+        lbl.style.cssText = 'font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:6px 2px 2px;margin-top:4px';
+        lbl.textContent = item.brigadier;
+        list.appendChild(lbl);
+        lastBrig = item.brigadier;
+      }
+      const pill = document.createElement('div');
+      pill.className = 'obj-pill other-brig-pill';
+      pill.textContent = item.obj;
+      pill.onclick = () => {
+        state.obj = item.obj; state.objCity = null; state.objStreet = null;
+        // очищаємо поля адреси
+        const ci = document.getElementById('obj-city'); if (ci) ci.value = '';
+        const si = document.getElementById('obj-street'); if (si) si.value = '';
+        document.querySelectorAll('.other-brig-pill').forEach(x => x.classList.remove('active'));
+        pill.classList.add('active');
+        updateProgress();
+      };
+      list.appendChild(pill);
+    });
+  }
+  list.style.display = 'flex';
+  list.style.flexDirection = 'column';
+  arrow.textContent = '▴';
+}
+
+function addCustomObj() {
+  const inp = document.getElementById('obj-custom-inp');
+  const name = inp.value.trim();
+  if (!name) { inp.focus(); return; }
+
+  // Додаємо як нову пілюлю перед кнопкою "+ інший"
+  const pills = document.querySelector('.obj-pills');
+  const addBtn = pills.lastElementChild; // кнопка "+ інший"
+
+  const p = document.createElement('div');
+  p.className = 'obj-pill active';
+  p.style.position = 'relative';
+  p.style.paddingRight = '22px';
+  p.textContent = name;
+
+  // хрестик для видалення
+  const x = document.createElement('span');
+  x.textContent = '×';
+  x.style.cssText = 'position:absolute;top:-6px;right:-6px;width:16px;height:16px;background:var(--danger);color:#fff;border-radius:50%;font-size:11px;line-height:16px;text-align:center;cursor:pointer;font-weight:700';
+  x.onclick = (e) => {
+    e.stopPropagation();
+    p.remove();
+    if (state.obj === name) { state.obj = null; updateProgress(); }
+  };
+  p.appendChild(x);
+  p.onclick = () => {
+    state.obj = name;
+    document.querySelectorAll('.obj-pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active'); updateProgress();
+  };
+  pills.insertBefore(p, addBtn);
+
+  // Обираємо його одразу
+  state.obj = name;
+  document.querySelectorAll('.obj-pill').forEach(x => x.classList.remove('active'));
+  p.classList.add('active');
+
+  // Ховаємо рядок вводу
+  document.getElementById('obj-custom-row').style.display = 'none';
+  inp.value = '';
+  updateProgress();
+}
+
+function closeCustomObj() {
+  document.getElementById('obj-custom-row').style.display = 'none';
+  document.getElementById('obj-custom-inp').value = '';
+  state.obj = null; updateProgress();
+}
+
+function buildWorkerTags() {
+  const wrap = document.getElementById('worker-tags');
+  wrap.innerHTML = '';
+  const extra = document.getElementById('worker-extra-tags');
+  if (extra) extra.innerHTML = '';
+  const list = BRIGADE_WORKERS[currentUser.brigade] || [];
+  list.forEach(w => {
+    const t = document.createElement('div'); t.className='wtag'; t.textContent=w;
+    t.onclick = () => {
+      t.classList.toggle('active');
+      const idx = state.workers.indexOf(w);
+      if (idx>-1) state.workers.splice(idx,1); else state.workers.push(w);
+      updateWorkersCount();
+      updateProgress();
+    };
+    wrap.appendChild(t);
+  });
+  updateWorkersCount();
+}
+
+function toggleWorkerHours() {
+  const box = document.getElementById('worker-hours-box');
+  const arrow = document.getElementById('hours-arrow');
+  const isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  arrow.textContent = isOpen ? '▾' : '▴';
+  if (!isOpen) renderWorkerHours();
+}
+
+function renderWorkerHours() {
+  const container = document.getElementById('worker-hours-list');
+  if (!container) return;
+
+  // Розраховуємо загальну тривалість
+  const sh = parseInt(document.getElementById('ts-h')?.value || '7');
+  const sm = parseInt(document.getElementById('ts-m')?.value || '30');
+  const eh = parseInt(document.getElementById('te-h')?.value || '17');
+  const em = parseInt(document.getElementById('te-m')?.value || '0');
+  let totalMins = (eh * 60 + em) - (sh * 60 + sm);
+  if (totalMins < 0) totalMins += 1440;
+  const defaultHrs = (totalMins / 60).toFixed(1);
+
+  if (!state.workers.length) {
+    container.innerHTML = '<div style="font-size:13px;color:var(--text3);font-style:italic">Спочатку оберіть працівників</div>';
+    return;
+  }
+
+  if (!state.workerHours) state.workerHours = {};
+
+  container.innerHTML = state.workers.map(w => {
+    const val = state.workerHours[w] !== undefined ? state.workerHours[w] : defaultHrs;
+    const safeId = 'wh_' + w.replace(/[^a-zA-Z0-9]/g, '_');
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="flex:1;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${w}</span>
+      <input type="number" id="${safeId}" min="0" max="24" step="0.5" value="${val}"
+        style="width:72px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:5px 8px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none;text-align:center"
+        oninput="if(!state.workerHours)state.workerHours={};state.workerHours['${w}']=this.value"
+        onfocus="this.style.borderColor='var(--accent)'"
+        onblur="this.style.borderColor='var(--border)'">
+      <span style="font-size:12px;color:var(--text3);flex-shrink:0">год</span>
+    </div>`;
+  }).join('');
+
+  // Остання без border-bottom
+  const rows = container.querySelectorAll('[style*="border-bottom"]');
+  if (rows.length) rows[rows.length-1].style.borderBottom = 'none';
+}
+
+function getWorkerHoursPayload() {
+  if (!state.workerHours || !Object.keys(state.workerHours).length) return null;
+  return state.workerHours;
+}
+
+function toggleSelectAllWorkers() {
+  const tags = document.querySelectorAll('#worker-tags .wtag');
+  const list = BRIGADE_WORKERS[currentUser.brigade] || [];
+  const allSelected = state.workers.length >= list.length;
+
+  if (allSelected) {
+    // знімаємо всіх
+    tags.forEach(t => t.classList.remove('active'));
+    state.workers = [];
+    document.getElementById('select-all-btn').textContent = 'Вибрати всіх';
+  } else {
+    // вибираємо всіх
+    tags.forEach(t => t.classList.add('active'));
+    state.workers = [...list];
+    document.getElementById('select-all-btn').textContent = 'Зняти всіх';
+  }
+  updateWorkersCount();
+  updateProgress();
+}
+
+function updateWorkersCount() {
+  const lbl = document.getElementById('workers-count-label');
+  if (lbl) lbl.textContent = 'Обрано: ' + state.workers.length;
+  const btn = document.getElementById('select-all-btn');
+  if (!btn) return;
+  const list = BRIGADE_WORKERS[currentUser.brigade] || [];
+  btn.textContent = state.workers.length >= list.length ? 'Зняти всіх' : 'Вибрати всіх';
+}
+
+function buildTechSection() {
+  const wrap = document.getElementById('tech-wrap');
+  const panels = document.getElementById('tech-panels');
+  const list = document.getElementById('tech-list');
+  wrap.innerHTML = ''; panels.innerHTML = '';
+  if (list) list.innerHTML = '';
+  TECH_LIST.forEach(t => {
+    const safeId = 'tech_' + t.name.replace(/[^a-zA-Z0-9]/g,'_');
+    const btn = document.createElement('div');
+    btn.className = 'tech-tag-btn';
+    btn.id = 'btn_' + safeId;
+    btn.textContent = t.name;
+    btn.onclick = () => toggleTechCard(safeId, t.name, t.num);
+    wrap.appendChild(btn);
+  });
+}
+
+function toggleTechCard(safeId, techName, techNum) {
+  const btn = document.getElementById('btn_' + safeId);
+  const panels = document.getElementById('tech-panels');
+  const existing = document.getElementById('panel_' + safeId);
+
+  if (existing) { existing.remove(); btn.classList.remove('active'); return; }
+
+  btn.classList.add('active');
+  const numStr = techNum && techNum!=='б/н' && techNum!=='Б/Н' ? ` (${techNum})` : '';
+  const panel = document.createElement('div');
+  panel.className = 'tech-panel';
+  panel.id = 'panel_' + safeId;
+  panel.innerHTML = `
+    <div class="tech-panel-title">${techName}${numStr}</div>
+    <div class="tech-panel-row">
+      <div>
+        <label>Годин роботи <span style="color:var(--danger);font-size:10px">обов'язково</span></label>
+        <input type="number" id="hrs_${safeId}" min="0" step="0.1" placeholder="0.0">
+      </div>
+      <div>
+        <label>Заправлено (л)</label>
+        <input type="number" id="fuel_${safeId}" min="0" placeholder="0"
+          oninput="onFuelInput('${safeId}', this.value)">
+      </div>
+    </div>
+    <div id="moto_row_${safeId}" style="display:none;margin-top:8px">
+      <label style="font-size:12px;color:var(--text2);font-weight:500;display:block;margin-bottom:5px">
+        Лічильник мотогодин при заправці
+      </label>
+      <input type="number" id="moto_${safeId}" min="0" step="0.1" placeholder="напр. 1253.5"
+        style="width:180px;font-family:'IBM Plex Mono',monospace;font-size:15px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+    </div>
+    <div style="margin-top:10px">
+      <label style="font-size:12px;color:var(--text2);font-weight:500;display:block;margin-bottom:6px">Звідки заправлялись</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <div class="fuel-src-btn" id="src_kub_${safeId}" onclick="selectFuelSrc('${safeId}','КУБ')">КУБ</div>
+        <div class="fuel-src-btn" id="src_eleron_${safeId}" onclick="selectFuelSrc('${safeId}','АЗС Елерон')">АЗС Елерон</div>
+        <div class="fuel-src-btn" id="src_other_${safeId}" onclick="selectFuelSrc('${safeId}','other')">Інше</div>
+        <input type="text" id="src_custom_${safeId}" placeholder="Вкажіть звідки..."
+          style="display:none;flex:1;min-width:120px;font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--accent);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
+        <div onclick="addTechEntry('${safeId}','${techName}','${techNum||''}')"
+          style="margin-left:auto;padding:7px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
+          Додати
+        </div>
+      </div>
+    </div>`;
+  panels.appendChild(panel);
+  setTimeout(() => document.getElementById('hrs_'+safeId)?.focus(), 50);
+}
+
+function selectFuelSrc(safeId, val) {
+  ['KUB','ELERON','OTHER'].forEach(k => {
+    const id = 'src_' + k.toLowerCase() + '_' + safeId;
+    document.getElementById(id)?.classList.remove('active');
+  });
+  const map = {'КУБ':'kub','АЗС Елерон':'eleron','other':'other'};
+  document.getElementById('src_' + map[val] + '_' + safeId)?.classList.add('active');
+  const custom = document.getElementById('src_custom_' + safeId);
+  if (custom) custom.style.display = val === 'other' ? 'block' : 'none';
+}
+
+function onFuelInput(safeId, val) {
+  const row = document.getElementById('moto_row_' + safeId);
+  if (row) row.style.display = (parseFloat(val) > 0) ? 'block' : 'none';
+}
+
+function addTechEntry(safeId, techName, techNum) {
+  const hrs  = document.getElementById('hrs_'+safeId)?.value || '';
+  const fuel = document.getElementById('fuel_'+safeId)?.value || '';
+  const moto = document.getElementById('moto_'+safeId)?.value || '';
+  if (!hrs) { document.getElementById('hrs_'+safeId)?.focus(); return; }
+
+  let src = '';
+  if (fuel && parseFloat(fuel) > 0) {
+    src = 'КУБ';
+    if (document.getElementById('src_eleron_'+safeId)?.classList.contains('active')) src = 'АЗС Елерон';
+    if (document.getElementById('src_other_'+safeId)?.classList.contains('active')) {
+      src = document.getElementById('src_custom_'+safeId)?.value.trim() || 'Інше';
+    }
+  }
+
+  const numStr = techNum && techNum!=='б/н' && techNum!=='Б/Н' ? ` (${techNum})` : '';
+  state.tech[techName] = { hrs, fuel, moto, src, numStr };
+
+  renderTechList();
+  updateProgress();
+
+  // ховаємо панель, знімаємо активний стиль тега
+  document.getElementById('panel_'+safeId)?.remove();
+  document.getElementById('btn_'+safeId)?.classList.remove('active');
+}
+
+function renderTechList() {
+  const list = document.getElementById('tech-list');
+  if (!list) return;
+  const entries = Object.entries(state.tech);
+  list.innerHTML = entries.map(([name, v]) => `
+    <div class="added-item">
+      <div class="added-main">
+        <div class="added-info">
+          <div class="added-name">${name}${v.numStr||''}</div>
+          <div class="added-group" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:3px">
+            ${v.hrs ? `<span style="font-size:11px;padding:1px 7px;background:#E6F1FB;color:#0C447C;border-radius:10px">${v.hrs} год</span>` : ''}
+            ${v.fuel ? `<span style="font-size:11px;padding:1px 7px;background:#E6F1FB;color:#0C447C;border-radius:10px">${v.fuel} л</span>` : ''}
+            ${v.moto ? `<span style="font-size:11px;padding:1px 7px;background:#FEF3C7;color:#92400E;border-radius:10px">⏱ ${v.moto} мгод</span>` : ''}
+            ${v.src ? `<span style="font-size:11px;padding:1px 7px;background:var(--surface2);color:var(--text2);border-radius:10px">${v.src}</span>` : ''}
+          </div>
+        </div>
+        <button class="remove-btn" onclick="removeTechEntry('${name}')">×</button>
+      </div>
+    </div>`).join('');
+  const hint = document.getElementById('tech-hint');
+  if (hint) hint.style.marginTop = entries.length > 0 ? '12px' : '0';
+}
+
+function removeTechEntry(name) {
+  delete state.tech[name];
+  renderTechList();
+  updateProgress();
+  // відновлюємо тег
+  TECH_LIST.forEach(t => {
+    if (t.name === name) {
+      const safeId = 'tech_' + t.name.replace(/[^a-zA-Z0-9]/g,'_');
+      document.getElementById('btn_'+safeId)?.classList.remove('active');
+    }
+  });
+}
+
+// ================================================================
+// TIME CALC
+// ================================================================
+function buildTimeSelects() {
+  const hours = ['ts-h','te-h'];
+  const mins  = ['ts-m','te-m'];
+  const defH  = [7, 17];
+  const defM  = [30, 0];
+
+  hours.forEach((id, i) => {
+    const sel = document.getElementById(id);
+    for (let h = 0; h <= 23; h++) {
+      const opt = document.createElement('option');
+      opt.value = h;
+      opt.textContent = String(h).padStart(2,'0');
+      if (h === defH[i]) opt.selected = true;
+      sel.appendChild(opt);
+    }
+  });
+
+  mins.forEach((id, i) => {
+    const sel = document.getElementById(id);
+    [0,5,10,15,20,25,30,35,40,45,50,55].forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m;
+      opt.textContent = String(m).padStart(2,'0');
+      if (m === defM[i]) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  });
+
+  calcTime();
+}
+
+function calcTime() {
+  const sh = parseInt(document.getElementById('ts-h')?.value||'7');
+  const sm = parseInt(document.getElementById('ts-m')?.value||'30');
+  const eh = parseInt(document.getElementById('te-h')?.value||'17');
+  const em = parseInt(document.getElementById('te-m')?.value||'0');
+  let mins = (eh*60+em) - (sh*60+sm);
+  if (mins < 0) mins += 1440;
+  const h = Math.floor(mins/60), m = mins%60;
+  const el = document.getElementById('time-calc');
+  if (el) el.textContent = h + ' год' + (m ? ' ' + m + ' хв' : '');
+}
+
+function getTimeValues() {
+  const sh = String(document.getElementById('ts-h')?.value||'7').padStart(2,'0');
+  const sm = String(document.getElementById('ts-m')?.value||'30').padStart(2,'0');
+  const eh = String(document.getElementById('te-h')?.value||'17').padStart(2,'0');
+  const em = String(document.getElementById('te-m')?.value||'0').padStart(2,'0');
+  return { start: sh+':'+sm, end: eh+':'+em };
+}
+
+// ================================================================
+// SEARCH / DROPDOWN
+// ================================================================
+function hl(text, q) {
+  if(!q) return text;
+  const i=text.toLowerCase().indexOf(q.toLowerCase());
+  if(i===-1) return text;
+  return text.slice(0,i)+'<mark>'+text.slice(i,i+q.length)+'</mark>'+text.slice(i+q.length);
+}
+
+function filterDD(type, customInputId, customDdId) {
+  // Підтримує як стандартні id (work/mat/trans), так і кастомні (rd-mat, dm-name)
+  // Використовуємо живі дані з Довідника якщо є, інакше — локальні
+  const liveWorks = window._WORKS_DB_LIVE || WORKS_DB;
+  const liveMats  = window._MATS_DB_LIVE  || MATS_DB;
+  const liveTrans = (window._TRANSPORT_LIVE || TRANSPORT_LIST).map(n => typeof n === 'string' ? {name:n,group:'Транспорт',unit:'л'} : n);
+  const cfgMap = {
+    work:  { inputId:'work-search', ddId:'work-dd', db:liveWorks },
+    mat:   { inputId:'mat-search',  ddId:'mat-dd',  db:liveMats  },
+    trans: { inputId:'trans-search',ddId:'trans-dd', db:liveTrans },
+  };
+  const db = cfgMap[type]?.db || (type === 'mat' ? liveMats : liveWorks);
+  const inputId = customInputId || cfgMap[type]?.inputId;
+  const ddId    = customDdId    || cfgMap[type]?.ddId;
+  const q  = document.getElementById(inputId).value.trim();
+  const dd = document.getElementById(ddId);
+  if (!dd) return;
+  const res = q
+    ? db.filter(i => i.name.toLowerCase().includes(q.toLowerCase()) || (i.group||'').toLowerCase().includes(q.toLowerCase()))
+    : db;
+  if (!res.length) { dd.innerHTML='<div class="dd-empty">Не знайдено</div>'; dd.style.display='block'; return; }
+  dd.innerHTML = res.slice(0,20).map(item =>
+    `<div class="dd-item" onmousedown="event.preventDefault()" onclick='selectDD("${type}",${JSON.stringify(item).replace(/'/g,"&apos;")},${JSON.stringify(inputId)},${JSON.stringify(ddId)})'>
+      <div class="dd-name">${hl(item.name,q)}</div>
+      <div class="dd-meta">${item.group}${item.unit?' · '+item.unit:''}</div>
+    </div>`).join('');
+  dd.style.display = 'block';
+}
+
+function filterWorkers() {
+  const q = document.getElementById('worker-search').value.trim();
+  const dd = document.getElementById('worker-dd');
+  const res = q ? ALL_WORKERS.filter(w=>w.toLowerCase().includes(q.toLowerCase())) : ALL_WORKERS.slice(0,8);
+  if (!res.length) { dd.innerHTML='<div class="dd-empty">Не знайдено</div>'; dd.style.display='block'; return; }
+  dd.innerHTML = res.slice(0,8).map(w=>
+    `<div class="dd-item" onmousedown="event.preventDefault()" onclick='addWorkerFromSearch("${w}")'>
+      <div class="dd-name">${hl(w,q)}</div>
+    </div>`).join('');
+  dd.style.display='block';
+}
+
+function addWorkerFromSearch(name) {
+  addExtraWorkerByName(name);
+  document.getElementById('worker-search').value = '';
+  document.getElementById('worker-dd').style.display = 'none';
+}
+
+function addExtraWorker() {
+  const inp = document.getElementById('worker-search');
+  const name = inp.value.trim();
+  if (!name) { inp.focus(); return; }
+  addExtraWorkerByName(name);
+  inp.value = '';
+  document.getElementById('worker-dd').style.display = 'none';
+}
+
+function addExtraWorkerByName(name) {
+  if (state.workers.includes(name)) return;
+
+  // Якщо є в основних тегах — просто активуємо тег
+  let found = false;
+  document.querySelectorAll('#worker-tags .wtag').forEach(t => {
+    if (t.textContent === name) { t.classList.add('active'); found = true; }
+  });
+  state.workers.push(name);
+
+  if (!found) {
+    // Додаємо як окремий тег з хрестиком
+    const wrap = document.getElementById('worker-extra-tags');
+    const tag = document.createElement('div');
+    tag.className = 'wtag active';
+    tag.style.position = 'relative';
+    tag.style.paddingRight = '22px';
+    tag.textContent = name;
+
+    const x = document.createElement('span');
+    x.textContent = '×';
+    x.style.cssText = 'position:absolute;top:-6px;right:-6px;width:16px;height:16px;background:var(--danger);color:#fff;border-radius:50%;font-size:11px;line-height:16px;text-align:center;cursor:pointer;font-weight:700';
+    x.onclick = (e) => {
+      e.stopPropagation();
+      const idx = state.workers.indexOf(name);
+      if (idx > -1) state.workers.splice(idx, 1);
+      tag.remove();
+      updateWorkersCount();
+      updateProgress();
+    };
+    tag.appendChild(x);
+    tag.onclick = () => {}; // не знімати кліком
+    wrap.appendChild(tag);
+  }
+
+  updateWorkersCount();
+  updateProgress();
+}
+
+function selectDD(type, item, customInputId, customDdId) {
+  if (customInputId && customDdId) {
+    // Кастомне поле (rd-mat, dm-name) — просто підставляємо назву
+    const inp = document.getElementById(customInputId);
+    const dd  = document.getElementById(customDdId);
+    if (inp) inp.value = item.name;
+    // Підставляємо одиницю якщо є відповідне поле поруч
+    if (customInputId === 'rd-mat' && item.unit) {
+      const u = document.getElementById('rd-unit'); if (u && !u.value) u.value = item.unit;
+    }
+    if (customInputId === 'dm-name' && item.unit) {
+      const u = document.getElementById('dm-unit'); if (u && !u.value) u.value = item.unit;
+    }
+    if (dd) dd.style.display = 'none';
+    return;
+  }
+  if (type==='work') {
+    addWork(item);
+  } else if (type==='mat') {
+    addMat(item);
+  } else {
+    addTransport(item.name);
+    document.getElementById('trans-dd').style.display='none';
+    document.getElementById('trans-search').value='';
+  }
+}
+
+function handleKey(e, type) {
+  const ddId = type==='work'?'work-dd':'mat-dd';
+  const dd = document.getElementById(ddId);
+  const items = dd.querySelectorAll('.dd-item');
+  if (e.key==='ArrowDown') { e.preventDefault(); if(items[0]) items[0].focus(); }
+  else if (e.key==='Escape') dd.style.display='none';
+}
+
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.search-wrap')&&!e.target.closest('#worker-search')) {
+    ['work-dd','mat-dd','trans-dd','worker-dd'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.style.display='none';
+    });
+  }
+});
+
+// ================================================================
+// ADD ITEMS
+// ================================================================
+function addWorkFromSearch() {
+  // старий — більше не використовується
+}
+
+function addWorkFromFields() {
+  const name = document.getElementById('work-search').value.trim();
+  const qty  = document.getElementById('w-qty').value;
+  const unit = document.getElementById('w-unit').value.trim();
+  if (!name) { document.getElementById('work-search').focus(); return; }
+  if (!qty)  { document.getElementById('w-qty').focus(); return; }
+  if (state.works.find(w=>w.name===name)) {
+    alert('Цю роботу вже додано'); return;
+  }
+  const fromDB = WORKS_DB.find(w=>w.name===name);
+  state.works.push({
+    name, qty,
+    unit: unit || (fromDB?.unit||'—'),
+    group: fromDB?.group || 'Зі списку',
+    extra: false
+  });
+  renderWorks(); updateProgress();
+  document.getElementById('work-search').value='';
+  document.getElementById('w-qty').value='';
+  document.getElementById('w-unit').value='';
+}
+
+function addWork(item) {
+  // тепер просто заповнює поля при виборі з dropdown
+  document.getElementById('work-search').value = item.name;
+  document.getElementById('w-unit').value = item.unit;
+  document.getElementById('work-dd').style.display='none';
+  document.getElementById('w-qty').focus();
+}
+
+function updateWorkTypeLabel() {
+  const val = document.querySelector('input[name="work-type"]:checked')?.value;
+  const lblPartial = document.getElementById('lbl-partial');
+  const lblExtra   = document.getElementById('lbl-extra');
+  if (!lblPartial || !lblExtra) return;
+  if (val === 'partial') {
+    lblPartial.style.borderColor = 'var(--accent)';
+    lblPartial.style.background  = 'var(--accent-l)';
+    lblExtra.style.borderColor   = 'var(--border)';
+    lblExtra.style.background    = 'var(--surface)';
+  } else {
+    lblExtra.style.borderColor   = 'var(--danger)';
+    lblExtra.style.background    = '#FDE8E5';
+    lblPartial.style.borderColor = 'var(--border)';
+    lblPartial.style.background  = 'var(--surface)';
+  }
+}
+
+function addManualWork() {
+  const name  = document.getElementById('ew-name').value.trim();
+  const qty   = document.getElementById('ew-qty').value;
+  const unit  = document.getElementById('ew-unit').value.trim() || '—';
+  const type  = document.querySelector('input[name="work-type"]:checked')?.value || 'partial';
+  const extra = type === 'extra';
+  if (!name) { document.getElementById('ew-name').focus(); return; }
+  if (!qty)  { document.getElementById('ew-qty').focus(); return; }
+  state.works.push({
+    name, qty, unit,
+    group: extra ? 'Не за кошторисом' : 'Частина кошторисної роботи',
+    manual: true, extra
+  });
+  renderWorks();
+  document.getElementById('ew-name').value='';
+  document.getElementById('ew-qty').value='';
+  document.getElementById('ew-unit').value='';
+  // скидаємо на перший варіант
+  document.querySelector('input[name="work-type"][value="partial"]').checked = true;
+  updateWorkTypeLabel();
+  updateProgress();
+}
+
+function addMat(item) {
+  // заповнює поля при виборі з dropdown
+  document.getElementById('mat-search').value = item.name;
+  document.getElementById('m-unit').value = item.unit;
+  document.getElementById('mat-dd').style.display = 'none';
+  document.getElementById('m-qty').focus();
+}
+
+// ================================================================
+// МАТЕРІАЛИ — типи бригадирів
+// 'road'    : Алєксін, Шульга, Геннадій, Бесараб → блок "Поставка"
+// 'general' : Наливайко, Мілан, Ольшовський → два варіанти (документ / фото)
+// ================================================================
+const ROAD_BRIGADES = ['shulga','yura','gena','besarab'];
+
+function getMatsType() {
+  return ROAD_BRIGADES.includes(currentUser.brigade) ? 'road' : 'general';
+}
+
+function buildMatsDeliveryBlock() {
+  const wrap = document.getElementById('mats-delivery-block');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  if (getMatsType() === 'road') {
+    wrap.appendChild(buildRoadDeliveryCard());
+  } else {
+    wrap.appendChild(buildGeneralMatsCard());
+  }
+}
+
+// ── ДОРОЖНИКИ: Поставка матеріалу ─────────────────────────────────────────
+function buildRoadDeliveryCard() {
+  const card = document.createElement('div');
+  card.className = 'sub-card';
+  card.innerHTML = `
+    <div class="sub-label">Поставка матеріалу (авто)</div>
+    <div id="road-delivery-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="position:relative;flex:2;min-width:180px">
+          <input type="text" id="rd-mat" placeholder="Матеріал (пошук або вручну)" autocomplete="off"
+            style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box"
+            oninput="filterDD('mat','rd-mat','rd-mat-dd')" onfocus="this.style.borderColor='var(--accent)';filterDD('mat','rd-mat','rd-mat-dd')"
+            onblur="setTimeout(()=>{const d=document.getElementById('rd-mat-dd');if(d)d.style.display='none'},300);this.style.borderColor='var(--border)'">
+          <div class="dd-list" id="rd-mat-dd" style="display:none"></div>
+        </div>
+        <input type="number" id="rd-qty" placeholder="К-сть" min="0"
+          style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        <input type="text" id="rd-unit" placeholder="од."
+          style="width:58px;font-family:inherit;font-size:14px;padding:9px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="rd-car" placeholder="Держ. номер авто"
+          style="flex:1;min-width:130px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        <input type="number" id="rd-trips" placeholder="Ходок" min="1" value="1"
+          style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        <input type="text" id="rd-doc" placeholder="№ ТТН / накладної"
+          style="flex:1;min-width:130px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        <input type="text" id="rd-supplier" placeholder="Постачальник"
+          style="flex:1;min-width:130px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div style="display:flex;justify-content:flex-end">
+        <div onclick="addRoadDelivery()"
+          style="padding:9px 18px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+          + Додати поставку
+        </div>
+      </div>
+    </div>`;
+  return card;
+}
+
+function addRoadDelivery() {
+  const mat      = document.getElementById('rd-mat').value.trim();
+  const qty      = document.getElementById('rd-qty').value.trim();
+  const unit     = document.getElementById('rd-unit').value.trim();
+  const car      = document.getElementById('rd-car').value.trim();
+  const trips    = document.getElementById('rd-trips').value.trim() || '1';
+  const doc      = document.getElementById('rd-doc').value.trim();
+  const supplier = document.getElementById('rd-supplier').value.trim();
+
+  if (!mat) { document.getElementById('rd-mat').focus(); return; }
+  if (!qty) { document.getElementById('rd-qty').focus(); return; }
+
+  const fromDB = MATS_DB.find(m => m.name === mat);
+  state.mats.push({
+    name: mat, qty, unit: unit || fromDB?.unit || '—',
+    group: fromDB?.group || 'Поставка',
+    car, trips, doc, supplier,
+    manual: false, delivery: true
+  });
+  renderRoadDeliveries();
+  updateProgress();
+
+  document.getElementById('rd-mat').value = '';
+  document.getElementById('rd-qty').value = '';
+  document.getElementById('rd-unit').value = '';
+  document.getElementById('rd-car').value = '';
+  document.getElementById('rd-trips').value = '1';
+  document.getElementById('rd-doc').value = '';
+  document.getElementById('rd-supplier').value = '';
+}
+
+function renderRoadDeliveries() {
+  const list = document.getElementById('road-delivery-list');
+  if (!list) return;
+  const deliveries = state.mats.filter(m => m.delivery);
+  list.innerHTML = deliveries.map(m => {
+    const idx = state.mats.indexOf(m);
+    const tags = [
+      m.car      ? `<span class="mat-tag">${m.car}</span>` : '',
+      m.trips>1  ? `<span class="mat-tag">${m.trips} ходок</span>` : '',
+      m.doc      ? `<span class="mat-tag mat-tag-blue">ТТН ${m.doc}</span>` : '',
+      m.supplier ? `<span class="mat-tag">${m.supplier}</span>` : '',
+    ].filter(Boolean).join('');
+    return `
+      <div class="added-item">
+        <div class="added-main">
+          <div class="added-info">
+            <div class="added-name">${m.name}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">${m.qty} ${m.unit}</div>
+            ${tags ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${tags}</div>` : ''}
+          </div>
+          <button class="remove-btn" onclick="removeMat(${idx})">×</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── ЗАГАЛЬНОБУД: два варіанти ───────────────────────────────────────────────
+function buildGeneralMatsCard() {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px';
+
+  // Перемикач
+  const tabs = document.createElement('div');
+  tabs.style.cssText = 'display:flex;gap:0;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--surface2)';
+  tabs.innerHTML = `
+    <div id="mat-tab-doc" onclick="switchMatTab('doc')"
+      style="flex:1;padding:9px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:var(--accent);color:#fff;border-radius:8px 0 0 8px">
+      📄 По документу (з позиціями)
+    </div>
+    <div id="mat-tab-photo" onclick="switchMatTab('photo')"
+      style="flex:1;padding:9px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--text2);border-radius:0 8px 8px 0">
+      📷 Документ + фото
+    </div>`;
+  wrap.appendChild(tabs);
+
+  // Панель "По документу"
+  const docPanel = document.createElement('div');
+  docPanel.id = 'mat-panel-doc';
+  docPanel.className = 'sub-card';
+  docPanel.innerHTML = `
+    <div class="sub-label">По документу — одна накладна, кілька позицій</div>
+    <div id="doc-mat-positions" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="dm-doc" placeholder="№ накладної / ТТН / чеку"
+          style="flex:2;min-width:160px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        <input type="text" id="dm-supplier" placeholder="Постачальник"
+          style="flex:1;min-width:130px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Позиції</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <div style="position:relative;flex:2;min-width:180px">
+          <input type="text" id="dm-name" placeholder="Назва матеріалу" autocomplete="off"
+            style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box"
+            oninput="filterDD('mat','dm-name','dm-dd')" onfocus="this.style.borderColor='var(--accent)';filterDD('mat','dm-name','dm-dd')"
+            onblur="setTimeout(()=>{const d=document.getElementById('dm-dd');if(d)d.style.display='none'},300);this.style.borderColor='var(--border)'"
+            onkeydown="if(event.key==='Enter')addDocMatPosition()">
+          <div class="dd-list" id="dm-dd" style="display:none"></div>
+        </div>
+        <input type="number" id="dm-qty" placeholder="К-сть" min="0"
+          style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')addDocMatPosition()">
+        <input type="text" id="dm-unit" placeholder="од."
+          style="width:58px;font-family:inherit;font-size:14px;padding:9px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')addDocMatPosition()">
+        <div onclick="addDocMatPosition()"
+          style="padding:9px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">+ Рядок</div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:4px">
+        <div onclick="saveDocGroup()"
+          style="padding:9px 18px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+          ✓ Зберегти документ
+        </div>
+      </div>
+    </div>`;
+  wrap.appendChild(docPanel);
+
+  // Панель "Документ + фото"
+  const photoPanel = document.createElement('div');
+  photoPanel.id = 'mat-panel-photo';
+  photoPanel.className = 'sub-card';
+  photoPanel.style.display = 'none';
+  photoPanel.innerHTML = `
+    <div class="sub-label">Документ + фото — без деталізації позицій</div>
+    <div id="other-mats-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input type="text" id="em-name" placeholder="Опис (своїми словами, напр. «суміш і блоки по накладній»)"
+        style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="em-doc" placeholder="№ документа (накладна / ТТН / чек)"
+          style="flex:2;min-width:160px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        <input type="text" id="em-supplier" placeholder="Постачальник"
+          style="flex:1;min-width:120px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <label style="display:flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;background:var(--accent-l);user-select:none">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 4l1-2h4l1 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Фото документа
+          <input type="file" id="em-photo" accept="image/*" multiple style="display:none" onchange="handlePhotoSelect(this)">
+        </label>
+        <div onclick="addManualMat()"
+          style="padding:9px 18px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">Додати</div>
+      </div>
+      <div id="em-photos-preview" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>`;
+  wrap.appendChild(photoPanel);
+
+  return wrap;
+}
+
+// Тимчасовий буфер позицій поточного документа
+let currentDocPositions = [];
+
+function switchMatTab(tab) {
+  const isDoc = tab === 'doc';
+  document.getElementById('mat-tab-doc').style.background   = isDoc ? 'var(--accent)' : 'transparent';
+  document.getElementById('mat-tab-doc').style.color        = isDoc ? '#fff' : 'var(--text2)';
+  document.getElementById('mat-tab-photo').style.background = isDoc ? 'transparent' : 'var(--accent)';
+  document.getElementById('mat-tab-photo').style.color      = isDoc ? 'var(--text2)' : '#fff';
+  document.getElementById('mat-panel-doc').style.display   = isDoc ? 'block' : 'none';
+  document.getElementById('mat-panel-photo').style.display = isDoc ? 'none' : 'block';
+}
+
+function addDocMatPosition() {
+  const name = document.getElementById('dm-name').value.trim();
+  const qty  = document.getElementById('dm-qty').value.trim();
+  const unit = document.getElementById('dm-unit').value.trim();
+  if (!name || !qty) return;
+  const fromDB = MATS_DB.find(m => m.name === name);
+  currentDocPositions.push({ name, qty, unit: unit || fromDB?.unit || '—', group: fromDB?.group || 'По документу' });
+  renderDocPositions();
+  document.getElementById('dm-name').value = '';
+  document.getElementById('dm-qty').value = '';
+  document.getElementById('dm-unit').value = '';
+  document.getElementById('dm-name').focus();
+}
+
+function renderDocPositions() {
+  const el = document.getElementById('doc-mat-positions');
+  if (!el) return;
+  el.innerHTML = currentDocPositions.map((p, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--accent-l);border:1px solid var(--tag-border);border-radius:8px">
+      <div style="flex:1;font-size:13px;font-weight:500">${p.name}</div>
+      <div style="font-size:13px;color:var(--text2);font-family:'IBM Plex Mono',monospace">${p.qty} ${p.unit}</div>
+      <button onclick="removeDocPosition(${i})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:0 2px">×</button>
+    </div>`).join('');
+}
+
+function removeDocPosition(i) {
+  currentDocPositions.splice(i, 1);
+  renderDocPositions();
+}
+
+function saveDocGroup() {
+  const doc      = document.getElementById('dm-doc').value.trim();
+  const supplier = document.getElementById('dm-supplier').value.trim();
+  if (currentDocPositions.length === 0) { alert('Додайте хоча б одну позицію'); return; }
+  if (!doc) { document.getElementById('dm-doc').focus(); return; }
+
+  // Зберігаємо кожну позицію з прив'язкою до документа
+  currentDocPositions.forEach(p => {
+    state.mats.push({ ...p, doc, supplier, manual: false, docGroup: true });
+  });
+
+  renderMats();
+  updateProgress();
+
+  // Очищаємо
+  currentDocPositions = [];
+  renderDocPositions();
+  document.getElementById('dm-doc').value = '';
+  document.getElementById('dm-supplier').value = '';
+}
+
+// ── Спільні функції ────────────────────────────────────────────────────────
+function addMatFromFields() {
+  const name = document.getElementById('mat-search').value.trim();
+  const qty  = document.getElementById('m-qty').value;
+  const unit = document.getElementById('m-unit').value.trim();
+  if (!name) { document.getElementById('mat-search').focus(); return; }
+  if (!qty)  { document.getElementById('m-qty').focus(); return; }
+  if (state.mats.find(m => m.name === name && !m.delivery && !m.docGroup)) {
+    alert('Цей матеріал вже додано'); return;
+  }
+  const fromDB = MATS_DB.find(m => m.name === name);
+  state.mats.push({
+    name, qty,
+    unit: unit || (fromDB?.unit || '—'),
+    group: fromDB?.group || 'Зі списку',
+    doc:'', supplier:'', manual: false
+  });
+  renderMats(); updateProgress();
+  document.getElementById('mat-search').value = '';
+  document.getElementById('m-qty').value = '';
+  document.getElementById('m-unit').value = '';
+}
+
+let pendingPhotos = [];
+
+function handlePhotoSelect(input) {
+  const preview = document.getElementById('em-photos-preview');
+  Array.from(input.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      pendingPhotos.push({ file, dataUrl: e.target.result });
+      const img = document.createElement('div');
+      img.style.cssText = 'position:relative;width:64px;height:64px;flex-shrink:0';
+      img.innerHTML = `
+        <img src="${e.target.result}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+        <div onclick="removePhoto(${pendingPhotos.length-1},this)" style="position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:var(--danger);color:#fff;border-radius:50%;font-size:11px;line-height:16px;text-align:center;cursor:pointer;font-weight:700">×</div>`;
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function removePhoto(idx, el) {
+  pendingPhotos.splice(idx, 1);
+  el.closest('div[style*="position:relative"]').remove();
+}
+
+function addManualMat() {
+  const name     = document.getElementById('em-name').value.trim();
+  const doc      = document.getElementById('em-doc').value.trim();
+  const supplier = document.getElementById('em-supplier').value.trim();
+  if (!name) { document.getElementById('em-name').focus(); return; }
+  if (!doc)  { document.getElementById('em-doc').focus(); return; }
+  const photos = [...pendingPhotos];
+  state.mats.push({ name, doc, supplier, photos, group:'Фото документ', manual: true });
+  renderOtherMats(); updateProgress();
+  document.getElementById('em-name').value = '';
+  document.getElementById('em-doc').value = '';
+  document.getElementById('em-supplier').value = '';
+  document.getElementById('em-photos-preview').innerHTML = '';
+  pendingPhotos = [];
+}
+
+function renderOtherMats() {
+  const container = document.getElementById('other-mats-list');
+  if (!container) return;
+  const manualMats = state.mats.filter(m => m.manual);
+  container.innerHTML = manualMats.map((m) => {
+    const idx = state.mats.indexOf(m);
+    const photoHtml = (m.photos||[]).map(p =>
+      `<img src="${p.dataUrl}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">`
+    ).join('');
+    return `
+      <div class="added-item">
+        <div class="added-main">
+          <div class="added-info">
+            <div class="added-name">${m.name}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:3px">
+              ${m.doc      ? `<span class="mat-tag mat-tag-blue">№ ${m.doc}</span>` : ''}
+              ${m.supplier ? `<span class="mat-tag">${m.supplier}</span>` : ''}
+            </div>
+            ${photoHtml ? `<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">${photoHtml}</div>` : ''}
+          </div>
+          <button class="remove-btn" onclick="removeMat(${idx})">×</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function removeMat(idx) {
+  state.mats.splice(idx, 1);
+  renderMats();
+  if (getMatsType() === 'road') renderRoadDeliveries();
+  else renderOtherMats();
+  updateProgress();
+}
+
+function removeManualMat(idx) { removeMat(idx); }
+
+function buildTransportSection() {
+  const wrap = document.getElementById('trans-wrap');
+  const panels = document.getElementById('trans-panels');
+  const list = document.getElementById('transport-list');
+  if (!wrap) return;
+  wrap.innerHTML = ''; panels.innerHTML = '';
+  if (list) list.innerHTML = '';
+  TRANSPORT_LIST.forEach(name => {
+    const safeId = 'trans_' + name.replace(/[^a-zA-Z0-9]/g,'_');
+    const btn = document.createElement('div');
+    btn.className = 'tech-tag-btn';
+    btn.id = 'tbtn_' + safeId;
+    btn.textContent = name;
+    btn.onclick = () => toggleTransCard(safeId, name);
+    wrap.appendChild(btn);
+  });
+}
+
+function toggleTransCard(safeId, transName) {
+  const btn = document.getElementById('tbtn_' + safeId);
+  const panels = document.getElementById('trans-panels');
+  const existing = document.getElementById('tpanel_' + safeId);
+  if (existing) { existing.remove(); btn.classList.remove('active'); return; }
+
+  btn.classList.add('active');
+  const panel = document.createElement('div');
+  panel.className = 'tech-panel';
+  panel.id = 'tpanel_' + safeId;
+  panel.innerHTML = `
+    <div class="tech-panel-title">${transName}</div>
+    <div class="tech-panel-row">
+      <div>
+        <label>Заправлено (л)</label>
+        <input type="number" id="tfuel_${safeId}" min="0" placeholder="0">
+      </div>
+      <div>
+        <label>Одометр при заправці (км) <span style="color:var(--danger);font-size:10px">обов'язково</span></label>
+        <input type="number" id="tkm_${safeId}" min="0" placeholder="напр. 125430">
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label style="font-size:12px;color:var(--text2);font-weight:500;display:block;margin-bottom:6px">Звідки заправлялись</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <div class="fuel-src-btn active" id="tsrc_kub_${safeId}" onclick="selectTransSrc('${safeId}','КУБ')">КУБ</div>
+        <div class="fuel-src-btn" id="tsrc_eleron_${safeId}" onclick="selectTransSrc('${safeId}','АЗС Елерон')">АЗС Елерон</div>
+        <div class="fuel-src-btn" id="tsrc_other_${safeId}" onclick="selectTransSrc('${safeId}','other')">Інше</div>
+        <input type="text" id="tsrc_custom_${safeId}" placeholder="Вкажіть звідки..."
+          style="display:none;flex:1;min-width:120px;font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--accent);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
+        <div onclick="addTransEntry('${safeId}','${transName}')"
+          style="margin-left:auto;padding:7px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
+          Додати
+        </div>
+      </div>
+    </div>`;
+  panels.appendChild(panel);
+  setTimeout(() => document.getElementById('tfuel_'+safeId)?.focus(), 50);
+}
+
+function selectTransSrc(safeId, val) {
+  ['kub','eleron','other'].forEach(k => {
+    document.getElementById('tsrc_'+k+'_'+safeId)?.classList.remove('active');
+  });
+  const map = {'КУБ':'kub','АЗС Елерон':'eleron','other':'other'};
+  document.getElementById('tsrc_'+map[val]+'_'+safeId)?.classList.add('active');
+  const custom = document.getElementById('tsrc_custom_'+safeId);
+  if (custom) custom.style.display = val === 'other' ? 'block' : 'none';
+}
+
+function addTransEntry(safeId, transName) {
+  const fuel = document.getElementById('tfuel_'+safeId)?.value || '';
+  const km   = document.getElementById('tkm_'+safeId)?.value || '';
+  if (!fuel) { document.getElementById('tfuel_'+safeId)?.focus(); return; }
+  if (!km)   { document.getElementById('tkm_'+safeId)?.focus(); return; }
+
+  let src = 'КУБ';
+  if (document.getElementById('tsrc_eleron_'+safeId)?.classList.contains('active')) src = 'АЗС Елерон';
+  if (document.getElementById('tsrc_other_'+safeId)?.classList.contains('active')) {
+    src = document.getElementById('tsrc_custom_'+safeId)?.value.trim() || 'Інше';
+  }
+
+  state.transport.push({ name: transName, fuel, km, src });
+  renderTransport();
+  updateProgress();
+
+  document.getElementById('tpanel_'+safeId)?.remove();
+  document.getElementById('tbtn_'+safeId)?.classList.remove('active');
+}
+
+function addTransport(name) {} // залишаємо для сумісності
+
+function renderTransport() {
+  const list = document.getElementById('transport-list');
+  if (!list) return;
+  list.innerHTML = state.transport.map((t,i) => `
+    <div class="added-item">
+      <div class="added-main">
+        <div class="added-info">
+          <div class="added-name">${t.name}</div>
+          <div class="added-group" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:3px">
+            ${t.fuel ? `<span style="font-size:11px;padding:1px 7px;background:#E6F1FB;color:#0C447C;border-radius:10px">${t.fuel} л</span>` : ''}
+            ${t.km ? `<span style="font-size:11px;padding:1px 7px;background:#E6F1FB;color:#0C447C;border-radius:10px">⊙ ${t.km} км</span>` : ''}
+            ${t.src ? `<span style="font-size:11px;padding:1px 7px;background:var(--surface2);color:var(--text2);border-radius:10px">${t.src}</span>` : ''}
+          </div>
+        </div>
+        <button class="remove-btn" onclick="removeTransport(${i})">×</button>
+      </div>
+    </div>`).join('');
+  list.style.marginBottom = state.transport.length > 0 ? '14px' : '0';
+}
+
+function removeTransport(idx) {
+  state.transport.splice(idx,1);
+  renderTransport();
+  updateProgress();
+}
+
+function addManual(type) {
+  const pre = type==='work'?'ew':'em';
+  const name = document.getElementById(pre+'-name').value.trim();
+  const qty  = document.getElementById(pre+'-qty').value;
+  const unit = document.getElementById(pre+'-unit').value.trim()||'—';
+  if (!name) { document.getElementById(pre+'-name').focus(); return; }
+  if (type==='work') { state.works.push({name,group:'Додаткові роботи',unit,qty,manual:true}); renderWorks(); }
+  else { state.mats.push({name,group:'Додаткові матеріали',unit,qty,doc:'',supplier:'',carMark:'',carNum:'',manual:true}); renderMats(); }
+  document.getElementById(pre+'-name').value='';
+  document.getElementById(pre+'-qty').value='';
+  document.getElementById(pre+'-unit').value='';
+  updateProgress();
+}
+
+// ================================================================
+// RENDER LISTS
+// ================================================================
+function renderWorks() {
+  document.getElementById('works-list').innerHTML = state.works.map((w,i)=>`
+    <div class="added-item" style="margin-bottom:6px">
+      <div class="added-main">
+        <div class="added-info">
+          <div class="added-name" title="${w.name}">${w.name}</div>
+          <div class="added-group" style="display:flex;align-items:center;gap:6px">
+            <span>${w.group}</span>
+            ${w.extra ? '<span style="font-size:10px;padding:1px 7px;background:#FDE8E5;color:#8B2012;border-radius:10px;font-weight:600">не за кошторисом</span>' : ''}
+          </div>
+        </div>
+        <div class="qty-wrap">
+          <input class="qty-input" type="number" value="${w.qty}" placeholder="0" min="0"
+            oninput="state.works[${i}].qty=this.value">
+          <input class="unit-input-small" type="text" value="${w.unit}"
+            oninput="state.works[${i}].unit=this.value">
+        </div>
+        <button class="remove-btn" onclick="removeItem('work',${i})">×</button>
+      </div>
+    </div>`).join('');
+  // відступ між списком і пошуком
+  const wList = document.getElementById('works-list');
+  wList.style.marginBottom = state.works.length > 0 ? '14px' : '0';
+}
+
+function renderMats() {
+  const listMats = state.mats.filter(m => !m.manual);
+  document.getElementById('mats-list').innerHTML = listMats.map((m) => {
+    const i = state.mats.indexOf(m);
+    return `
+    <div class="added-item">
+      <div class="added-main">
+        <div class="added-info">
+          <div class="added-name" title="${m.name}">${m.name}</div>
+          <div class="added-group">${m.group}</div>
+        </div>
+        <div class="qty-wrap">
+          <input class="qty-input" type="number" value="${m.qty}" placeholder="0" min="0"
+            oninput="state.mats[${i}].qty=this.value">
+          <input class="unit-input-small" type="text" value="${m.unit}"
+            oninput="state.mats[${i}].unit=this.value">
+        </div>
+        <button class="remove-btn" onclick="removeItem('mat',${i})">×</button>
+      </div>
+    </div>`;
+  }).join('');
+  // відступ між списком і пошуком
+  const matList = document.getElementById('mats-list');
+  matList.style.marginBottom = listMats.length > 0 ? '14px' : '0';
+}
+
+function removeItem(type, idx) {
+  if (type==='work') { state.works.splice(idx,1); renderWorks(); }
+  else { state.mats.splice(idx,1); renderMats(); }
+  updateProgress();
+}
+
+function removeTransport(idx) { state.transport.splice(idx,1); renderTransport(); }
+
+// ================================================================
+// PROGRESS
+// ================================================================
+function hasObj() {
+  // Для адресного типу — достатньо міста, для fixed — state.obj
+  const t = currentUser.objType || 'fixed';
+  if (t === 'street' || t === 'address') return !!(state.objCity || state.obj);
+  return !!state.obj;
+}
+
+function getObjLabel() {
+  // Повертає рядок для відображення обʼєкта
+  const t = currentUser.objType || 'fixed';
+  if ((t === 'street' || t === 'address') && !state.obj) {
+    const parts = [state.objCity, state.objStreet].filter(Boolean);
+    return parts.join(', ') || '—';
+  }
+  return state.obj || '—';
+}
+
+function updateProgress() {
+  let s=0;
+  if(hasObj()) s+=25;
+  if(state.workers.length>0) s+=25;
+  if(state.works.length>0) s+=30;
+  if(state.works.length>0&&state.workers.length>0) s=Math.min(s+20,100);
+  document.getElementById('progress').style.width=Math.min(s,100)+'%';
+}
+
+// ================================================================
+// SUBMIT
+// ================================================================
+function showPreview() {
+  if (!currentUser.name) { alert('Оберіть бригадира'); return; }
+  if (!hasObj()) { alert('Вкажіть обʼєкт або адресу'); return; }
+  if (state.workers.length===0) { alert('Оберіть хоча б одного працівника'); return; }
+  if (state.works.length===0) { alert('Додайте хоча б одну виконану роботу'); return; }
+
+  const times = getTimeValues();
+  const techArr = Object.entries(state.tech);
+  const d = getReportDate();
+  document.getElementById('preview-date').textContent =
+    d.toLocaleDateString('uk-UA') + ' · ' + ['неділя','понеділок','вівторок','середа','четвер','п\'ятниця','субота'][d.getDay()];
+
+  const badge = (text, color='#E6F1FB', textColor='#0C447C') =>
+    `<span class="preview-badge" style="background:${color};color:${textColor}">${text}</span>`;
+
+  let html = '';
+
+  // Основне
+  html += `<div class="preview-card">
+    <div class="preview-card-header"><span class="preview-card-title">Основне</span></div>
+    <div class="preview-card-body">
+      <div class="preview-row"><span class="preview-label">Бригадир</span><span class="preview-val">${currentUser.name}</span></div>
+      <div class="preview-row"><span class="preview-label">Об'єкт</span><span class="preview-val">${getObjLabel()}</span></div>
+      <div class="preview-row"><span class="preview-label">Час</span><span class="preview-val">${times.start} – ${times.end} (${document.getElementById('time-calc').textContent})</span></div>
+    </div>
+  </div>`;
+
+  // Працівники
+  html += `<div class="preview-card">
+    <div class="preview-card-header"><span class="preview-card-title">Працівники (${state.workers.length})</span></div>
+    <div class="preview-card-body">
+      <div style="display:flex;flex-wrap:wrap;gap:5px">${state.workers.map(w=>badge(w,'var(--surface2)','var(--text)')).join('')}</div>
+      ${document.getElementById('worker-notes').value ? `<div style="font-size:13px;color:var(--text2);margin-top:8px">${document.getElementById('worker-notes').value}</div>` : ''}
+    </div>
+  </div>`;
+
+  // Роботи
+  html += `<div class="preview-card">
+    <div class="preview-card-header"><span class="preview-card-title">Виконані роботи (${state.works.length})</span></div>
+    <div class="preview-card-body">
+      ${state.works.map(w=>`
+        <div class="preview-row">
+          <span class="preview-val" style="grid-column:1/-1;font-weight:600">${w.name}
+            <span style="font-weight:400;color:var(--text2);font-size:13px;margin-left:8px">${w.qty} ${w.unit}</span>
+            ${w.extra ? badge('не за кошторисом','#FDE8E5','#8B2012') : ''}
+          </span>
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+  // Матеріали
+  const allMats = state.mats;
+  if (allMats.length > 0) {
+    html += `<div class="preview-card">
+      <div class="preview-card-header"><span class="preview-card-title">Матеріали (${allMats.length})</span></div>
+      <div class="preview-card-body">
+        ${allMats.map(m => m.manual ? `
+          <div class="preview-row">
+            <span class="preview-val" style="grid-column:1/-1">${m.name}
+              <div style="margin-top:4px">${m.doc ? badge('№ '+m.doc,'#E6F1FB','#0C447C') : ''}${m.supplier ? badge(m.supplier,'var(--surface2)','var(--text2)') : ''}${m.car ? badge(m.car,'var(--surface2)','var(--text2)') : ''}</div>
+            </span>
+          </div>` : `
+          <div class="preview-row">
+            <span class="preview-val">${m.name}</span>
+            <span style="color:var(--text2);font-size:13px">${m.qty} ${m.unit}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Техніка
+  if (techArr.length > 0) {
+    html += `<div class="preview-card">
+      <div class="preview-card-header"><span class="preview-card-title">Спецтехніка (${techArr.length})</span></div>
+      <div class="preview-card-body">
+        ${techArr.map(([name,v])=>`
+          <div class="preview-row">
+            <span class="preview-val">${name}</span>
+            <span style="color:var(--text2);font-size:13px">${v.hrs ? v.hrs+' год' : ''}${v.hrs&&v.fuel?' · ':''}${v.fuel ? v.fuel+' л' : ''}${v.src ? ' · '+v.src : ''}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Транспорт
+  if (state.transport.length > 0) {
+    html += `<div class="preview-card">
+      <div class="preview-card-header"><span class="preview-card-title">Заправка транспорту (${state.transport.length})</span></div>
+      <div class="preview-card-body">
+        ${state.transport.map(t=>`
+          <div class="preview-row">
+            <span class="preview-val">${t.name}</span>
+            <span style="color:var(--text2);font-size:13px">${t.fuel} л${t.km ? ' · одометр: '+t.km+' км' : ''}${t.src ? ' · '+t.src : ''}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Примітки
+  const notes = document.getElementById('notes').value;
+  if (notes) {
+    html += `<div class="preview-card">
+      <div class="preview-card-header"><span class="preview-card-title">Примітки</span></div>
+      <div class="preview-card-body"><div style="font-size:13px;color:var(--text)">${notes}</div></div>
+    </div>`;
+  }
+
+  document.getElementById('preview-body').innerHTML = html;
+  document.getElementById('main-form').style.display = 'none';
+  document.getElementById('preview-screen').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+function closePreview() {
+  document.getElementById('preview-screen').style.display = 'none';
+  document.getElementById('main-form').style.display = 'block';
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function submitForm() {
+  if (!currentUser.name) { alert('Оберіть бригадира'); return; }
+  if (!hasObj()) { alert('Вкажіть обʼєкт або адресу'); return; }
+  if (state.workers.length===0) { alert('Оберіть хоча б одного працівника'); return; }
+  if (state.works.length===0) { alert('Додайте хоча б одну виконану роботу'); return; }
+
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
+
+  const times = getTimeValues();
+  const payload = {
+    action: 'submitReport',
+    date: getReportDate().toLocaleDateString('uk-UA'),
+    brigadier: currentUser.name,
+    object: getObjLabel(),
+    objCity: state.objCity || '',
+    objStreet: state.objStreet || '',
+    timeStart: times.start,
+    timeEnd: times.end,
+    timeSummary: document.getElementById('time-calc').textContent,
+    workers: state.workers,
+    workerHours: getWorkerHoursPayload(),
+    workerNotes: document.getElementById('worker-notes').value,
+    works: state.works,
+    mats: state.mats,
+    tech: state.tech,
+    transport: state.transport,
+    notes: document.getElementById('notes').value,
+  };
+
+  // Показуємо оверлей завантаження
+  document.getElementById('loading-overlay').style.display = 'flex';
+  window.scrollTo(0, 0);
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'text/plain' }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('loading-overlay').style.display = 'none';
+      document.getElementById('preview-screen').style.display = 'none';
+      document.getElementById('main-form').style.display = 'none';
+      document.getElementById('success-details').innerHTML =
+        `<strong>${currentUser.name}</strong><br>${getObjLabel()} · ${getReportDate().toLocaleDateString('uk-UA')}<br><br>`+
+        `Працівників: ${state.workers.length} · Робіт: ${state.works.length} · Матеріалів: ${state.mats.length}`+
+        (Object.keys(state.tech).length ? `<br>Техніка: ${Object.keys(state.tech).join(', ')}` : '')+
+        `<br><br><span style="font-size:12px;opacity:.6">ID: ${data.reportId}</span>`;
+      document.getElementById('success-overlay').style.display = 'flex';
+    } else {
+      document.getElementById('loading-overlay').style.display = 'none';
+      alert('Помилка: ' + (data.error || 'невідома'));
+    }
+  })
+  .catch(err => {
+    document.getElementById('loading-overlay').style.display = 'none';
+    alert('Помилка з\'єднання. Перевірте інтернет і спробуйте ще раз.\n' + err);
+  });
+}
+
+function newReport() {
+  // Скидаємо дані форми, але залишаємо поточного бригадира — пін не потрібен повторно
+  state = { obj:null, objCity:null, objStreet:null, workers:[], works:[], mats:[], tech:{}, transport:[], workerHours:{} };
+  pendingPhotos = [];
+  currentDocPositions = [];
+  document.getElementById('success-overlay').style.display = 'none';
+  document.getElementById('loading-overlay').style.display = 'none';
+  document.getElementById('preview-screen').style.display = 'none';
+  document.getElementById('main-form').style.display = 'block';
+  buildObjSection(); buildWorkerTags(); buildTechSection(); buildTransportSection();
+  ['works-list','mats-list','transport-list'].forEach(id => document.getElementById(id).innerHTML = '');
+  document.getElementById('worker-notes').value = '';
+  document.getElementById('notes').value = '';
+  updateProgress();
+  window.scrollTo(0, 0);
+}
+
+// Запуск — тільки після правильного пін-коду (checkPin → startApp)
+</script>
+</body>
+</html>
