@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
 <title>Рапорт бригадира</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -217,18 +218,18 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="pin-dot" id="pd3"></div>
   </div>
   <div class="pin-grid">
-    <button class="pin-key" onclick="pinPress('1')">1</button>
-    <button class="pin-key" onclick="pinPress('2')">2</button>
-    <button class="pin-key" onclick="pinPress('3')">3</button>
-    <button class="pin-key" onclick="pinPress('4')">4</button>
-    <button class="pin-key" onclick="pinPress('5')">5</button>
-    <button class="pin-key" onclick="pinPress('6')">6</button>
-    <button class="pin-key" onclick="pinPress('7')">7</button>
-    <button class="pin-key" onclick="pinPress('8')">8</button>
-    <button class="pin-key" onclick="pinPress('9')">9</button>
+    <button class="pin-key" data-fn="pinPress" data-arg="1">1</button>
+    <button class="pin-key" data-fn="pinPress" data-arg="2">2</button>
+    <button class="pin-key" data-fn="pinPress" data-arg="3">3</button>
+    <button class="pin-key" data-fn="pinPress" data-arg="4">4</button>
+    <button class="pin-key" data-fn="pinPress" data-arg="5">5</button>
+    <button class="pin-key" data-fn="pinPress" data-arg="6">6</button>
+    <button class="pin-key" data-fn="pinPress" data-arg="7">7</button>
+    <button class="pin-key" data-fn="pinPress" data-arg="8">8</button>
+    <button class="pin-key" data-fn="pinPress" data-arg="9">9</button>
     <button class="pin-key k-empty" disabled></button>
-    <button class="pin-key" onclick="pinPress('0')">0</button>
-    <button class="pin-key k-del" onclick="pinDel()">⌫</button>
+    <button class="pin-key" data-fn="pinPress" data-arg="0">0</button>
+    <button class="pin-key k-del" data-fn="pinDel">⌫</button>
   </div>
   <div class="pin-msg" id="pin-msg"></div>
 </div>
@@ -241,9 +242,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div id="h-name" class="header-name">Щоденний рапорт</div>
       <div id="h-date" class="header-date"></div>
       <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:10px" id="date-btns">
-        <div class="date-btn-today active" id="dbtn-0" onclick="selectReportDate(0)">Сьогодні</div>
-        <div class="date-btn" id="dbtn-1" onclick="selectReportDate(1)">Вчора</div>
-        <div class="date-btn" id="dbtn-2" onclick="selectReportDate(2)">Позавчора</div>
+        <div class="date-btn-today active" id="dbtn-0" data-fn="selectReportDate" data-arg="0">Сьогодні</div>
+        <div class="date-btn" id="dbtn-1" data-fn="selectReportDate" data-arg="1">Вчора</div>
+        <div class="date-btn" id="dbtn-2" data-fn="selectReportDate" data-arg="2">Позавчора</div>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
     </div>
@@ -297,7 +298,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="section-header"><span class="section-title">Працівники</span><span class="badge badge-req">обов'язково</span></div>
     <div class="section-body">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <div id="select-all-btn" onclick="toggleSelectAllWorkers()"
+        <div id="select-all-btn" data-fn="toggleSelectAllWorkers"
           style="font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;padding:4px 10px;border:1px solid var(--tag-border);border-radius:6px;background:var(--accent-l);user-select:none">
           Вибрати всіх
         </div>
@@ -310,7 +311,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
       <!-- Кнопка індивідуальних годин -->
       <div style="margin-top:10px">
-        <div id="worker-hours-btn" onclick="toggleWorkerHours()"
+        <div id="worker-hours-btn" data-fn="toggleWorkerHours"
           style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);user-select:none">
           <span>⏱</span> Змінити години індивідуально <span id="hours-arrow">▾</span>
         </div>
@@ -330,7 +331,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           onblur="setTimeout(()=>{document.getElementById('worker-dd').style.display='none'},200);this.style.borderColor='var(--border)'"
           onkeydown="if(event.key==='Enter')addExtraWorker()">
         <div class="dd-list" id="worker-dd" style="display:none;top:calc(100% + 3px)"></div>
-        <div onclick="addExtraWorker()"
+        <div data-fn="addExtraWorker"
           style="padding:9px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">
           Додати
         </div>
@@ -364,7 +365,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <input type="text" id="w-unit" placeholder="од."
             style="width:60px;font-family:inherit;font-size:14px;padding:9px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
             onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-          <div onclick="addWorkFromFields()"
+          <div data-fn="addWorkFromFields"
             style="padding:9px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">Додати</div>
         </div>
       </div>
@@ -390,7 +391,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             <input type="radio" name="work-type" value="extra" style="accent-color:var(--accent);cursor:pointer" onchange="updateWorkTypeLabel()">
             не за кошторисом
           </label>
-          <div onclick="addManualWork()"
+          <div data-fn="addManualWork"
             style="margin-left:auto;padding:9px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">Додати</div>
         </div>
       </div>
@@ -420,7 +421,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <input type="text" id="m-unit" placeholder="од."
             style="width:60px;font-family:inherit;font-size:14px;padding:9px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
             onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-          <div onclick="addMatFromFields()"
+          <div data-fn="addMatFromFields"
             style="padding:9px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">Додати</div>
         </div>
       </div>
@@ -466,8 +467,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
   <div class="submit-section" id="submit-section" style="display:none">
     <div style="display:flex;gap:10px">
-      <button class="submit-btn" style="background:var(--surface2);color:var(--accent);border:1.5px solid var(--accent);flex:1" onclick="showPreview()">Переглянути</button>
-      <button class="submit-btn" style="flex:1" onclick="submitForm()">Відправити рапорт</button>
+      <button class="submit-btn" style="background:var(--surface2);color:var(--accent);border:1.5px solid var(--accent);flex:1" data-fn="showPreview">Переглянути</button>
+      <button class="submit-btn" style="flex:1" data-fn="submitForm">Відправити рапорт</button>
     </div>
   </div>
 </div>
@@ -480,8 +481,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
   <div id="preview-body" style="padding:12px"></div>
   <div style="padding:20px;display:flex;gap:10px">
-    <button onclick="closePreview()" style="flex:1;padding:14px;background:var(--surface2);color:var(--accent);border:1.5px solid var(--accent);border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">← Редагувати</button>
-    <button id="preview-submit-btn" onclick="submitForm()" style="flex:1;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">Відправити рапорт</button>
+    <button data-fn="closePreview" style="flex:1;padding:14px;background:var(--surface2);color:var(--accent);border:1.5px solid var(--accent);border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">← Редагувати</button>
+    <button id="preview-submit-btn" data-fn="submitForm" style="flex:1;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">Відправити рапорт</button>
   </div>
 </div>
 
@@ -508,10 +509,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div style="font-size:24px;font-weight:700;color:#1a1a1a;margin-bottom:8px">Рапорт відправлено!</div>
   <div id="success-details" style="font-size:14px;color:#555;line-height:1.6;margin-bottom:36px;max-width:320px"></div>
   <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px">
-    <button onclick="newReport()" style="padding:14px;background:#2A5C3F;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">
+    <button data-fn="newReport" style="padding:14px;background:#2A5C3F;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">
       📋 Подати ще один рапорт
     </button>
-    <button onclick="window.close()" style="padding:14px;background:transparent;color:#888;border:1.5px solid #ddd;border-radius:10px;font-family:inherit;font-size:15px;cursor:pointer">
+    <button data-expr="window.close()" style="padding:14px;background:transparent;color:#888;border:1.5px solid #ddd;border-radius:10px;font-family:inherit;font-size:15px;cursor:pointer">
       ✕ Закрити сторінку
     </button>
   </div>
@@ -725,8 +726,7 @@ function startApp(userKey) {
   showFormLoader('Завантаження даних...');
 
   // Запит до Довідника через fetch
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
-  fetch(SCRIPT_URL + '?action=getReference&brigade=' + userKey)
+  fetch('https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec?action=getReference&brigade=' + userKey)
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data.ok) { hideFormLoader(); alert('Помилка: ' + data.error); return; }
@@ -760,11 +760,11 @@ function startApp(userKey) {
       updateProgress();
       window.scrollTo(0, 0);
     })
-    .catch(function(err) {
-      hideFormLoader();
-      alert('Помилка завантаження даних. Перевірте інтернет.
-' + err);
-    });
+  })
+  .catch(function(err) {
+    hideFormLoader();
+    alert('Помилка завантаження. Перевірте інтернет.\n' + err);
+  });
 }
 
 function showFormLoader(msg) {
@@ -2339,8 +2339,7 @@ function submitForm() {
   document.getElementById('loading-overlay').style.display = 'flex';
   window.scrollTo(0, 0);
 
-  const SCRIPT_URL_POST = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
-  fetch(SCRIPT_URL_POST, {
+  fetch('https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec', {
     method: 'POST',
     body: JSON.stringify(payload),
     headers: { 'Content-Type': 'text/plain' }
@@ -2352,10 +2351,10 @@ function submitForm() {
       document.getElementById('preview-screen').style.display = 'none';
       document.getElementById('main-form').style.display = 'none';
       document.getElementById('success-details').innerHTML =
-        `<strong>${currentUser.name}</strong><br>${getObjLabel()} · ${getReportDate().toLocaleDateString('uk-UA')}<br><br>`+
-        `Працівників: ${state.workers.length} · Робіт: ${state.works.length} · Матеріалів: ${state.mats.length}`+
-        (Object.keys(state.tech).length ? `<br>Техніка: ${Object.keys(state.tech).join(', ')}` : '')+
-        `<br><br><span style="font-size:12px;opacity:.6">ID: ${data.reportId}</span>`;
+        '<strong>' + currentUser.name + '</strong><br>' + getObjLabel() + ' · ' + getReportDate().toLocaleDateString('uk-UA') + '<br><br>' +
+        'Працівників: ' + state.workers.length + ' · Робіт: ' + state.works.length + ' · Матеріалів: ' + state.mats.length +
+        (Object.keys(state.tech).length ? '<br>Техніка: ' + Object.keys(state.tech).join(', ') : '') +
+        '<br><br><span style="font-size:12px;opacity:.6">ID: ' + data.reportId + '</span>';
       document.getElementById('success-overlay').style.display = 'flex';
     } else {
       alert('Помилка: ' + (data.error || 'невідома'));
@@ -2363,8 +2362,7 @@ function submitForm() {
   })
   .catch(function(err) {
     document.getElementById('loading-overlay').style.display = 'none';
-    alert('Помилка зʼєднання. Перевірте інтернет.
-' + err);
+    alert('Помилка зʼєднання. Перевірте інтернет.\n' + err);
   });
 }
 
@@ -2389,3 +2387,38 @@ function newReport() {
 </script>
 </body>
 </html>
+// ================================================================
+// ІНІЦІАЛІЗАЦІЯ ПОДІЙ — Apps Script не підтримує onclick атрибути
+// ================================================================
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Делегування подій — один слухач на весь документ
+  document.addEventListener('click', function(e) {
+    var el = e.target.closest('[data-fn]');
+    if (!el) return;
+    var fn  = el.getAttribute('data-fn');
+    var arg = el.getAttribute('data-arg');
+    if (!fn) return;
+    var funcs = {
+      pinPress:              function() { pinPress(arg); },
+      pinDel:                function() { pinDel(); },
+      selectReportDate:      function() { selectReportDate(parseInt(arg)); },
+      toggleSelectAllWorkers:function() { toggleSelectAllWorkers(); },
+      toggleWorkerHours:     function() { toggleWorkerHours(); },
+      addExtraWorker:        function() { addExtraWorker(); },
+      addWorkFromFields:     function() { addWorkFromFields(); },
+      addManualWork:         function() { addManualWork(); },
+      addMatFromFields:      function() { addMatFromFields(); },
+      showPreview:           function() { showPreview(); },
+      closePreview:          function() { closePreview(); },
+      submitForm:            function() { submitForm(); },
+      newReport:             function() { newReport(); },
+      'window.close':        function() { window.close(); },
+    };
+    if (funcs[fn]) {
+      e.preventDefault && e.preventDefault();
+      funcs[fn]();
+    }
+  });
+
+});
