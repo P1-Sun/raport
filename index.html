@@ -760,11 +760,10 @@ function startApp(userKey) {
       updateProgress();
       window.scrollTo(0, 0);
     })
-  })
-  .catch(function(err) {
-    hideFormLoader();
-    alert('Помилка завантаження. Перевірте інтернет.\n' + err);
-  });
+    .catch(function(err) {
+      hideFormLoader();
+      alert('Помилка завантаження. Перевірте інтернет.\n' + err);
+    });
 }
 
 function showFormLoader(msg) {
