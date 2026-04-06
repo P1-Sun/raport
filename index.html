@@ -2389,35 +2389,31 @@ function newReport() {
 // ================================================================
 // ІНІЦІАЛІЗАЦІЯ ПОДІЙ — Apps Script не підтримує onclick атрибути
 // ================================================================
-document.addEventListener('DOMContentLoaded', function() {
-
-  // Делегування подій — один слухач на весь документ
-  document.addEventListener('click', function(e) {
-    var el = e.target.closest('[data-fn]');
-    if (!el) return;
-    var fn  = el.getAttribute('data-fn');
-    var arg = el.getAttribute('data-arg');
-    if (!fn) return;
-    var funcs = {
-      pinPress:              function() { pinPress(arg); },
-      pinDel:                function() { pinDel(); },
-      selectReportDate:      function() { selectReportDate(parseInt(arg)); },
-      toggleSelectAllWorkers:function() { toggleSelectAllWorkers(); },
-      toggleWorkerHours:     function() { toggleWorkerHours(); },
-      addExtraWorker:        function() { addExtraWorker(); },
-      addWorkFromFields:     function() { addWorkFromFields(); },
-      addManualWork:         function() { addManualWork(); },
-      addMatFromFields:      function() { addMatFromFields(); },
-      showPreview:           function() { showPreview(); },
-      closePreview:          function() { closePreview(); },
-      submitForm:            function() { submitForm(); },
-      newReport:             function() { newReport(); },
-      'window.close':        function() { window.close(); },
-    };
-    if (funcs[fn]) {
-      e.preventDefault && e.preventDefault();
-      funcs[fn]();
-    }
-  });
-
+// Делегування подій — один слухач на весь документ
+document.addEventListener('click', function(e) {
+  var el = e.target.closest('[data-fn]');
+  if (!el) return;
+  var fn  = el.getAttribute('data-fn');
+  var arg = el.getAttribute('data-arg');
+  if (!fn) return;
+  var funcs = {
+    pinPress:              function() { pinPress(arg); },
+    pinDel:                function() { pinDel(); },
+    selectReportDate:      function() { selectReportDate(parseInt(arg)); },
+    toggleSelectAllWorkers:function() { toggleSelectAllWorkers(); },
+    toggleWorkerHours:     function() { toggleWorkerHours(); },
+    addExtraWorker:        function() { addExtraWorker(); },
+    addWorkFromFields:     function() { addWorkFromFields(); },
+    addManualWork:         function() { addManualWork(); },
+    addMatFromFields:      function() { addMatFromFields(); },
+    showPreview:           function() { showPreview(); },
+    closePreview:          function() { closePreview(); },
+    submitForm:            function() { submitForm(); },
+    newReport:             function() { newReport(); },
+    'window.close':        function() { window.close(); },
+  };
+  if (funcs[fn]) {
+    e.preventDefault && e.preventDefault();
+    funcs[fn]();
+  }
 });
