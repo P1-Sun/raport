@@ -2383,13 +2383,8 @@ function newReport() {
 }
 
 // Запуск — тільки після правильного пін-коду (checkPin → startApp)
-</script>
-</body>
-</html>
-// ================================================================
-// ІНІЦІАЛІЗАЦІЯ ПОДІЙ — Apps Script не підтримує onclick атрибути
-// ================================================================
-// Делегування подій — один слухач на весь документ
+
+// Делегування подій для data-fn кнопок
 document.addEventListener('click', function(e) {
   var el = e.target.closest('[data-fn]');
   if (!el) return;
@@ -2417,3 +2412,6 @@ document.addEventListener('click', function(e) {
     funcs[fn]();
   }
 });
+</script>
+</body>
+</html>
