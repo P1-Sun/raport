@@ -218,18 +218,18 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="pin-dot" id="pd3"></div>
   </div>
   <div class="pin-grid">
-    <button class="pin-key" data-fn="pinPress" data-arg="1">1</button>
-    <button class="pin-key" data-fn="pinPress" data-arg="2">2</button>
-    <button class="pin-key" data-fn="pinPress" data-arg="3">3</button>
-    <button class="pin-key" data-fn="pinPress" data-arg="4">4</button>
-    <button class="pin-key" data-fn="pinPress" data-arg="5">5</button>
-    <button class="pin-key" data-fn="pinPress" data-arg="6">6</button>
-    <button class="pin-key" data-fn="pinPress" data-arg="7">7</button>
-    <button class="pin-key" data-fn="pinPress" data-arg="8">8</button>
-    <button class="pin-key" data-fn="pinPress" data-arg="9">9</button>
-    <button class="pin-key k-empty" disabled></button>
-    <button class="pin-key" data-fn="pinPress" data-arg="0">0</button>
-    <button class="pin-key k-del" data-fn="pinDel">⌫</button>
+    <div class="pin-key" onclick="pinPress('1')">1</div>
+    <div class="pin-key" onclick="pinPress('2')">2</div>
+    <div class="pin-key" onclick="pinPress('3')">3</div>
+    <div class="pin-key" onclick="pinPress('4')">4</div>
+    <div class="pin-key" onclick="pinPress('5')">5</div>
+    <div class="pin-key" onclick="pinPress('6')">6</div>
+    <div class="pin-key" onclick="pinPress('7')">7</div>
+    <div class="pin-key" onclick="pinPress('8')">8</div>
+    <div class="pin-key" onclick="pinPress('9')">9</div>
+    <div class="pin-key k-empty"></div>
+    <div class="pin-key" onclick="pinPress('0')">0</div>
+    <div class="pin-key k-del" onclick="pinDel()">⌫</div>
   </div>
   <div class="pin-msg" id="pin-msg"></div>
 </div>
