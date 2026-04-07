@@ -350,10 +350,35 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="section-body" style="display:flex;flex-direction:column;gap:10px">
       <div id="works-list"></div>
       <div class="sub-card">
-        <div class="sub-label">Зі списку кошторису</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="sub-label" style="margin-bottom:0">Зі списку кошторису</div>
+          <div onclick="toggleWorkFilter()" id="work-filter-btn"
+            style="font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;padding:4px 10px;border:1px solid var(--tag-border);border-radius:6px;background:var(--accent-l);user-select:none">
+            ⚙ Фільтр
+          </div>
+        </div>
+
+        <!-- Каскадний фільтр (прихований за замовчуванням) -->
+        <div id="work-filter-panel" style="display:none;flex-direction:column;gap:6px;margin-bottom:10px;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Звузити список</div>
+          <select id="wf-rozdil" onchange="updateWorkFilter()"
+            style="width:100%;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
+            <option value="">Всі розділи</option>
+          </select>
+          <select id="wf-sektsia" onchange="updateWorkFilter()"
+            style="width:100%;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
+            <option value="">Всі секції</option>
+          </select>
+          <select id="wf-grupa" onchange="updateWorkFilter()"
+            style="width:100%;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
+            <option value="">Всі групи</option>
+          </select>
+          <div style="font-size:12px;color:var(--text3)" id="wf-count"></div>
+        </div>
+
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative">
           <div style="position:relative;flex:2;min-width:200px">
-            <input type="text" id="work-search" placeholder="Пошук роботи зі списку кошторису..." autocomplete="off"
+            <input type="text" id="work-search" placeholder="Пошук роботи..." autocomplete="off"
               style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box"
               oninput="filterDD('work')" onfocus="this.style.borderColor='var(--accent)';filterDD('work')"
               onblur="setTimeout(()=>document.getElementById('work-dd').style.display='none',300);this.style.borderColor='var(--border)'">
@@ -1378,10 +1403,86 @@ function hl(text, q) {
   return text.slice(0,i)+'<mark>'+text.slice(i,i+q.length)+'</mark>'+text.slice(i+q.length);
 }
 
+// ================================================================
+// ФІЛЬТР РОБІТ — Розділ / Секція / Група
+// ================================================================
+
+// Поточний активний фільтр
+let workFilter = { rozdil: '', sektsia: '', grupa: '' };
+let workFilterOpen = false;
+
+function toggleWorkFilter() {
+  const panel = document.getElementById('work-filter-panel');
+  const btn   = document.getElementById('work-filter-btn');
+  workFilterOpen = !workFilterOpen;
+  panel.style.display = workFilterOpen ? 'flex' : 'none';
+  btn.style.background = workFilterOpen ? 'var(--accent)' : 'var(--accent-l)';
+  btn.style.color      = workFilterOpen ? '#fff' : 'var(--accent)';
+  if (workFilterOpen) buildWorkFilterSelects();
+}
+
+function buildWorkFilterSelects() {
+  const db = window._WORKS_DB_LIVE || [];
+  if (!db.length) return;
+
+  // Розділи
+  const rozdils = [...new Set(db.map(w => w.rozdil).filter(Boolean))].sort();
+  const selR = document.getElementById('wf-rozdil');
+  const curR = selR.value;
+  selR.innerHTML = '<option value="">Всі розділи</option>' +
+    rozdils.map(r => `<option value="${r}" ${r===curR?'selected':''}>${r}</option>`).join('');
+
+  updateWorkFilter();
+}
+
+function updateWorkFilter() {
+  const db = window._WORKS_DB_LIVE || [];
+  const selR = document.getElementById('wf-rozdil');
+  const selS = document.getElementById('wf-sektsia');
+  const selG = document.getElementById('wf-grupa');
+
+  workFilter.rozdil  = selR?.value || '';
+  workFilter.sektsia = '';
+  workFilter.grupa   = '';
+
+  // Оновлюємо секції на основі вибраного розділу
+  const filtered1 = workFilter.rozdil
+    ? db.filter(w => w.rozdil === workFilter.rozdil)
+    : db;
+  const sektsii = [...new Set(filtered1.map(w => w.sektsia).filter(Boolean))].sort();
+  const curS = selS.value;
+  selS.innerHTML = '<option value="">Всі секції</option>' +
+    sektsii.map(s => `<option value="${s}" ${s===curS?'selected':''}>${s}</option>`).join('');
+  workFilter.sektsia = selS.value;
+
+  // Оновлюємо групи на основі розділу + секції
+  const filtered2 = filtered1.filter(w => !workFilter.sektsia || w.sektsia === workFilter.sektsia);
+  const grupy = [...new Set(filtered2.map(w => w.group).filter(Boolean))].sort();
+  const curG = selG.value;
+  selG.innerHTML = '<option value="">Всі групи</option>' +
+    grupy.map(g => `<option value="${g}" ${g===curG?'selected':''}>${g}</option>`).join('');
+  workFilter.grupa = selG.value;
+
+  // Підрахунок
+  const finalCount = filtered2.filter(w => !workFilter.grupa || w.group === workFilter.grupa).length;
+  const el = document.getElementById('wf-count');
+  if (el) el.textContent = finalCount + ' робіт у вибірці';
+}
+
+function getFilteredWorks() {
+  const db = window._WORKS_DB_LIVE || WORKS_DB;
+  return db.filter(w => {
+    if (workFilter.rozdil  && w.rozdil   !== workFilter.rozdil)  return false;
+    if (workFilter.sektsia && w.sektsia  !== workFilter.sektsia) return false;
+    if (workFilter.grupa   && w.group    !== workFilter.grupa)   return false;
+    return true;
+  });
+}
+
 function filterDD(type, customInputId, customDdId) {
   // Підтримує як стандартні id (work/mat/trans), так і кастомні (rd-mat, dm-name)
   // Використовуємо живі дані з Довідника якщо є, інакше — локальні
-  const liveWorks = window._WORKS_DB_LIVE || WORKS_DB;
+  const liveWorks = (type === 'work') ? getFilteredWorks() : (window._WORKS_DB_LIVE || WORKS_DB);
   const liveMats  = window._MATS_DB_LIVE  || MATS_DB;
   const liveTrans = (window._TRANSPORT_LIVE || TRANSPORT_LIST).map(n => typeof n === 'string' ? {name:n,group:'Транспорт',unit:'л'} : n);
   const cfgMap = {
@@ -1399,11 +1500,15 @@ function filterDD(type, customInputId, customDdId) {
     ? db.filter(i => i.name.toLowerCase().includes(q.toLowerCase()) || (i.group||'').toLowerCase().includes(q.toLowerCase()))
     : db.slice(0, 8);
   if (!res.length) { dd.innerHTML='<div class="dd-empty">Не знайдено</div>'; dd.style.display='block'; return; }
-  dd.innerHTML = res.slice(0,20).map(item =>
-    `<div class="dd-item" onmousedown="event.preventDefault()" onclick='selectDD("${type}",${JSON.stringify(item).replace(/'/g,"&apos;")},${JSON.stringify(inputId)},${JSON.stringify(ddId)})'>
+  dd.innerHTML = res.slice(0,20).map(item => {
+    const meta = type === 'work'
+      ? [item.rozdil, item.sektsia, item.group].filter(Boolean).join(' › ') + (item.unit ? ' · ' + item.unit : '')
+      : (item.group || '') + (item.unit ? ' · ' + item.unit : '');
+    return `<div class="dd-item" onmousedown="event.preventDefault()" onclick='selectDD("${type}",${JSON.stringify(item).replace(/'/g,"&apos;")},${JSON.stringify(inputId)},${JSON.stringify(ddId)})'>
       <div class="dd-name">${hl(item.name,q)}</div>
-      <div class="dd-meta">${item.group}${item.unit?' · '+item.unit:''}</div>
-    </div>`).join('');
+      <div class="dd-meta">${meta}</div>
+    </div>`;
+  }).join('');
   dd.style.display = 'block';
 }
 
@@ -1717,21 +1822,52 @@ function toggleMListExtra(type, show) {
 let mdPhotos = [];
 let pendingPhotos = [];
 
+const MAX_PHOTOS = 5;
+const MAX_PX     = 1200;  // максимальна ширина/висота після стиснення
+const JPEG_Q     = 0.72;  // якість JPEG (0.72 ≈ ~200-400 КБ для типового фото)
+
+function compressPhoto(file, callback) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      // Розраховуємо новий розмір
+      let w = img.width, h = img.height;
+      if (w > MAX_PX || h > MAX_PX) {
+        if (w > h) { h = Math.round(h * MAX_PX / w); w = MAX_PX; }
+        else       { w = Math.round(w * MAX_PX / h); h = MAX_PX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', JPEG_Q));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 function handleMdPhoto(input) {
   const preview = document.getElementById('md-photos-preview');
-  Array.from(input.files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
+  const files = Array.from(input.files);
+
+  if (mdPhotos.length + files.length > MAX_PHOTOS) {
+    alert('Максимум ' + MAX_PHOTOS + ' фото на один запис');
+    input.value = '';
+    return;
+  }
+
+  files.forEach(file => {
+    compressPhoto(file, (dataUrl) => {
       const idx = mdPhotos.length;
-      mdPhotos.push({ file, dataUrl: e.target.result });
+      mdPhotos.push({ dataUrl });
       const wrap = document.createElement('div');
       wrap.style.cssText = 'position:relative;width:56px;height:56px;flex-shrink:0';
       wrap.innerHTML = `
-        <img src="${e.target.result}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+        <img src="${dataUrl}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
         <div onclick="removeMdPhoto(${idx},this)" style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:var(--danger);color:#fff;border-radius:50%;font-size:11px;line-height:16px;text-align:center;cursor:pointer;font-weight:700">×</div>`;
       preview.appendChild(wrap);
-    };
-    reader.readAsDataURL(file);
+    });
   });
   input.value = '';
 }
