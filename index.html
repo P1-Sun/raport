@@ -2141,12 +2141,18 @@ function renderMats() {
   const listMats = state.mats.filter(m => !m.manual);
   document.getElementById('mats-list').innerHTML = listMats.map((m) => {
     const i = state.mats.indexOf(m);
+    const tags = [
+      m.car      ? `<span class="mat-tag">${m.car}${m.trips > 1 ? ' · ' + m.trips + ' ходок' : ''}</span>` : '',
+      m.doc      ? `<span class="mat-tag mat-tag-blue">№ ${m.doc}</span>` : '',
+      m.supplier ? `<span class="mat-tag">${m.supplier}</span>` : '',
+    ].filter(Boolean).join('');
     return `
     <div class="added-item">
       <div class="added-main">
         <div class="added-info">
           <div class="added-name" title="${m.name}">${m.name}</div>
           <div class="added-group">${m.group}</div>
+          ${tags ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${tags}</div>` : ''}
         </div>
         <div class="qty-wrap">
           <input class="qty-input" type="number" value="${m.qty}" placeholder="0" min="0"
@@ -2158,7 +2164,6 @@ function renderMats() {
       </div>
     </div>`;
   }).join('');
-  // відступ між списком і пошуком
   const matList = document.getElementById('mats-list');
   matList.style.marginBottom = listMats.length > 0 ? '14px' : '0';
 }
