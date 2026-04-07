@@ -1211,7 +1211,8 @@ function buildTechSection() {
   const list = document.getElementById('tech-list');
   wrap.innerHTML = ''; panels.innerHTML = '';
   if (list) list.innerHTML = '';
-  TECH_LIST.forEach(t => {
+  const liveTechList = window._TECH_LIVE || TECH_LIST;
+  liveTechList.forEach(t => {
     const safeId = 'tech_' + t.name.replace(/[^a-zA-Z0-9]/g,'_');
     const btn = document.createElement('div');
     btn.className = 'tech-tag-btn';
@@ -1343,7 +1344,7 @@ function removeTechEntry(name) {
   renderTechList();
   updateProgress();
   // відновлюємо тег
-  TECH_LIST.forEach(t => {
+  (window._TECH_LIVE || TECH_LIST).forEach(t => {
     if (t.name === name) {
       const safeId = 'tech_' + t.name.replace(/[^a-zA-Z0-9]/g,'_');
       document.getElementById('btn_'+safeId)?.classList.remove('active');
@@ -1986,7 +1987,8 @@ function buildTransportSection() {
   if (!wrap) return;
   wrap.innerHTML = ''; panels.innerHTML = '';
   if (list) list.innerHTML = '';
-  TRANSPORT_LIST.forEach(name => {
+  const liveTransList = (window._TRANSPORT_LIVE || TRANSPORT_LIST).map(n => typeof n === 'string' ? n : n.name + ' ' + (n.num||''));
+  liveTransList.forEach(name => {
     const safeId = 'trans_' + name.replace(/[^a-zA-Z0-9]/g,'_');
     const btn = document.createElement('div');
     btn.className = 'tech-tag-btn';
