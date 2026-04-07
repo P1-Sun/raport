@@ -1663,11 +1663,14 @@ function addWorkFromFields() {
   if (state.works.find(w=>w.name===name)) {
     alert('Цю роботу вже додано'); return;
   }
-  const fromDB = WORKS_DB.find(w=>w.name===name);
+  const liveDB = window._WORKS_DB_LIVE || WORKS_DB;
+  const fromDB = liveDB.find(w=>w.name===name);
   state.works.push({
     name, qty,
-    unit: unit || (fromDB?.unit||'—'),
+    unit: unit || (fromDB?.unit || '—'),
     group: fromDB?.group || 'Зі списку',
+    rozdil: fromDB?.rozdil || '',
+    sektsia: fromDB?.sektsia || '',
     extra: false
   });
   renderWorks(); updateProgress();
