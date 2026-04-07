@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
 <title>Рапорт бригадира</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -184,13 +185,56 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239A958E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px !important}
 
-
+/* ===== PIN SCREEN ===== */
+#pin-screen{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.pin-app-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:28px}
+.pin-brig-name{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-0.3px;text-align:center}
+.pin-hint{font-size:14px;color:rgba(255,255,255,.55);margin-bottom:32px}
+.pin-dots{display:flex;gap:14px;margin-bottom:36px}
+.pin-dot{width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .18s}
+.pin-dot.filled{background:#fff;transform:scale(1.12)}
+.pin-dot.error{background:#ff6b6b}
+.pin-grid{display:grid;grid-template-columns:repeat(3,80px);gap:12px}
+.pin-key{width:80px;height:80px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:26px;font-weight:600;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s;user-select:none;-webkit-tap-highlight-color:transparent}
+.pin-key:active{background:rgba(255,255,255,.35);transform:scale(.92)}
+.pin-key.k-del{font-size:22px}
+.pin-key.k-empty{visibility:hidden;cursor:default}
+.pin-msg{min-height:20px;margin-top:18px;font-size:13px;font-weight:600;color:#ffb3b3;text-align:center}
+@keyframes pinShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.pin-shake{animation:pinShake .35s ease}
 </style>
 </head>
 <body>
 
+<!-- ==================== PIN SCREEN ==================== -->
+<div id="pin-screen">
+  <div class="pin-app-label">Щоденний рапорт</div>
+  <div class="pin-brig-name" id="pin-brig-name">Введіть пін-код</div>
+  <div class="pin-hint">для входу у свій звіт</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-grid">
+    <div class="pin-key" onclick="pinPress('1')">1</div>
+    <div class="pin-key" onclick="pinPress('2')">2</div>
+    <div class="pin-key" onclick="pinPress('3')">3</div>
+    <div class="pin-key" onclick="pinPress('4')">4</div>
+    <div class="pin-key" onclick="pinPress('5')">5</div>
+    <div class="pin-key" onclick="pinPress('6')">6</div>
+    <div class="pin-key" onclick="pinPress('7')">7</div>
+    <div class="pin-key" onclick="pinPress('8')">8</div>
+    <div class="pin-key" onclick="pinPress('9')">9</div>
+    <div class="pin-key k-empty"></div>
+    <div class="pin-key" onclick="pinPress('0')">0</div>
+    <div class="pin-key k-del" onclick="pinDel()">⌫</div>
+  </div>
+  <div class="pin-msg" id="pin-msg"></div>
+</div>
 
-<div class="app-wrap">
+<div class="app-wrap" id="app-wrap" style="display:none">
 <!-- ==================== MAIN FORM ==================== -->
 <div id="main-form">
   <div class="header">
@@ -379,7 +423,6 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
               style="width:60px;font-family:inherit;font-size:14px;padding:9px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
               onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
           </div>
-          <!-- Чекбокс: авто -->
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2);user-select:none">
             <input type="checkbox" id="m-car-chk" onchange="toggleMListExtra('car',this.checked)" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer">
             Привезло авто
@@ -395,7 +438,6 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
               <span style="font-size:13px;color:var(--text3);white-space:nowrap">ходок</span>
             </div>
           </div>
-          <!-- Чекбокс: документ -->
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2);user-select:none">
             <input type="checkbox" id="m-doc-chk" onchange="toggleMListExtra('doc',this.checked)" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer">
             Є супровідний документ
@@ -551,6 +593,9 @@ const BRIGADE_OBJ = {
 
 // Всі активні обʼєкти інших бригад — для кнопки "Обʼєкт іншої бригади"
 function getOtherBrigadeObjs() {
+  // Якщо є живі дані з Довідника — використовуємо їх
+  if (currentUser.allActiveObjects) return currentUser.allActiveObjects;
+  // Fallback — з локальних даних
   const myBrigade = currentUser.brigade;
   const result = [];
   Object.entries(BRIGADE_OBJ).forEach(([brig, objs]) => {
@@ -565,15 +610,8 @@ function getOtherBrigadeObjs() {
 // ================================================================
 // WORKERS per brigade
 // ================================================================
-const BRIGADE_WORKERS = {
-  shulga: ['Шульга Артем','Гончаренко Михайло','Кравчатий Юрій','Патенко Сергій','Андрущенко Саша','Щерба Вадим','Щербенко Сергій','Бобришев Сергій','Патенко Дмитро','Попович Владислав','Сафонов Роман','Симаков Михайло','Суббот Юрій'],
-  nalyvayko: ['Наливайко Віталій','Данильчук Олексій','Годун Саша','Василишин Ігор','Хільчук','Євчук Микола','Забейда Андрій','Іванощак Богдан','Главук Микола','Наливайко Степан','Петрина Руслан','Примак Андрій','Стецюк Тарас','Швидкий Василь','Юхимець Саша','Гоголь Павло','Левчук Олег','Наливайко Юрій','Нищота Дмитро','Опанасюк Петро','Грищук Тарас','Колесник Володимир','Кулик Юрій','Рибак Ігор'],
-  gena: ['Вітрочка Геннадій','Баняс Роман','Білик Роман','Демʼянчук Іван','Деркачук Микола','Дідик','Макаренко Костя','Макарчук Андрій','Максим Молодий','Олексійчук Саша','Сандуляк'],
-  milan: ['Мілан Молодий','Гончук Вова','Лакатош Іван','Міговк','Бердалик Мирослав','Свищо Михайло','Тхорик','Михайленко','Ціцей Іван'],
-  yura: ['Алєксін Юра','Олінчук Сергій','Рижий Саша','Педченко Максим','Аксюта Андрій','Карюкін Саша','Данилець Олег','Кондратенко Володимир','Пацерін Стас','Фішер Михайло','Щуковський Кирило'],
-  besarab: ['Безсараб Саша','Аністрат Саша','Каналош Ярослав','Касінець Юра','Андрущенко Влад','Копичак Іван','Мусійченко Роман','Бруснік Віктор','Пилипців Микола','Кадай Андрій','Дмитришин Павло','Кадай Дмитро','Паздерський Роман','Чепляк Юрій','Торола Василь','Шуляк Роман'],
-  olsh: ['Ошовський Саша','Жук Олег','Крестов Євген','Кульбаченко Роман','Лінік Максим','Матус Артур','Мусійченко Роман'],
-};
+// BRIGADE_WORKERS — заповнюється з Довідника при вході
+const BRIGADE_WORKERS = {};
 
 // All workers flat list for cross-brigade search
 const ALL_WORKERS = [...new Set(Object.values(BRIGADE_WORKERS).flat())].sort();
@@ -581,131 +619,23 @@ const ALL_WORKERS = [...new Set(Object.values(BRIGADE_WORKERS).flat())].sort();
 // ================================================================
 // TECH LIST (from PDF)
 // ================================================================
-const TECH_LIST = [
-  {name:'Bitelli BB621', num:'52795 ВК'},
-  {name:'Bobcat E50', num:'53314 ВК'},
-  {name:'Bobcat S750', num:'53304 ВК'},
-  {name:'Bomag BW135AD', num:'52793 ВК'},
-  {name:'Case 695 Super R', num:'Т01932 ВК'},
-  {name:'Develon SD300N', num:'60502 ВК'},
-  {name:'Doosan DH60-7', num:'T01936 ВК'},
-  {name:'Doosan SD300N (58965)', num:'58965 ВК'},
-  {name:'Doosan SD300N (T01934)', num:'T01934 ВК'},
-  {name:'Doosan SD300N Long', num:'Б/Н'},
-  {name:'Hamm HD075V', num:'55833 ВК'},
-  {name:'Hamm HD90', num:'58338 ВК'},
-  {name:'Hidromek HMK-102B', num:'б/н'},
-  {name:'JCB 3CX білий', num:'33625 АМ'},
-  {name:'JCB 3CX жовтий', num:'58954 ВК'},
-  {name:'JCB 535V125', num:'35826 АМ'},
-  {name:'JCB JS160W', num:'44462 ВК'},
-  {name:'JCB JZ140HD', num:'Т01855 ВК'},
-  {name:'LIUGONG CLG4165', num:'52792 ВК'},
-  {name:'STA VH850AK', num:'52794 ВК'},
-  {name:'Terex', num:'Б/Н'},
-  {name:'Vogele 1800 сірий', num:'58337 ВК'},
-  {name:'Vogele 1800 помаранч.', num:'48637 ВК'},
-  {name:'Volvo BL71B', num:'52788 ВК'},
-  {name:'Volvo EC55D', num:'Б/Н'},
-  {name:'Volvo EW180C', num:'Т01659 ВК'},
-  {name:'Wirtgen W 100 Fi', num:'57753 ВК'},
-  {name:'ZTL50G', num:'01792 АО'},
-];
+// TECH_LIST — дані приходять з Довідника
+const TECH_LIST = [];
 
 // ================================================================
 // TRANSPORT (легкові, буси, вантажні — НЕ спецтехніка)
 // ================================================================
-const TRANSPORT_LIST = [
-  'Ford Transit СВ0476ЕМ','Ford Transit 85T ВК8551АР','I-VAN A07A ВК0975АІ',
-  'Mercedes Vario ВК8216АВ','Mercedes 711D ВК5034ІС','Mercedes 812D ВК0529ВА',
-  'VW Caravelle АО7955МТ','VW LT35 ВК6249АЕ','VW LT35 ВС0026НР','VW LT35 ВК3430ІН',
-  'VW LT35 ВК1566НН','VW LT35 ВК2767ІК','VW LT35 ВК3655ІТ','VW LT35 АО1318ІІ',
-  'VW LT35D ВК3326ІК','VW Transporter ВК3802НМ','VW Transporter ВС7529ЕВ',
-  'VW Transporter ВО8502ЕТ','Dacia Duster АО4842ІЕ','Ssang Yong ВК5443ЕХ',
-  'Nissan Juke ВК2808ВК','Skoda Kodiaq ВС3306ХА','Lexus LX КА5022МК','Lexus LX KT1352АВ',
-  'DAF CF 85 ВК5143ІС','DAF CF 85 ВК8808СА','DAF XF ВК1520ІЕ','DAF XF ВК4412НМ',
-  'DAF XF ВК4382ІЕ','MAN 26.513 ВК2571НЕ','MAN 32.322 АВ9469АМ',
-  'Mercedes 1213 ВК5256АТ','Scania G420 ВХ3298АЕ','Volvo FM ВК8050СМ',
-  'Volvo FM ВК3239СО','Volvo FM9 АО6190НА','Volvo FMX КА0324МН','Volvo FMX КА0163МН',
-  'ГАЗ-5301 ВК3608ІТ','ЗИЛ 133 ВК9952ІІ','Камаз МДК АО7626ВА',
-  'КрАЗ 250 АА6434ТР','КрАЗ 255 ВК3593ІМ','КрАЗ 255Б СА4039ІЕ',
-  'КрАЗ 260B ВС1284НЕ','КрАЗ 65055 АО3656ВВ','МАЗ 5551 АО6984АС',
-  'Scania 124 АО2651АВ','ПАЗ ВК0043АА','ПАЗ ВК7420ВС',
-];
+// TRANSPORT_LIST — дані приходять з Довідника
+const TRANSPORT_LIST = [];
 
 // ================================================================
 // WORKS & MATS DB (same as v1, kept for brevity)
 // ================================================================
-const WORKS_DB = [
-  {name:"Демонтаж дверних коробок в кам'яних стінах з відбиванням штукатурки в укосах",group:"Демонтажні роботи",unit:"шт"},
-  {name:"Знімання дверних полотен",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Знімання наличників",group:"Демонтажні роботи",unit:"м"},
-  {name:"Розбирання непоштукатуреної обшивки каркасно-обшивних дерев'яних стін",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Розбирання облицювання стін з керамічних глазурованих плиток",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Відбивання штукатурки по цеглі та бетону зі стін",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Розбирання покриттів підлог з щитового паркету",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Розбирання дощатих основ щитового паркету",group:"Демонтажні роботи",unit:"м²"},
-  {name:"Розбирання цегляних перегородок та стін",group:"Демонтажні роботи",unit:"м³"},
-  {name:"Демонтаж схованої електропроводки",group:"Демонтажні роботи",unit:"м"},
-  {name:"Демонтаж армстронгу",group:"Позапроектна",unit:"м²"},
-  {name:"Мурування окремих ділянок внутрішніх стін із цегли",group:"Загальнобудівельні роботи",unit:"м³"},
-  {name:"Готування кладкових цементно-вапняних розчинів, марка 50",group:"Загальнобудівельні роботи",unit:"м³"},
-  {name:"Улаштування перегородок з газобетонних блоків 150мм при висоті до 4м",group:"Загальнобудівельні роботи",unit:"м²"},
-  {name:"Монтаж перегородок збірно-розбірних з алюмінієвих сплавів зі склінням",group:"Загальнобудівельні роботи",unit:"м²"},
-  {name:"Установлення металевих дверних коробок із навішуванням дверних полотен",group:"Дверні конструкції",unit:"м²"},
-  {name:"Заповнення дверних прорізів ламінованими дверними блоками",group:"Дверні конструкції",unit:"блок"},
-  {name:"Просте штукатурення поверхонь стін всередені будівлі",group:"Оздоблювальні роботи",unit:"м²"},
-  {name:"Поліпшене штукатурення поверхонь стін всередені будівлі",group:"Оздоблювальні роботи",unit:"м²"},
-  {name:"Ремонт штукатурки внутрішніх стін, площа до 20 м²",group:"Оздоблювальні роботи",unit:"м²"},
-  {name:"Штукатурення плоских поверхонь віконних та дверних укосів",group:"Оздоблювальні роботи",unit:"м²"},
-  {name:"Прокладання проводів при схованій проводці",group:"Електромонтажні роботи",unit:"м"},
-  {name:"Ізоляція оголених проводів та демонтаж розеток 4-блокові",group:"Електромонтажні роботи",unit:"шт"},
-  {name:"Навантаження сміття вручну",group:"Інші роботи",unit:"т"},
-  {name:"Укладання асфальту",group:"Дорожні роботи",unit:"м²"},
-  {name:"Планування підстилаючого шару",group:"Дорожні роботи",unit:"пог.м"},
-  {name:"Фрезерування дорожнього покриття",group:"Дорожні роботи",unit:"м²"},
-  {name:"Влаштування основи з щебеню",group:"Дорожні роботи",unit:"м²"},
-  {name:"Розробка ґрунту екскаватором",group:"Земляні роботи",unit:"м³"},
-  {name:"Зворотне засипання ґрунту",group:"Земляні роботи",unit:"м³"},
-  {name:"Планування ґрунту бульдозером",group:"Земляні роботи",unit:"м²"},
-  {name:"Монтаж каналізаційних труб",group:"Каналізація",unit:"пог.м"},
-  {name:"Улаштування оглядових колодязів",group:"Каналізація",unit:"шт"},
-];
+// WORKS_DB — дані приходять з Довідника
+const WORKS_DB = [];
 
-const MATS_DB = [
-  {name:"Алюмінієвий каркас 12мм у комплекті з кріпленням",group:"Гіпсокартонні системи",unit:"м"},
-  {name:"Анкер-дюбель",group:"Кріпильні вироби",unit:"шт"},
-  {name:"Анкер-розпірний вбивний 6х35",group:"Кріпильні вироби",unit:"шт"},
-  {name:"Блоки газобетонні т.100 мм",group:"Цегла, блоки, бетонні вироби",unit:"м³"},
-  {name:"Блоки стінові 100*200*610/500",group:"Цегла, блоки, бетонні вироби",unit:"шт"},
-  {name:"Вапно будівельне негашене грудкове, сорт 1",group:"Сухі суміші, розчини",unit:"т"},
-  {name:"Вимикач автоматичний однополюсний 10А",group:"Електрообладнання",unit:"шт"},
-  {name:"Вимикач автоматичний однополюсний 16А",group:"Електрообладнання",unit:"шт"},
-  {name:"Вимикач двоклавішний",group:"Електромонтажні матеріали",unit:"шт"},
-  {name:"Витяжний вентилятор 50 м³/год 7Вт",group:"Вентиляція",unit:"шт"},
-  {name:"Дюбель ударний 6*40 гриб",group:"Кріпильні вироби",unit:"шт"},
-  {name:"Дюбель ударний 6*40 потай",group:"Кріпильні вироби",unit:"шт"},
-  {name:"Піна-клей монтажна пістолетна 750мл",group:"Кріпильні вироби",unit:"шт"},
-  {name:"Плівка захисна 20мк 4*5м",group:"Витратні матеріали",unit:"шт"},
-  {name:"Плівка захисна 60мк 4*5м",group:"Витратні матеріали",unit:"шт"},
-  {name:"Плівка для гідроізоляції 200мк 1,5м",group:"Витратні матеріали",unit:"м"},
-  {name:"Респіратор з клапаном протиаерозольний",group:"Витратні матеріали",unit:"шт"},
-  {name:"Рукавички",group:"Витратні матеріали",unit:"шт"},
-  {name:"Саморіз по металу 3,5*9,5 (1000шт)",group:"Кріпильні вироби",unit:"кор"},
-  {name:"Стрічка малярна 38мм*50",group:"Оздоблювальні матеріали",unit:"шт"},
-  {name:"Шпаклівка фінішна гіпсова НР-фініш 25кг",group:"Оздоблювальні матеріали",unit:"шт"},
-  {name:"Штукатурка цементно-вапняна Р403 24кг",group:"Сухі суміші, розчини",unit:"шт"},
-  {name:"Кріплення для штукатурних маяків уп.100шт",group:"Кріпильні вироби",unit:"кор"},
-  {name:"Щебінь фр.20-40",group:"Нерудні матеріали",unit:"м³"},
-  {name:"Щебінь фр.5-20",group:"Нерудні матеріали",unit:"м³"},
-  {name:"Пісок річковий",group:"Нерудні матеріали",unit:"м³"},
-  {name:"Асфальтобетон гарячий",group:"Дорожні матеріали",unit:"т"},
-  {name:"Бітумна емульсія",group:"Дорожні матеріали",unit:"т"},
-  {name:"Труба каналізаційна ПВХ SN8 ⌀200",group:"Каналізація",unit:"пог.м"},
-  {name:"Труба каналізаційна ПВХ SN8 ⌀315",group:"Каналізація",unit:"пог.м"},
-  {name:"Люк чавунний тип Т",group:"Каналізація",unit:"шт"},
-  {name:"Цемент М400 50кг",group:"Сухі суміші, розчини",unit:"шт"},
-];
+// MATS_DB — дані приходять з Довідника
+const MATS_DB = [];
 
 // ================================================================
 // STATE
@@ -735,34 +665,159 @@ function updateHeaderDate() {
     d.toLocaleDateString('uk-UA') + ' · ' + days[d.getDay()];
 }
 
+// ================================================================
+// PIN — пін-коди бригадирів (4 цифри → ключ у USERS)
+// ================================================================
+// URL не потрібен — google.script.run звертається напряму
+
+// PIN_MAP будується динамічно з Довідника (див. loadPinMap)
+// Резервні піни на випадок недоступності мережі:
+const PIN_MAP_FALLBACK = {
+  '5665': 'besarab',
+  '1488': 'nalyvayko',
+  '2408': 'gena',
+  '2806': 'milan',
+  '0903': 'shulga',
+  '0101': 'yura',
+  '2502': 'olsh',
+};
+let PIN_MAP = { ...PIN_MAP_FALLBACK };
+
+// Дані з довідника — заповнюються при завантаженні
+let REFERENCE_CACHE = {};
+
+let pinBuffer = '';
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(checkPin, 130);
+}
+
+function pinDel() {
+  if (!pinBuffer.length) return;
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-msg').textContent = '';
+  document.getElementById('pin-brig-name').textContent = 'Введіть пін-код';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('pd' + i);
+    d.classList.toggle('filled', i < pinBuffer.length);
+    d.classList.remove('error');
+  }
+}
+
+function checkPin() {
+  const key = PIN_MAP[pinBuffer];
+  if (key && USERS[key]) {
+    // Правильний пін — входимо
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('app-wrap').style.display = 'block';
+    startApp(key);
+  } else {
+    // Неправильний пін
+    for (let i = 0; i < 4; i++) {
+      const d = document.getElementById('pd' + i);
+      d.classList.remove('filled');
+      d.classList.add('error');
+    }
+    const dots = document.getElementById('pin-dots');
+    dots.classList.add('pin-shake');
+    document.getElementById('pin-msg').textContent = 'Невірний пін-код. Спробуйте ще раз.';
+    document.getElementById('pin-brig-name').textContent = 'Введіть пін-код';
+    setTimeout(() => {
+      dots.classList.remove('pin-shake');
+      for (let i = 0; i < 4; i++) document.getElementById('pd' + i).classList.remove('error');
+      pinBuffer = '';
+    }, 650);
+  }
+}
 
 // ================================================================
-// APP START
+// APP START — завантажує дані з Довідника
 // ================================================================
-// APP START — показує список бригадирів
-// ================================================================
-function startApp() {
+function startApp(userKey) {
+  // Базова інфо з USERS (ім'я, objType) — поки грузяться дані
+  const u = USERS[userKey];
+  currentUser = { login: userKey, ...u };
+  document.getElementById('h-name').textContent = u.name;
   updateHeaderDate();
+
+  // Показуємо форму з лоадером
+  document.getElementById('app-wrap').style.display = 'block';
   document.getElementById('main-form').style.display = 'block';
+  const brigSection = document.querySelector('.section:has(#brig-grid)');
+  if (brigSection) brigSection.style.display = 'none';
 
-  // Будуємо картки бригадирів
-  const grid = document.getElementById('brig-grid');
-  grid.innerHTML = '';
-  Object.entries(USERS).forEach(([key, u], idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'brig-btn';
-    const objList = BRIGADE_OBJ[u.brigade] || [];
-    const sub = objList.length > 0 ? objList.length + ' обʼєктів' : 'Адреса вручну';
-    btn.innerHTML = '<div class="brig-name">' + u.name + '</div><div class="brig-sub">' + sub + '</div>';
-    btn.onclick = () => selectBrigadier(idx);
-    grid.appendChild(btn);
-  });
+  // Показуємо лоадер поверх форми
+  showFormLoader('Завантаження даних...');
 
-  buildTechSection();
-  buildTransportSection();
-  buildMatsDeliveryBlock();
-  buildTimeSelects();
-  updateProgress();
+  // Запит до Довідника через fetch
+  fetch('https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec?action=getReference&brigade=' + userKey)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.ok) { hideFormLoader(); alert('Помилка: ' + data.error); return; }
+
+      REFERENCE_CACHE[userKey] = data;
+      currentUser.name    = data.brigadierName || u.name;
+      currentUser.objType = data.objType || u.objType;
+      document.getElementById('h-name').textContent = currentUser.name;
+
+      BRIGADE_WORKERS[userKey] = data.workers || [];
+      BRIGADE_OBJ[userKey]     = data.objects || [];
+      if (data.allActiveObjects) currentUser.allActiveObjects = data.allActiveObjects;
+      if (data.works)     window._WORKS_DB_LIVE    = data.works;
+      if (data.mats)      window._MATS_DB_LIVE     = data.mats;
+      if (data.tech)      window._TECH_LIVE        = data.tech;
+      if (data.transport) window._TRANSPORT_LIVE   = data.transport;
+
+      hideFormLoader();
+
+      ['obj-section','time-section','workers-section','works-section',
+       'mats-section','tech-section','transport-section','notes-section','submit-section']
+        .forEach(id => document.getElementById(id).style.display = 'block');
+
+      state = { obj:null, objCity:null, objStreet:null, workers:[], works:[], mats:[], tech:{}, transport:[], workerHours:{} };
+      buildObjSection();
+      buildWorkerTags();
+      buildTechSection();
+      buildTransportSection();
+      buildMatsDeliveryBlock();
+      buildTimeSelects();
+      updateProgress();
+      window.scrollTo(0, 0);
+    })
+    .catch(function(err) {
+      hideFormLoader();
+      alert('Помилка завантаження. Перевірте інтернет.\n' + err);
+    });
+}
+
+function showFormLoader(msg) {
+  let el = document.getElementById('form-loader');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'form-loader';
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px';
+    el.innerHTML = `
+      <svg width="40" height="40" viewBox="0 0 40 40" style="animation:spin 1s linear infinite">
+        <circle cx="20" cy="20" r="16" fill="none" stroke="#E8F2EC" stroke-width="4"/>
+        <path d="M20 4 a16 16 0 0 1 16 16" fill="none" stroke="#2A5C3F" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <div id="form-loader-msg" style="font-size:14px;color:var(--text2);font-family:'IBM Plex Sans',sans-serif"></div>`;
+    document.body.appendChild(el);
+  }
+  document.getElementById('form-loader-msg').textContent = msg;
+  el.style.display = 'flex';
+}
+
+function hideFormLoader() {
+  const el = document.getElementById('form-loader');
+  if (el) el.style.display = 'none';
 }
 
 function selectBrigadier(idx) {
@@ -785,7 +840,6 @@ function selectBrigadier(idx) {
   buildWorkerTags();
   buildTechSection();
   buildTransportSection();
-  buildMatsDeliveryBlock();
   updateProgress();
   document.querySelectorAll('.brig-btn').forEach((b,i) => b.classList.toggle('active', i === idx));
   document.getElementById('obj-section').scrollIntoView({ behavior:'smooth', block:'nearest' });
@@ -1325,11 +1379,11 @@ function hl(text, q) {
 }
 
 function filterDD(type, customInputId, customDdId) {
-  // Використовуємо живі дані з Довідника якщо є
+  // Підтримує як стандартні id (work/mat/trans), так і кастомні (rd-mat, dm-name)
+  // Використовуємо живі дані з Довідника якщо є, інакше — локальні
   const liveWorks = window._WORKS_DB_LIVE || WORKS_DB;
   const liveMats  = window._MATS_DB_LIVE  || MATS_DB;
-  const liveTrans = (window._TRANSPORT_LIVE || TRANSPORT_LIST).map(n =>
-    typeof n === 'string' ? {name:n,group:'Транспорт',unit:'л'} : n);
+  const liveTrans = (window._TRANSPORT_LIVE || TRANSPORT_LIST).map(n => typeof n === 'string' ? {name:n,group:'Транспорт',unit:'л'} : n);
   const cfgMap = {
     work:  { inputId:'work-search', ddId:'work-dd', db:liveWorks },
     mat:   { inputId:'mat-search',  ddId:'mat-dd',  db:liveMats  },
@@ -1356,8 +1410,7 @@ function filterDD(type, customInputId, customDdId) {
 function filterWorkers() {
   const q = document.getElementById('worker-search').value.trim();
   const dd = document.getElementById('worker-dd');
-  const liveWorkers = (window._BRIGADE_WORKERS_LIVE || ALL_WORKERS);
-  const res = q ? liveWorkers.filter(w=>w.toLowerCase().includes(q.toLowerCase())) : liveWorkers.slice(0,8);
+  const res = q ? ALL_WORKERS.filter(w=>w.toLowerCase().includes(q.toLowerCase())) : ALL_WORKERS.slice(0,8);
   if (!res.length) { dd.innerHTML='<div class="dd-empty">Не знайдено</div>'; dd.style.display='block'; return; }
   dd.innerHTML = res.slice(0,8).map(w=>
     `<div class="dd-item" onmousedown="event.preventDefault()" onclick='addWorkerFromSearch("${w}")'>
@@ -1542,11 +1595,40 @@ function addManualWork() {
 }
 
 function addMat(item) {
-  // заповнює поля при виборі з dropdown
   document.getElementById('mat-search').value = item.name;
   document.getElementById('m-unit').value = item.unit;
   document.getElementById('mat-dd').style.display = 'none';
   document.getElementById('m-qty').focus();
+}
+
+function addMatFromFields() {
+  const name = document.getElementById('mat-search').value.trim();
+  const qty  = document.getElementById('m-qty').value;
+  const unit = document.getElementById('m-unit').value.trim();
+  if (!name) { document.getElementById('mat-search').focus(); return; }
+  if (!qty)  { document.getElementById('m-qty').focus(); return; }
+
+  const liveDB = window._MATS_DB_LIVE || MATS_DB;
+  const fromDB = liveDB.find(m => m.name === name);
+
+  const carChk   = document.getElementById('m-car-chk')?.checked;
+  const docChk   = document.getElementById('m-doc-chk')?.checked;
+  const car      = carChk ? (document.getElementById('m-car')?.value.trim() || '') : '';
+  const trips    = carChk ? (document.getElementById('m-trips')?.value.trim() || '1') : '';
+  const supplier = docChk ? (document.getElementById('m-supplier')?.value.trim() || '') : '';
+  const doc      = docChk ? (document.getElementById('m-doc')?.value.trim() || '') : '';
+
+  state.mats.push({
+    name, qty,
+    unit: unit || (fromDB?.unit || '—'),
+    group: fromDB?.group || 'Зі списку',
+    car, trips, supplier, doc,
+    manual: false
+  });
+  renderMats(); updateProgress();
+  document.getElementById('mat-search').value = '';
+  document.getElementById('m-qty').value = '';
+  document.getElementById('m-unit').value = '';
 }
 
 // ================================================================
@@ -1554,10 +1636,14 @@ function addMat(item) {
 // 'road'    : Алєксін, Шульга, Геннадій, Бесараб → блок "Поставка"
 // 'general' : Наливайко, Мілан, Ольшовський → два варіанти (документ / фото)
 // ================================================================
+const ROAD_BRIGADES = ['shulga','yura','gena','besarab'];
+
+function getMatsType() {
+  return ROAD_BRIGADES.includes(currentUser.brigade) ? 'road' : 'general';
+}
+
 // ================================================================
-// МАТЕРІАЛИ
-// Блок 1: Зі списку кошторису (+ опціональні поля авто/документ)
-// Блок 2: По документу без позицій (опис + фото)
+// МАТЕРІАЛИ JS
 // ================================================================
 
 function buildMatsDeliveryBlock() {
@@ -1567,7 +1653,6 @@ function buildMatsDeliveryBlock() {
   wrap.appendChild(buildMatDocBlock());
 }
 
-// ── БЛОК 2: По документу + фото ──────────────────────────────────────────────
 function buildMatDocBlock() {
   const card = document.createElement('div');
   card.className = 'sub-card';
@@ -1575,11 +1660,9 @@ function buildMatDocBlock() {
     <div class="sub-label">По документу (без розбивки по позиціях)</div>
     <div id="mat-doc-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
     <div style="display:flex;flex-direction:column;gap:8px">
-
       <input type="text" id="md-desc" placeholder="напр. «щебінь і пісок», «асфальт 20т», «цемент, блоки», «саморізи, дюбелі»"
         style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box"
         onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <input type="text" id="md-supplier" placeholder="Постачальник"
           style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
@@ -1588,8 +1671,6 @@ function buildMatDocBlock() {
           style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
           onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
       </div>
-
-      <!-- Чекбокс: привезло авто -->
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2);user-select:none">
         <input type="checkbox" id="md-car-chk" onchange="toggleMdCar(this.checked)" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer">
         Привезло авто
@@ -1605,8 +1686,6 @@ function buildMatDocBlock() {
           <span style="font-size:13px;color:var(--text3);white-space:nowrap">ходок</span>
         </div>
       </div>
-
-      <!-- Фото -->
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <label style="display:flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;background:var(--accent-l);user-select:none">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 4l1-2h4l1 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1615,7 +1694,6 @@ function buildMatDocBlock() {
         </label>
         <div id="md-photos-preview" style="display:flex;flex-wrap:wrap;gap:6px;flex:1"></div>
       </div>
-
       <div style="display:flex;justify-content:flex-end">
         <div onclick="addMatDoc()"
           style="padding:9px 18px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
@@ -1637,6 +1715,7 @@ function toggleMListExtra(type, show) {
 }
 
 let mdPhotos = [];
+let pendingPhotos = [];
 
 function handleMdPhoto(input) {
   const preview = document.getElementById('md-photos-preview');
@@ -1670,40 +1749,36 @@ function addMatDoc() {
   const car      = carChk ? (document.getElementById('md-car').value.trim()) : '';
   const trips    = carChk ? (document.getElementById('md-trips').value.trim() || '1') : '';
 
-  if (!desc && !doc) {
-    alert('Вкажіть опис або номер документа');
-    return;
-  }
+  if (!desc && !doc) { alert('Вкажіть опис або номер документа'); return; }
 
   state.mats.push({
     name: desc || ('Документ ' + doc),
     qty: '', unit: '', group: 'По документу',
     supplier, doc, car, trips,
     photos: [...mdPhotos],
-    manual: true, photoOnly: true
+    manual: true
   });
 
-  renderManualMats();
+  renderOtherMats();
   updateProgress();
 
-  // Очищаємо
   mdPhotos = [];
   document.getElementById('md-desc').value     = '';
   document.getElementById('md-supplier').value = '';
   document.getElementById('md-doc').value      = '';
   document.getElementById('md-car-chk').checked = false;
   toggleMdCar(false);
-  document.getElementById('md-car').value    = '';
-  document.getElementById('md-trips').value  = '1';
+  const carEl = document.getElementById('md-car'); if (carEl) carEl.value = '';
+  const trEl  = document.getElementById('md-trips'); if (trEl) trEl.value = '1';
   document.getElementById('md-photos-preview').innerHTML = '';
 }
 
-function renderManualMats() {
+function renderOtherMats() {
   const list = document.getElementById('mat-doc-list');
   if (!list) return;
   const manualMats = state.mats.filter(m => m.manual);
   list.innerHTML = manualMats.map((m) => {
-    const realIdx = state.mats.indexOf(m);
+    const idx = state.mats.indexOf(m);
     const photoHtml = (m.photos||[]).map(p =>
       `<img src="${p.dataUrl}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">`
     ).join('');
@@ -1720,124 +1795,17 @@ function renderManualMats() {
             ${tags ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${tags}</div>` : ''}
             ${photoHtml ? `<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">${photoHtml}</div>` : ''}
           </div>
-          <button class="remove-btn" onclick="removeMat(${realIdx})">×</button>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-function renderOtherMats() { renderManualMats(); }
-let currentDocPositions = [];
-let mmPositions = []; let mmPhotos = []; let mdPhotos_old = [];
-
-
-// ── Спільні функції ────────────────────────────────────────────────────────
-function addMatFromFields() {
-  const name = document.getElementById('mat-search').value.trim();
-  const qty  = document.getElementById('m-qty').value;
-  const unit = document.getElementById('m-unit').value.trim();
-  if (!name) { document.getElementById('mat-search').focus(); return; }
-  if (!qty)  { document.getElementById('m-qty').focus(); return; }
-
-  const liveDB = window._MATS_DB_LIVE || MATS_DB;
-  const fromDB = liveDB.find(m => m.name === name);
-
-  // Збираємо додаткові поля
-  const carChk  = document.getElementById('m-car-chk')?.checked;
-  const docChk  = document.getElementById('m-doc-chk')?.checked;
-  const car      = carChk ? (document.getElementById('m-car')?.value.trim() || '') : '';
-  const trips    = carChk ? (document.getElementById('m-trips')?.value.trim() || '1') : '';
-  const supplier = docChk ? (document.getElementById('m-supplier')?.value.trim() || '') : '';
-  const doc      = docChk ? (document.getElementById('m-doc')?.value.trim() || '') : '';
-
-  state.mats.push({
-    name, qty,
-    unit: unit || (fromDB?.unit || '—'),
-    group: fromDB?.group || 'Зі списку',
-    car, trips, supplier, doc,
-    manual: false
-  });
-  renderMats(); updateProgress();
-
-  // Очищаємо
-  document.getElementById('mat-search').value = '';
-  document.getElementById('m-qty').value = '';
-  document.getElementById('m-unit').value = '';
-  // Не скидаємо чекбокси і авто/документ — бо часто кілька матеріалів з однієї машини
-}
-
-let pendingPhotos = [];
-
-function handlePhotoSelect(input) {
-  const preview = document.getElementById('em-photos-preview');
-  Array.from(input.files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      pendingPhotos.push({ file, dataUrl: e.target.result });
-      const img = document.createElement('div');
-      img.style.cssText = 'position:relative;width:64px;height:64px;flex-shrink:0';
-      img.innerHTML = `
-        <img src="${e.target.result}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
-        <div onclick="removePhoto(${pendingPhotos.length-1},this)" style="position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:var(--danger);color:#fff;border-radius:50%;font-size:11px;line-height:16px;text-align:center;cursor:pointer;font-weight:700">×</div>`;
-      preview.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-  });
-  input.value = '';
-}
-
-function removePhoto(idx, el) {
-  pendingPhotos.splice(idx, 1);
-  el.closest('div[style*="position:relative"]').remove();
-}
-
-function addManualMat() {
-  const name     = document.getElementById('em-name').value.trim();
-  const doc      = document.getElementById('em-doc').value.trim();
-  const supplier = document.getElementById('em-supplier').value.trim();
-  if (!name) { document.getElementById('em-name').focus(); return; }
-  if (!doc)  { document.getElementById('em-doc').focus(); return; }
-  const photos = [...pendingPhotos];
-  state.mats.push({ name, doc, supplier, photos, group:'Фото документ', manual: true });
-  renderOtherMats(); updateProgress();
-  document.getElementById('em-name').value = '';
-  document.getElementById('em-doc').value = '';
-  document.getElementById('em-supplier').value = '';
-  document.getElementById('em-photos-preview').innerHTML = '';
-  pendingPhotos = [];
-}
-
-function renderOtherMats() {
-  const container = document.getElementById('other-mats-list');
-  if (!container) return;
-  const manualMats = state.mats.filter(m => m.manual);
-  container.innerHTML = manualMats.map((m) => {
-    const idx = state.mats.indexOf(m);
-    const photoHtml = (m.photos||[]).map(p =>
-      `<img src="${p.dataUrl}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">`
-    ).join('');
-    return `
-      <div class="added-item">
-        <div class="added-main">
-          <div class="added-info">
-            <div class="added-name">${m.name}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:3px">
-              ${m.doc      ? `<span class="mat-tag mat-tag-blue">№ ${m.doc}</span>` : ''}
-              ${m.supplier ? `<span class="mat-tag">${m.supplier}</span>` : ''}
-            </div>
-            ${photoHtml ? `<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">${photoHtml}</div>` : ''}
-          </div>
           <button class="remove-btn" onclick="removeMat(${idx})">×</button>
         </div>
       </div>`;
   }).join('');
 }
 
+
 function removeMat(idx) {
   state.mats.splice(idx, 1);
   renderMats();
-  if (getMatsType() === 'road') renderRoadDeliveries();
-  else renderOtherMats();
+  renderOtherMats();
   updateProgress();
 }
 
@@ -2003,14 +1971,10 @@ function renderWorks() {
 
 function renderMats() {
   const listMats = state.mats.filter(m => !m.manual);
-  document.getElementById('mats-list').innerHTML = listMats.map((m, idx) => {
+  document.getElementById('mats-list').innerHTML = listMats.map((m) => {
     const i = state.mats.indexOf(m);
-    const uid = 'mat_' + i;
-    // Поточні значення доп полів
-    const hasCarData = m.car || m.trips;
-    const hasDocData = m.supplier || m.doc;
     return `
-    <div class="added-item" style="flex-direction:column;gap:0">
+    <div class="added-item">
       <div class="added-main">
         <div class="added-info">
           <div class="added-name" title="${m.name}">${m.name}</div>
@@ -2024,51 +1988,11 @@ function renderMats() {
         </div>
         <button class="remove-btn" onclick="removeItem('mat',${i})">×</button>
       </div>
-      <!-- Додаткові поля -->
-      <div style="padding:4px 0 0 0;display:flex;flex-direction:column;gap:6px">
-        <!-- Чекбокс: авто -->
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text3);user-select:none">
-          <input type="checkbox" id="chk_car_${uid}" ${hasCarData?'checked':''} onchange="toggleMatExtra('car','${uid}',this.checked)" style="accent-color:var(--accent);cursor:pointer">
-          Привезло авто
-        </label>
-        <div id="extra_car_${uid}" style="display:${hasCarData?'flex':'none'};gap:8px;flex-wrap:wrap;padding-left:20px">
-          <input type="text" id="car_${uid}" value="${m.car||''}" placeholder="Держ. номер авто"
-            oninput="state.mats[${i}].car=this.value"
-            style="flex:2;min-width:130px;font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
-            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-          <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
-            <input type="number" id="trips_${uid}" value="${m.trips||1}" min="1" placeholder="1"
-              oninput="state.mats[${i}].trips=this.value"
-              style="width:60px;font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s"
-              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-            <span style="font-size:12px;color:var(--text3)">ходок</span>
-          </div>
-        </div>
-        <!-- Чекбокс: документ -->
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text3);user-select:none">
-          <input type="checkbox" id="chk_doc_${uid}" ${hasDocData?'checked':''} onchange="toggleMatExtra('doc','${uid}',this.checked)" style="accent-color:var(--accent);cursor:pointer">
-          Є супровідний документ
-        </label>
-        <div id="extra_doc_${uid}" style="display:${hasDocData?'flex':'none'};gap:8px;flex-wrap:wrap;padding-left:20px">
-          <input type="text" id="supplier_${uid}" value="${m.supplier||''}" placeholder="Постачальник"
-            oninput="state.mats[${i}].supplier=this.value"
-            style="flex:2;min-width:130px;font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
-            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-          <input type="text" id="doc_${uid}" value="${m.doc||''}" placeholder="№ ТТН / накладної / чеку"
-            oninput="state.mats[${i}].doc=this.value"
-            style="flex:2;min-width:130px;font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
-            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-        </div>
-      </div>
     </div>`;
   }).join('');
+  // відступ між списком і пошуком
   const matList = document.getElementById('mats-list');
   matList.style.marginBottom = listMats.length > 0 ? '14px' : '0';
-}
-
-function toggleMatExtra(type, uid, show) {
-  const el = document.getElementById('extra_' + type + '_' + uid);
-  if (el) el.style.display = show ? 'flex' : 'none';
 }
 
 function removeItem(type, idx) {
@@ -2236,6 +2160,7 @@ function submitForm() {
   if (state.workers.length===0) { alert('Оберіть хоча б одного працівника'); return; }
   if (state.works.length===0) { alert('Додайте хоча б одну виконану роботу'); return; }
 
+  // google.script.run не потребує URL
 
   const times = getTimeValues();
   const payload = {
@@ -2262,28 +2187,32 @@ function submitForm() {
   document.getElementById('loading-overlay').style.display = 'flex';
   window.scrollTo(0, 0);
 
-  google.script.run
-    .withSuccessHandler(function(data) {
-      document.getElementById('loading-overlay').style.display = 'none';
-      if (data.success) {
-        document.getElementById('preview-screen').style.display = 'none';
-        document.getElementById('main-form').style.display = 'none';
-        document.getElementById('success-details').innerHTML =
-          '<strong>' + currentUser.name + '</strong><br>' +
-          getObjLabel() + ' · ' + getReportDate().toLocaleDateString('uk-UA') + '<br><br>' +
-          'Працівників: ' + state.workers.length + ' · Робіт: ' + state.works.length + ' · Матеріалів: ' + state.mats.length +
-          (Object.keys(state.tech).length ? '<br>Техніка: ' + Object.keys(state.tech).join(', ') : '') +
-          '<br><br><span style="font-size:12px;opacity:.6">ID: ' + data.reportId + '</span>';
-        document.getElementById('success-overlay').style.display = 'flex';
-      } else {
-        alert('Помилка: ' + (data.error || 'невідома'));
-      }
-    })
-    .withFailureHandler(function(err) {
-      document.getElementById('loading-overlay').style.display = 'none';
-      alert('Помилка відправки: ' + err.message);
-    })
-    .submitReport(payload);}
+  fetch('https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'text/plain' }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    if (data.success) {
+      document.getElementById('preview-screen').style.display = 'none';
+      document.getElementById('main-form').style.display = 'none';
+      document.getElementById('success-details').innerHTML =
+        '<strong>' + currentUser.name + '</strong><br>' + getObjLabel() + ' · ' + getReportDate().toLocaleDateString('uk-UA') + '<br><br>' +
+        'Працівників: ' + state.workers.length + ' · Робіт: ' + state.works.length + ' · Матеріалів: ' + state.mats.length +
+        (Object.keys(state.tech).length ? '<br>Техніка: ' + Object.keys(state.tech).join(', ') : '') +
+        '<br><br><span style="font-size:12px;opacity:.6">ID: ' + data.reportId + '</span>';
+      document.getElementById('success-overlay').style.display = 'flex';
+    } else {
+      alert('Помилка: ' + (data.error || 'невідома'));
+    }
+  })
+  .catch(function(err) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    alert('Помилка зʼєднання. Перевірте інтернет.\n' + err);
+  });
+}
 
 function newReport() {
   // Скидаємо дані форми, але залишаємо поточного бригадира — пін не потрібен повторно
@@ -2302,32 +2231,36 @@ function newReport() {
   window.scrollTo(0, 0);
 }
 
-startApp();
+// Запуск — тільки після правильного пін-коду (checkPin → startApp)
 
-// Делегування подій для Apps Script (onclick заборонено в HTML)
+// Делегування подій для data-fn кнопок
 document.addEventListener('click', function(e) {
   var el = e.target.closest('[data-fn]');
   if (!el) return;
   var fn  = el.getAttribute('data-fn');
   var arg = el.getAttribute('data-arg');
   if (!fn) return;
-  var map = {
-    'selectReportDate':       function() { selectReportDate(parseInt(arg)); },
-    'toggleSelectAllWorkers': function() { toggleSelectAllWorkers(); },
-    'toggleWorkerHours':      function() { toggleWorkerHours(); },
-    'addExtraWorker':         function() { addExtraWorker(); },
-    'addWorkFromFields':      function() { addWorkFromFields(); },
-    'addManualWork':          function() { addManualWork(); },
-    'addMatFromFields':       function() { addMatFromFields(); },
-    'showPreview':            function() { showPreview(); },
-    'submitForm':             function() { submitForm(); },
-    'closePreview':           function() { closePreview(); },
-    'newReport':              function() { newReport(); },
-    'window.close':           function() { window.close(); },
+  var funcs = {
+    pinPress:              function() { pinPress(arg); },
+    pinDel:                function() { pinDel(); },
+    selectReportDate:      function() { selectReportDate(parseInt(arg)); },
+    toggleSelectAllWorkers:function() { toggleSelectAllWorkers(); },
+    toggleWorkerHours:     function() { toggleWorkerHours(); },
+    addExtraWorker:        function() { addExtraWorker(); },
+    addWorkFromFields:     function() { addWorkFromFields(); },
+    addManualWork:         function() { addManualWork(); },
+    addMatFromFields:      function() { addMatFromFields(); },
+    showPreview:           function() { showPreview(); },
+    closePreview:          function() { closePreview(); },
+    submitForm:            function() { submitForm(); },
+    newReport:             function() { newReport(); },
+    'window.close':        function() { window.close(); },
   };
-  if (map[fn]) map[fn]();
+  if (funcs[fn]) {
+    e.preventDefault && e.preventDefault();
+    funcs[fn]();
+  }
 });
-
 </script>
 </body>
 </html>
