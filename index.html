@@ -327,7 +327,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div style="display:flex;gap:8px;align-items:flex-start;position:relative">
         <input type="text" id="worker-search" placeholder="Пошук або ввід вручну..." autocomplete="off"
           style="flex:1;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
-          oninput="filterWorkers()" onfocus="this.style.borderColor='var(--accent)';filterWorkers()"
+          oninput="filterWorkers()" onfocus="this.style.borderColor='var(--accent)';setTimeout(()=>filterWorkers(),50)"
           onblur="setTimeout(()=>{document.getElementById('worker-dd').style.display='none'},200);this.style.borderColor='var(--border)'"
           onkeydown="if(event.key==='Enter')addExtraWorker()">
         <div class="dd-list" id="worker-dd" style="display:none;top:calc(100% + 3px)"></div>
@@ -361,18 +361,30 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <!-- Каскадний фільтр (прихований за замовчуванням) -->
         <div id="work-filter-panel" style="display:none;flex-direction:column;gap:6px;margin-bottom:10px;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
           <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Звузити список</div>
-          <select id="wf-rozdil" onchange="updateWorkFilter()"
-            style="width:100%;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
-            <option value="">Всі розділи</option>
-          </select>
-          <select id="wf-sektsia" onchange="updateWorkFilter()"
-            style="width:100%;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
-            <option value="">Всі секції</option>
-          </select>
-          <select id="wf-grupa" onchange="updateWorkFilter()"
-            style="width:100%;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
-            <option value="">Всі групи</option>
-          </select>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="wf-rozdil" onchange="updateWorkFilter()"
+              style="flex:1;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
+              <option value="">Всі розділи</option>
+            </select>
+            <div onclick="resetWorkFilter('rozdil')" title="Скинути"
+              style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text3);line-height:1">×</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="wf-sektsia" onchange="updateWorkFilter()"
+              style="flex:1;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
+              <option value="">Всі секції</option>
+            </select>
+            <div onclick="resetWorkFilter('sektsia')" title="Скинути"
+              style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text3);line-height:1">×</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="wf-grupa" onchange="updateWorkFilter()"
+              style="flex:1;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
+              <option value="">Всі групи</option>
+            </select>
+            <div onclick="resetWorkFilter('grupa')" title="Скинути"
+              style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text3);line-height:1">×</div>
+          </div>
           <div style="font-size:12px;color:var(--text3)" id="wf-count"></div>
         </div>
 
@@ -380,7 +392,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <div style="position:relative;flex:2;min-width:200px">
             <input type="text" id="work-search" placeholder="Пошук роботи..." autocomplete="off"
               style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box"
-              oninput="filterDD('work')" onfocus="this.style.borderColor='var(--accent)';filterDD('work')"
+              oninput="filterDD('work')" onfocus="this.style.borderColor='var(--accent)';setTimeout(()=>filterDD('work'),50)"
               onblur="setTimeout(()=>document.getElementById('work-dd').style.display='none',300);this.style.borderColor='var(--border)'">
             <div class="dd-list" id="work-dd" style="display:none"></div>
           </div>
@@ -437,7 +449,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             <div style="position:relative;flex:2;min-width:200px">
               <input type="text" id="mat-search" placeholder="Пошук матеріалу зі списку кошторису..." autocomplete="off"
                 style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box"
-                oninput="filterDD('mat')" onfocus="this.style.borderColor='var(--accent)';filterDD('mat')"
+                oninput="filterDD('mat')" onfocus="this.style.borderColor='var(--accent)';setTimeout(()=>filterDD('mat'),50)"
                 onblur="setTimeout(()=>document.getElementById('mat-dd').style.display='none',300);this.style.borderColor='var(--border)'">
               <div class="dd-list" id="mat-dd" style="display:none"></div>
             </div>
@@ -1467,6 +1479,20 @@ function updateWorkFilter() {
   const finalCount = filtered2.filter(w => !workFilter.grupa || w.group === workFilter.grupa).length;
   const el = document.getElementById('wf-count');
   if (el) el.textContent = finalCount + ' робіт у вибірці';
+}
+
+function resetWorkFilter(field) {
+  const map = { rozdil: 'wf-rozdil', sektsia: 'wf-sektsia', grupa: 'wf-grupa' };
+  const el = document.getElementById(map[field]);
+  if (el) { el.value = ''; }
+  if (field === 'rozdil') {
+    const s = document.getElementById('wf-sektsia'); if (s) s.value = '';
+    const g = document.getElementById('wf-grupa');   if (g) g.value = '';
+  }
+  if (field === 'sektsia') {
+    const g = document.getElementById('wf-grupa'); if (g) g.value = '';
+  }
+  updateWorkFilter();
 }
 
 function getFilteredWorks() {
