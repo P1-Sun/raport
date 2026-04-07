@@ -1680,9 +1680,8 @@ function addWorkFromFields() {
 }
 
 function addWork(item) {
-  // тепер просто заповнює поля при виборі з dropdown
   document.getElementById('work-search').value = item.name;
-  document.getElementById('w-unit').value = item.unit;
+  document.getElementById('w-unit').value = item.unit || '';
   document.getElementById('work-dd').style.display='none';
   document.getElementById('w-qty').focus();
 }
@@ -1730,7 +1729,7 @@ function addManualWork() {
 
 function addMat(item) {
   document.getElementById('mat-search').value = item.name;
-  document.getElementById('m-unit').value = item.unit;
+  document.getElementById('m-unit').value = item.unit || '';
   document.getElementById('mat-dd').style.display = 'none';
   document.getElementById('m-qty').focus();
 }
@@ -1760,9 +1759,13 @@ function addMatFromFields() {
     manual: false
   });
   renderMats(); updateProgress();
+
+  // Очищаємо тільки поля матеріалу — авто і документ лишаємо
+  // (зручно коли кілька матеріалів від одного авто/документа)
   document.getElementById('mat-search').value = '';
   document.getElementById('m-qty').value = '';
   document.getElementById('m-unit').value = '';
+  document.getElementById('mat-dd').style.display = 'none';
 }
 
 // ================================================================
