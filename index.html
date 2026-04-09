@@ -1450,7 +1450,9 @@ function toggleWorkFilter() {
 }
 
 function buildWorkFilterSelects() {
-  const db = window._WORKS_DB_LIVE || [];
+  // Фільтруємо по поточному обʼєкту
+  const allDb = window._WORKS_DB_LIVE || [];
+  const db = state.obj ? allDb.filter(w => !w.obj || w.obj === state.obj) : allDb;
   if (!db.length) return;
 
   // Розділи
@@ -1464,7 +1466,9 @@ function buildWorkFilterSelects() {
 }
 
 function updateWorkFilter() {
-  const db = window._WORKS_DB_LIVE || [];
+  // Фільтруємо по поточному обʼєкту
+  const allDb = window._WORKS_DB_LIVE || [];
+  const db = state.obj ? allDb.filter(w => !w.obj || w.obj === state.obj) : allDb;
   const selR = document.getElementById('wf-rozdil');
   const selS = document.getElementById('wf-sektsia');
   const selG = document.getElementById('wf-grupa');
