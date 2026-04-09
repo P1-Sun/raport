@@ -1648,7 +1648,7 @@ function filterDD(type, customInputId, customDdId) {
   if (!dd) return;
   const res = q
     ? db.filter(i => i.name.toLowerCase().includes(q.toLowerCase()) || (i.group||'').toLowerCase().includes(q.toLowerCase()))
-    : db.slice(0, 8);
+    : db;
   if (!res.length) { dd.innerHTML='<div class="dd-empty">Не знайдено</div>'; dd.style.display='block'; return; }
   dd.innerHTML = res.slice(0,30).map(item => {
     const meta = type === 'work'
