@@ -487,6 +487,15 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
               style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
               onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
           </div>
+          <div>
+            <input type="file" id="mlist-photo-input" accept="image/*" multiple capture="environment" style="display:none"
+              onchange="handleMListPhoto(this)">
+            <div onclick="document.getElementById('mlist-photo-input').click()"
+              style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--accent);border-radius:8px;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;background:var(--accent-l)">
+              📷 🖼 Фото документа
+            </div>
+            <div id="mlist-photos-preview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+          </div>
           <div style="display:flex;justify-content:flex-end">
             <div data-fn="addMatFromFields"
               style="padding:9px 18px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit">Додати</div>
@@ -1748,25 +1757,79 @@ function addMatFromFields() {
   const carChk   = document.getElementById('m-car-chk')?.checked;
   const docChk   = document.getElementById('m-doc-chk')?.checked;
   const car      = carChk ? (document.getElementById('m-car')?.value.trim() || '') : '';
-  const trips    = carChk ? (document.getElementById('m-trips')?.value.trim() || '1') : '';
+  const tripsNum = carChk ? (parseInt(document.getElementById('m-trips')?.value) || 1) : 1;
   const supplier = docChk ? (document.getElementById('m-supplier')?.value.trim() || '') : '';
   const doc      = docChk ? (document.getElementById('m-doc')?.value.trim() || '') : '';
+  const photos   = mListPhotos.slice();
 
-  state.mats.push({
-    name, qty,
-    unit: unit || (fromDB?.unit || '—'),
-    group: fromDB?.group || 'Зі списку',
-    car, trips, supplier, doc,
-    manual: false
-  });
+  const resolvedUnit = unit || (fromDB?.unit || '—');
+  const resolvedGroup = fromDB?.group || 'Зі списку';
+
+  // Якщо є авто і більше 1 ходки — кожна ходка = окремий рядок
+  if (carChk && tripsNum > 1) {
+    for (let i = 0; i < tripsNum; i++) {
+      state.mats.push({
+        name, qty,
+        unit: resolvedUnit,
+        group: resolvedGroup,
+        car, trips: 1, supplier, doc,
+        photos: i === 0 ? photos : [],  // фото тільки до першого рядка
+        manual: false
+      });
+    }
+  } else {
+    state.mats.push({
+      name, qty,
+      unit: resolvedUnit,
+      group: resolvedGroup,
+      car, trips: tripsNum > 0 ? String(tripsNum) : '',
+      supplier, doc, photos,
+      manual: false
+    });
+  }
+
   renderMats(); updateProgress();
 
-  // Очищаємо тільки поля матеріалу — авто і документ лишаємо
-  // (зручно коли кілька матеріалів від одного авто/документа)
+  // Очищаємо поля матеріалу — авто і документ лишаємо для зручності
   document.getElementById('mat-search').value = '';
   document.getElementById('m-qty').value = '';
   document.getElementById('m-unit').value = '';
   document.getElementById('mat-dd').style.display = 'none';
+  // Скидаємо фото
+  mListPhotos = [];
+  const prev = document.getElementById('mlist-photos-preview');
+  if (prev) prev.innerHTML = '';
+}
+
+// Фото для матеріалів зі списку кошторису
+let mListPhotos = [];
+
+function handleMListPhoto(input) {
+  const preview = document.getElementById('mlist-photos-preview');
+  const files = Array.from(input.files);
+  if (mListPhotos.length + files.length > MAX_PHOTOS) {
+    alert('Максимум ' + MAX_PHOTOS + ' фото');
+    input.value = '';
+    return;
+  }
+  files.forEach(file => {
+    compressPhoto(file, (dataUrl) => {
+      const idx = mListPhotos.length;
+      mListPhotos.push({ dataUrl });
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative;width:56px;height:56px;flex-shrink:0';
+      wrap.innerHTML = `
+        <img src="${dataUrl}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+        <div onclick="removeMListPhoto(${idx},this)" style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:var(--danger);color:#fff;border-radius:50%;font-size:11px;line-height:16px;text-align:center;cursor:pointer;font-weight:700">×</div>`;
+      preview.appendChild(wrap);
+    });
+  });
+  input.value = '';
+}
+
+function removeMListPhoto(idx, el) {
+  mListPhotos.splice(idx, 1);
+  el.closest('div[style*="position:relative"]').remove();
 }
 
 // ================================================================
