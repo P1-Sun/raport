@@ -1656,7 +1656,12 @@ function filterDD(type, customInputId, customDdId) {
     const meta = type === 'work'
       ? [item.rozdil, item.sektsia, item.group].filter(Boolean).join(' › ') + (item.unit ? ' · ' + item.unit : '')
       : (item.group || '') + (item.unit ? ' · ' + item.unit : '');
-    return `<div class="dd-item" onmousedown="event.preventDefault()" onclick='selectDDByIdx("${type}","${ddId}",${idx},${JSON.stringify(inputId)},${JSON.stringify(ddId)})'>
+    // Для стандартних типів (work/mat/trans) — не передаємо customId
+    const isCustom = customInputId && customDdId;
+    const onclickAttr = isCustom
+      ? `selectDDByIdx("${type}","${ddId}",${idx},"${customInputId}","${customDdId}")`
+      : `selectDDByIdx("${type}","${ddId}",${idx})`;
+    return `<div class="dd-item" onmousedown="event.preventDefault()" onclick='${onclickAttr}'>
       <div class="dd-name">${hl(item.name,q)}</div>
       <div class="dd-meta">${meta}</div>
     </div>`;
@@ -1733,7 +1738,8 @@ function addExtraWorkerByName(name) {
 function selectDDByIdx(type, ddId, idx, customInputId, customDdId) {
   const item = (window._ddItems && window._ddItems[ddId]) ? window._ddItems[ddId][idx] : null;
   if (!item) return;
-  selectDD(type, item, customInputId, customDdId);
+  // Передаємо customInputId тільки якщо вони реально кастомні
+  selectDD(type, item, customInputId || null, customDdId || null);
 }
 
 function selectDD(type, item, customInputId, customDdId) {
