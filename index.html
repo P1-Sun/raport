@@ -443,7 +443,26 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <!-- Зі списку кошторису — завжди -->
       <div id="mats-list"></div>
       <div class="sub-card">
-        <div class="sub-label">Зі списку кошторису</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="sub-label" style="margin-bottom:0">Зі списку кошторису</div>
+          <div onclick="toggleMatFilter()" id="mat-filter-btn"
+            style="font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;padding:4px 10px;border:1px solid var(--tag-border);border-radius:6px;background:var(--accent-l);user-select:none">
+            ⚙ Фільтр
+          </div>
+        </div>
+        <!-- Фільтр по групі матеріалів -->
+        <div id="mat-filter-panel" style="display:none;flex-direction:column;gap:6px;margin-bottom:10px;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Звузити за групою</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="mf-grupa" onchange="updateMatFilter()"
+              style="flex:1;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none">
+              <option value="">Всі групи</option>
+            </select>
+            <div onclick="resetMatFilter()" title="Скинути"
+              style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text3);line-height:1">×</div>
+          </div>
+          <div style="font-size:12px;color:var(--text3)" id="mf-count"></div>
+        </div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative">
             <div style="position:relative;flex:2;min-width:200px">
@@ -1432,6 +1451,66 @@ function hl(text, q) {
 }
 
 // ================================================================
+// ФІЛЬТР МАТЕРІАЛІВ — по групі
+// ================================================================
+let matFilter = { grupa: '' };
+let matFilterOpen = false;
+
+function toggleMatFilter() {
+  const panel = document.getElementById('mat-filter-panel');
+  const btn   = document.getElementById('mat-filter-btn');
+  matFilterOpen = !matFilterOpen;
+  panel.style.display = matFilterOpen ? 'flex' : 'none';
+  btn.style.background = matFilterOpen ? 'var(--accent)' : 'var(--accent-l)';
+  btn.style.color      = matFilterOpen ? '#fff' : 'var(--accent)';
+  if (matFilterOpen) buildMatFilterSelect();
+}
+
+function buildMatFilterSelect() {
+  const allMats = window._MATS_DB_LIVE || [];
+  const db = state.obj ? allMats.filter(m => !m.obj || m.obj === state.obj) : allMats;
+  const grupy = [...new Set(db.map(m => m.group).filter(Boolean))].sort();
+  const sel = document.getElementById('mf-grupa');
+  const cur = sel?.value || '';
+  if (sel) {
+    sel.innerHTML = '<option value="">Всі групи</option>' +
+      grupy.map(g => `<option value="${g}" ${g===cur?'selected':''}>${g}</option>`).join('');
+    matFilter.grupa = sel.value;
+  }
+  updateMatFilterCount();
+}
+
+function updateMatFilter() {
+  const sel = document.getElementById('mf-grupa');
+  matFilter.grupa = sel?.value || '';
+  updateMatFilterCount();
+}
+
+function updateMatFilterCount() {
+  const allMats = window._MATS_DB_LIVE || [];
+  const db = state.obj ? allMats.filter(m => !m.obj || m.obj === state.obj) : allMats;
+  const count = db.filter(m => !matFilter.grupa || m.group === matFilter.grupa).length;
+  const el = document.getElementById('mf-count');
+  if (el) el.textContent = count + ' матеріалів у вибірці';
+}
+
+function resetMatFilter() {
+  matFilter.grupa = '';
+  const sel = document.getElementById('mf-grupa');
+  if (sel) sel.value = '';
+  updateMatFilterCount();
+}
+
+function getFilteredMats() {
+  const allMats = window._MATS_DB_LIVE || MATS_DB;
+  return allMats.filter(m => {
+    if (state.obj && m.obj && m.obj !== state.obj) return false;
+    if (matFilter.grupa && m.group !== matFilter.grupa) return false;
+    return true;
+  });
+}
+
+// ================================================================
 // ФІЛЬТР РОБІТ — Розділ / Секція / Група
 // ================================================================
 
@@ -1530,8 +1609,13 @@ function getFilteredWorks() {
 // Викликається при зміні обʼєкта — оновлює лічильник фільтра
 function onObjChanged() {
   updateProgress();
-  // Скидаємо фільтр робіт бо обʼєкт змінився
+  // Скидаємо фільтри робіт і матеріалів бо обʼєкт змінився
   workFilter = { rozdil: '', sektsia: '', grupa: '' };
+  matFilter  = { grupa: '' };
+  const mfSel = document.getElementById('mf-grupa');
+  if (mfSel) mfSel.value = '';
+  const mfCnt = document.getElementById('mf-count');
+  if (mfCnt) mfCnt.textContent = '';
   const selR = document.getElementById('wf-rozdil');
   const selS = document.getElementById('wf-sektsia');
   const selG = document.getElementById('wf-grupa');
@@ -1549,10 +1633,7 @@ function filterDD(type, customInputId, customDdId) {
   // Підтримує як стандартні id (work/mat/trans), так і кастомні (rd-mat, dm-name)
   // Використовуємо живі дані з Довідника якщо є, інакше — локальні
   const liveWorks = (type === 'work') ? getFilteredWorks() : (window._WORKS_DB_LIVE || WORKS_DB);
-  const allMats   = window._MATS_DB_LIVE  || MATS_DB;
-  const liveMats  = state.obj
-    ? allMats.filter(m => !m.obj || m.obj === state.obj)
-    : allMats;
+  const liveMats = (type === 'mat') ? getFilteredMats() : (window._MATS_DB_LIVE || MATS_DB);
   const liveTrans = (window._TRANSPORT_LIVE || TRANSPORT_LIST).map(n => typeof n === 'string' ? {name:n,group:'Транспорт',unit:'л'} : n);
   const cfgMap = {
     work:  { inputId:'work-search', ddId:'work-dd', db:liveWorks },
@@ -1569,7 +1650,7 @@ function filterDD(type, customInputId, customDdId) {
     ? db.filter(i => i.name.toLowerCase().includes(q.toLowerCase()) || (i.group||'').toLowerCase().includes(q.toLowerCase()))
     : db.slice(0, 8);
   if (!res.length) { dd.innerHTML='<div class="dd-empty">Не знайдено</div>'; dd.style.display='block'; return; }
-  dd.innerHTML = res.slice(0,20).map(item => {
+  dd.innerHTML = res.slice(0,30).map(item => {
     const meta = type === 'work'
       ? [item.rozdil, item.sektsia, item.group].filter(Boolean).join(' › ') + (item.unit ? ' · ' + item.unit : '')
       : (item.group || '') + (item.unit ? ' · ' + item.unit : '');
