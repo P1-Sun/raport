@@ -919,7 +919,7 @@ function buildObjSection() {
         const cr = document.getElementById('obj-custom-row');
         if (cr) { cr.style.display = 'none'; document.getElementById('obj-custom-inp').value = ''; }
         p.classList.add('active');
-        updateProgress();
+        onObjChanged();
       };
       pills.appendChild(p);
     });
@@ -1047,7 +1047,7 @@ function toggleOtherBrigObjs() {
       pill.className = 'obj-pill other-brig-pill';
       pill.textContent = item.obj;
       pill.onclick = () => {
-        state.obj = item.obj; state.objCity = null; state.objStreet = null;
+        state.obj = item.obj; state.objCity = null; state.objStreet = null; onObjChanged();
         // очищаємо поля адреси
         const ci = document.getElementById('obj-city'); if (ci) ci.value = '';
         const si = document.getElementById('obj-street'); if (si) si.value = '';
@@ -1091,7 +1091,7 @@ function addCustomObj() {
   p.onclick = () => {
     state.obj = name;
     document.querySelectorAll('.obj-pill').forEach(x => x.classList.remove('active'));
-    p.classList.add('active'); updateProgress();
+    p.classList.add('active'); onObjChanged();
   };
   pills.insertBefore(p, addBtn);
 
@@ -1103,7 +1103,7 @@ function addCustomObj() {
   // Ховаємо рядок вводу
   document.getElementById('obj-custom-row').style.display = 'none';
   inp.value = '';
-  updateProgress();
+  onObjChanged();
 }
 
 function closeCustomObj() {
@@ -1508,6 +1508,8 @@ function resetWorkFilter(field) {
 function getFilteredWorks() {
   const db = window._WORKS_DB_LIVE || WORKS_DB;
   return db.filter(w => {
+    // Фільтр по поточному обʼєкту
+    if (state.obj && w.obj && w.obj !== state.obj) return false;
     if (workFilter.rozdil  && w.rozdil   !== workFilter.rozdil)  return false;
     if (workFilter.sektsia && w.sektsia  !== workFilter.sektsia) return false;
     if (workFilter.grupa   && w.group    !== workFilter.grupa)   return false;
@@ -1515,11 +1517,32 @@ function getFilteredWorks() {
   });
 }
 
+// Викликається при зміні обʼєкта — оновлює лічильник фільтра
+function onObjChanged() {
+  updateProgress();
+  // Скидаємо фільтр робіт бо обʼєкт змінився
+  workFilter = { rozdil: '', sektsia: '', grupa: '' };
+  const selR = document.getElementById('wf-rozdil');
+  const selS = document.getElementById('wf-sektsia');
+  const selG = document.getElementById('wf-grupa');
+  if (selR) selR.value = '';
+  if (selS) selS.value = '';
+  if (selG) selG.value = '';
+  const cnt = document.getElementById('wf-count');
+  if (cnt) {
+    const total = getFilteredWorks().length;
+    cnt.textContent = total + ' робіт у вибірці';
+  }
+}
+
 function filterDD(type, customInputId, customDdId) {
   // Підтримує як стандартні id (work/mat/trans), так і кастомні (rd-mat, dm-name)
   // Використовуємо живі дані з Довідника якщо є, інакше — локальні
   const liveWorks = (type === 'work') ? getFilteredWorks() : (window._WORKS_DB_LIVE || WORKS_DB);
-  const liveMats  = window._MATS_DB_LIVE  || MATS_DB;
+  const allMats   = window._MATS_DB_LIVE  || MATS_DB;
+  const liveMats  = state.obj
+    ? allMats.filter(m => !m.obj || m.obj === state.obj)
+    : allMats;
   const liveTrans = (window._TRANSPORT_LIVE || TRANSPORT_LIST).map(n => typeof n === 'string' ? {name:n,group:'Транспорт',unit:'л'} : n);
   const cfgMap = {
     work:  { inputId:'work-search', ddId:'work-dd', db:liveWorks },
