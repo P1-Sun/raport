@@ -1765,37 +1765,39 @@ function addMatFromFields() {
   const resolvedUnit = unit || (fromDB?.unit || '—');
   const resolvedGroup = fromDB?.group || 'Зі списку';
 
-  // Якщо є авто і більше 1 ходки — кожна ходка = окремий рядок
-  if (carChk && tripsNum > 1) {
-    for (let i = 0; i < tripsNum; i++) {
-      state.mats.push({
-        name, qty,
-        unit: resolvedUnit,
-        group: resolvedGroup,
-        car, trips: 1, supplier, doc,
-        photos: i === 0 ? photos : [],  // фото тільки до першого рядка
-        manual: false
-      });
-    }
-  } else {
-    state.mats.push({
-      name, qty,
-      unit: resolvedUnit,
-      group: resolvedGroup,
-      car, trips: tripsNum > 0 ? String(tripsNum) : '',
-      supplier, doc, photos,
-      manual: false
-    });
-  }
+  // У формі завжди 1 рядок. trips зберігаємо для розбивки при відправці в базу.
+  state.mats.push({
+    name, qty,
+    unit: resolvedUnit,
+    group: resolvedGroup,
+    car,
+    trips: carChk ? String(tripsNum) : '',
+    supplier, doc, photos,
+    manual: false
+  });
 
   renderMats(); updateProgress();
 
-  // Очищаємо поля матеріалу — авто і документ лишаємо для зручності
+  // Очищаємо всі поля блоку "Зі списку кошторису"
   document.getElementById('mat-search').value = '';
   document.getElementById('m-qty').value = '';
   document.getElementById('m-unit').value = '';
   document.getElementById('mat-dd').style.display = 'none';
-  // Скидаємо фото
+
+  const carChkEl = document.getElementById('m-car-chk');
+  if (carChkEl) { carChkEl.checked = false; toggleMListExtra('car', false); }
+  const carEl = document.getElementById('m-car');
+  if (carEl) carEl.value = '';
+  const tripsEl = document.getElementById('m-trips');
+  if (tripsEl) tripsEl.value = '1';
+
+  const docChkEl = document.getElementById('m-doc-chk');
+  if (docChkEl) { docChkEl.checked = false; toggleMListExtra('doc', false); }
+  const supplierEl = document.getElementById('m-supplier');
+  if (supplierEl) supplierEl.value = '';
+  const docEl = document.getElementById('m-doc');
+  if (docEl) docEl.value = '';
+
   mListPhotos = [];
   const prev = document.getElementById('mlist-photos-preview');
   if (prev) prev.innerHTML = '';
