@@ -465,9 +465,15 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             Привезло авто
           </label>
           <div id="m-car-row" style="display:none;flex-wrap:wrap;gap:8px">
-            <input type="text" id="m-car" placeholder="Держ. номер авто"
-              style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
-              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+            <div style="flex:2;min-width:150px;display:flex;flex-direction:column;gap:6px">
+              <select id="m-car-sel"
+                style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none">
+                <option value="">— оберіть авто —</option>
+              </select>
+              <input type="text" id="m-car" placeholder="Введіть держ. номер вручну"
+                style="display:none;width:100%;box-sizing:border-box;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+                onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
               <input type="number" id="m-trips" placeholder="1" min="1" value="1"
                 style="width:70px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s"
@@ -488,12 +494,12 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
               onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
           </div>
           <div>
-            <input type="file" id="mlist-photo-input" accept="image/*" multiple capture="environment" style="display:none"
-              onchange="handleMListPhoto(this)">
-            <div onclick="document.getElementById('mlist-photo-input').click()"
-              style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--accent);border-radius:8px;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;background:var(--accent-l)">
-              📷 🖼 Фото документа
-            </div>
+
+            <label style="display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;background:var(--accent-l);user-select:none">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 4l1-2h4l1 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              📷 Фото документа
+              <input type="file" id="mlist-photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="handleMListPhoto(this)">
+            </label>
             <div id="mlist-photos-preview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
           </div>
           <div style="display:flex;justify-content:flex-end">
@@ -720,8 +726,8 @@ function updateHeaderDate() {
 // Резервні піни на випадок недоступності мережі:
 const PIN_MAP_FALLBACK = {
   '5665': 'besarab',
-  '1488': 'nalyvayko',
-  '2408': 'gena',
+  '2102': 'nalyvayko',
+  '1612': 'gena',
   '2806': 'milan',
   '0903': 'shulga',
   '0101': 'yura',
@@ -1367,8 +1373,8 @@ function removeTechEntry(name) {
 function buildTimeSelects() {
   const hours = ['ts-h','te-h'];
   const mins  = ['ts-m','te-m'];
-  const defH  = [7, 17];
-  const defM  = [30, 0];
+  const defH  = [8, 17];
+  const defM  = [0, 0];
 
   hours.forEach((id, i) => {
     const sel = document.getElementById(id);
@@ -1809,8 +1815,10 @@ function addMatFromFields() {
 
   const carChkEl = document.getElementById('m-car-chk');
   if (carChkEl) { carChkEl.checked = false; toggleMListExtra('car', false); }
+  const carSelEl = document.getElementById('m-car-sel');
+  if (carSelEl) { carSelEl.value = ''; carSelEl.style.display = ''; }
   const carEl = document.getElementById('m-car');
-  if (carEl) carEl.value = '';
+  if (carEl) { carEl.value = ''; carEl.style.display = 'none'; }
   const tripsEl = document.getElementById('m-trips');
   if (tripsEl) tripsEl.value = '1';
 
@@ -1862,6 +1870,37 @@ function removeMListPhoto(idx, el) {
 // 'road'    : Алєксін, Шульга, Геннадій, Бесараб → блок "Поставка"
 // 'general' : Наливайко, Мілан, Ольшовський → два варіанти (документ / фото)
 // ================================================================
+// Список найбільш поширених авто компанії
+const COMPANY_CARS = [
+  'BK 5143 IC','BK 8808 CA','BK 1520 IE','BK 4412 HM','BK 2571 HE',
+  'АВ 9469 AM','BK 5256 AT','BX 3298 AE','BK 8050 CM','BK 3239 CO',
+  'AO 6190 HA','KA 0324 MH','KA 0163 MH'
+];
+
+function buildCarSelect(selectId, inputId) {
+  const sel = document.getElementById(selectId);
+  const inp = document.getElementById(inputId);
+  if (!sel || !inp) return;
+  sel.innerHTML = '<option value="">— оберіть авто —</option>' +
+    COMPANY_CARS.map(c => `<option value="${c}">${c}</option>`).join('') +
+    '<option value="__other__">Інше (ввести вручну)</option>';
+  sel.onchange = () => {
+    if (sel.value === '__other__') {
+      sel.style.display = 'none';
+      inp.style.display = '';
+      inp.value = '';
+      inp.focus();
+    } else if (sel.value) {
+      inp.value = sel.value;
+      inp.style.display = 'none';
+      sel.style.display = '';
+    } else {
+      inp.value = '';
+      inp.style.display = 'none';
+    }
+  };
+}
+
 const ROAD_BRIGADES = ['shulga','yura','gena','besarab'];
 
 function getMatsType() {
@@ -1902,9 +1941,15 @@ function buildMatDocBlock() {
         Привезло авто
       </label>
       <div id="md-car-row" style="display:none;flex-wrap:wrap;gap:8px">
-        <input type="text" id="md-car" placeholder="Держ. номер авто"
-          style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
-          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        <div style="flex:2;min-width:150px;display:flex;flex-direction:column;gap:6px">
+          <select id="md-car-sel"
+            style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none">
+            <option value="">— оберіть авто —</option>
+          </select>
+          <input type="text" id="md-car" placeholder="Введіть держ. номер вручну"
+            style="display:none;width:100%;box-sizing:border-box;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
           <input type="number" id="md-trips" placeholder="1" min="1" value="1"
             style="width:70px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s"
@@ -1933,11 +1978,29 @@ function buildMatDocBlock() {
 function toggleMdCar(show) {
   const row = document.getElementById('md-car-row');
   if (row) row.style.display = show ? 'flex' : 'none';
+  if (show) {
+    buildCarSelect('md-car-sel', 'md-car');
+  } else {
+    const sel = document.getElementById('md-car-sel');
+    const inp = document.getElementById('md-car');
+    if (sel) { sel.value = ''; sel.style.display = ''; }
+    if (inp) { inp.value = ''; inp.style.display = 'none'; }
+  }
 }
 
 function toggleMListExtra(type, show) {
   const row = document.getElementById('m-' + type + '-row');
   if (row) row.style.display = show ? 'flex' : 'none';
+  if (show && type === 'car') {
+    buildCarSelect('m-car-sel', 'm-car');
+  }
+  if (!show && type === 'car') {
+    // скидаємо при закритті
+    const sel = document.getElementById('m-car-sel');
+    const inp = document.getElementById('m-car');
+    if (sel) { sel.value = ''; sel.style.display = ''; }
+    if (inp) { inp.value = ''; inp.style.display = 'none'; }
+  }
 }
 
 let mdPhotos = [];
@@ -2025,7 +2088,8 @@ function addMatDoc() {
   document.getElementById('md-doc').value      = '';
   document.getElementById('md-car-chk').checked = false;
   toggleMdCar(false);
-  const carEl = document.getElementById('md-car'); if (carEl) carEl.value = '';
+  const carEl = document.getElementById('md-car'); if (carEl) { carEl.value = ''; carEl.style.display = 'none'; }
+  const carSelEl2 = document.getElementById('md-car-sel'); if (carSelEl2) { carSelEl2.value = ''; carSelEl2.style.display = ''; }
   const trEl  = document.getElementById('md-trips'); if (trEl) trEl.value = '1';
   document.getElementById('md-photos-preview').innerHTML = '';
 }
