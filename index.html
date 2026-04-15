@@ -1956,8 +1956,12 @@ function addMatFromFields() {
   const tripsEl = document.getElementById('m-trips');
   if (tripsEl) tripsEl.value = '1';
 
-  // Документ НЕ скидаємо — зручно коли кілька матеріалів по одному документу
-  // Але оновлюємо список попередніх
+  // Скидаємо всі поля документа
+  const docChkElClr = document.getElementById('m-doc-chk');
+  if (docChkElClr) { docChkElClr.checked = false; toggleMListExtra('doc', false); }
+  const supElClr = document.getElementById('m-supplier'); if (supElClr) supElClr.value = '';
+  const numElClr = document.getElementById('m-doc-num'); if (numElClr) numElClr.value = '';
+  const dateElClr = document.getElementById('m-doc-date'); if (dateElClr) dateElClr.value = '';
   setTimeout(refreshPrevDocs, 100);
 
   mListPhotos = [];
@@ -2176,17 +2180,20 @@ function refreshMdPrevDocs() {
   const container = document.getElementById('md-prev-docs');
   if (!container) return;
   const docs = getSessionDocs();
+  window._sessionDocsMd = docs;
   if (!docs.length) { container.style.display = 'none'; return; }
   container.style.display = 'flex';
   container.innerHTML = '<span style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;align-self:center">Попередні:</span>' +
-    docs.map(d => `<div onclick="fillMdDocFromPrev(${JSON.stringify(d.supplier)},${JSON.stringify(d.doc)})"
-      style="padding:4px 10px;border:1px solid var(--tag-border);border-radius:20px;font-size:12px;color:var(--tag-text);background:var(--tag-bg);cursor:pointer;white-space:nowrap">${d.label}</div>`).join('');
+    docs.map((d, i) => `<div onmousedown="event.preventDefault()" onclick="fillMdDocFromPrev(${i})"
+      style="padding:4px 10px;border:1px solid var(--tag-border);border-radius:20px;font-size:12px;color:var(--tag-text);background:var(--tag-bg);cursor:pointer;white-space:nowrap;user-select:none">${d.label}</div>`).join('');
 }
 
-function fillMdDocFromPrev(supplier, doc) {
+function fillMdDocFromPrev(idx) {
+  const d = window._sessionDocsMd && window._sessionDocsMd[idx];
+  if (!d) return;
   const supEl = document.getElementById('md-supplier');
-  if (supEl) supEl.value = supplier;
-  const clean = doc.replace(/^№/, '').trim();
+  if (supEl) supEl.value = d.supplier || '';
+  const clean = d.doc.replace(/^№/, '').trim();
   const parts = clean.split('/').map(s => s.trim());
   const numEl = document.getElementById('md-doc-num');
   const dateEl = document.getElementById('md-doc-date');
@@ -2198,18 +2205,21 @@ function refreshPrevDocs() {
   const container = document.getElementById('m-prev-docs');
   if (!container) return;
   const docs = getSessionDocs();
+  window._sessionDocs = docs;
   if (!docs.length) { container.style.display = 'none'; return; }
   container.style.display = 'flex';
   container.innerHTML = '<span style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;align-self:center">Попередні:</span>' +
-    docs.map(d => `<div onclick="fillDocFromPrev(${JSON.stringify(d.supplier)},${JSON.stringify(d.doc)})"
-      style="padding:4px 10px;border:1px solid var(--tag-border);border-radius:20px;font-size:12px;color:var(--tag-text);background:var(--tag-bg);cursor:pointer;white-space:nowrap">${d.label}</div>`).join('');
+    docs.map((d, i) => `<div onmousedown="event.preventDefault()" onclick="fillDocFromPrev(${i})"
+      style="padding:4px 10px;border:1px solid var(--tag-border);border-radius:20px;font-size:12px;color:var(--tag-text);background:var(--tag-bg);cursor:pointer;white-space:nowrap;user-select:none">${d.label}</div>`).join('');
 }
 
-function fillDocFromPrev(supplier, doc) {
+function fillDocFromPrev(idx) {
+  const d = window._sessionDocs && window._sessionDocs[idx];
+  if (!d) return;
   const supEl = document.getElementById('m-supplier');
-  if (supEl) supEl.value = supplier;
-  // doc формат: "№123 / 2026-04-09"
-  const clean = doc.replace(/^№/, '').trim();
+  if (supEl) supEl.value = d.supplier || '';
+  // doc формат: "№56 / 2026-04-14"
+  const clean = d.doc.replace(/^№/, '').trim();
   const parts = clean.split('/').map(s => s.trim());
   const numEl = document.getElementById('m-doc-num');
   const dateEl = document.getElementById('m-doc-date');
@@ -2324,7 +2334,7 @@ function renderOtherMats() {
       `<img src="${p.dataUrl}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">`
     ).join('');
     const tags = [
-      m.doc      ? `<span class="mat-tag mat-tag-blue">${m.doc}</span>` : '',
+      m.doc      ? `<span class="mat-tag mat-tag-blue">${m.doc.replace(/(\d{4})-(\d{2})-(\d{2})/,'$3.$2.$1')}</span>` : '',
       m.supplier ? `<span class="mat-tag">${m.supplier}</span>` : '',
       m.car      ? `<span class="mat-tag">${m.car}${m.trips > 1 ? ' · ' + m.trips + ' ходок' : ''}</span>` : '',
     ].filter(Boolean).join('');
@@ -2518,7 +2528,7 @@ function renderMats() {
     const i = state.mats.indexOf(m);
     const tags = [
       m.car      ? `<span class="mat-tag">${m.car}${m.trips > 1 ? ' · ' + m.trips + ' ходок' : ''}</span>` : '',
-      m.doc      ? `<span class="mat-tag mat-tag-blue">${m.doc}</span>` : '',
+      m.doc      ? `<span class="mat-tag mat-tag-blue">${m.doc.replace(/(\d{4})-(\d{2})-(\d{2})/,'$3.$2.$1')}</span>` : '',
       m.supplier ? `<span class="mat-tag">${m.supplier}</span>` : '',
     ].filter(Boolean).join('');
     return `
