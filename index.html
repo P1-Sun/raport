@@ -504,13 +504,22 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             <input type="checkbox" id="m-doc-chk" onchange="toggleMListExtra('doc',this.checked)" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer">
             Є супровідний документ
           </label>
-          <div id="m-doc-row" style="display:none;flex-wrap:wrap;gap:8px">
-            <input type="text" id="m-supplier" placeholder="Постачальник"
-              style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
-              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-            <input type="text" id="m-doc" placeholder="№ ТТН / накладної / чеку"
-              style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
-              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          <div id="m-doc-row" style="display:none;flex-direction:column;gap:8px">
+            <!-- Кнопки раніше введених документів -->
+            <div id="m-prev-docs" style="display:none;flex-wrap:wrap;gap:6px;margin-bottom:2px"></div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <input type="text" id="m-supplier" placeholder="Постачальник"
+                style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+                onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+              <input type="text" id="m-doc-num" placeholder="№ документа"
+                style="flex:1;min-width:100px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+                onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+              <input type="date" id="m-doc-date"
+                style="flex:1;min-width:140px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+                onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            <!-- прихований m-doc для сумісності -->
+            <input type="hidden" id="m-doc" value="">
           </div>
           <div>
 
@@ -685,7 +694,7 @@ function getOtherBrigadeObjs() {
 const BRIGADE_WORKERS = {};
 
 // All workers flat list for cross-brigade search
-const ALL_WORKERS = [...new Set(Object.values(BRIGADE_WORKERS).flat())].sort();
+let ALL_WORKERS = [];
 
 // ================================================================
 // TECH LIST (from PDF)
@@ -839,6 +848,15 @@ function startApp(userKey) {
       document.getElementById('h-name').textContent = currentUser.name;
 
       BRIGADE_WORKERS[userKey] = data.workers || [];
+      // Додаємо ВСІХ працівників до загального списку (з усіх бригад)
+      // Довідник повертає тільки своїх, тому збираємо з усіх завантажень
+      {
+        const allW = new Set(ALL_WORKERS);
+        (data.workers || []).forEach(w => allW.add(w));
+        // Якщо є allWorkers з сервера (всі) — використовуємо їх
+        if (data.allWorkers) data.allWorkers.forEach(w => allW.add(w));
+        ALL_WORKERS = [...allW].sort((a,b) => a.localeCompare(b, 'uk'));
+      }
       BRIGADE_OBJ[userKey]     = data.objects || [];
       if (data.allActiveObjects) currentUser.allActiveObjects = data.allActiveObjects;
       if (data.works)     window._WORKS_DB_LIVE    = data.works;
@@ -1672,9 +1690,9 @@ function filterDD(type, customInputId, customDdId) {
 function filterWorkers() {
   const q = document.getElementById('worker-search').value.trim();
   const dd = document.getElementById('worker-dd');
-  const res = q ? ALL_WORKERS.filter(w=>w.toLowerCase().includes(q.toLowerCase())) : ALL_WORKERS.slice(0,8);
+  const res = q ? ALL_WORKERS.filter(w=>w.toLowerCase().includes(q.toLowerCase())) : ALL_WORKERS;
   if (!res.length) { dd.innerHTML='<div class="dd-empty">Не знайдено</div>'; dd.style.display='block'; return; }
-  dd.innerHTML = res.slice(0,8).map(w=>
+  dd.innerHTML = res.slice(0,30).map(w=>
     `<div class="dd-item" onmousedown="event.preventDefault()" onclick='addWorkerFromSearch("${w}")'>
       <div class="dd-name">${hl(w,q)}</div>
     </div>`).join('');
@@ -1899,7 +1917,12 @@ function addMatFromFields() {
   const car      = carChk ? (document.getElementById('m-car')?.value.trim() || '') : '';
   const tripsNum = carChk ? (parseInt(document.getElementById('m-trips')?.value) || 1) : 1;
   const supplier = docChk ? (document.getElementById('m-supplier')?.value.trim() || '') : '';
-  const doc      = docChk ? (document.getElementById('m-doc')?.value.trim() || '') : '';
+  const docNum  = docChk ? (document.getElementById('m-doc-num')?.value.trim() || '') : '';
+  const docDate = docChk ? (document.getElementById('m-doc-date')?.value || '') : '';
+  // Формуємо рядок: "№123 / 2026-04-09"
+  const doc = docChk && (docNum || docDate)
+    ? [docNum ? '№' + docNum : '', docDate].filter(Boolean).join(' / ')
+    : '';
   const photos   = mListPhotos.slice();
 
   const resolvedUnit = unit || (fromDB?.unit || '—');
@@ -1933,12 +1956,9 @@ function addMatFromFields() {
   const tripsEl = document.getElementById('m-trips');
   if (tripsEl) tripsEl.value = '1';
 
-  const docChkEl = document.getElementById('m-doc-chk');
-  if (docChkEl) { docChkEl.checked = false; toggleMListExtra('doc', false); }
-  const supplierEl = document.getElementById('m-supplier');
-  if (supplierEl) supplierEl.value = '';
-  const docEl = document.getElementById('m-doc');
-  if (docEl) docEl.value = '';
+  // Документ НЕ скидаємо — зручно коли кілька матеріалів по одному документу
+  // Але оновлюємо список попередніх
+  setTimeout(refreshPrevDocs, 100);
 
   mListPhotos = [];
   const prev = document.getElementById('mlist-photos-preview');
@@ -2027,6 +2047,13 @@ function buildMatsDeliveryBlock() {
   if (!wrap) return;
   wrap.innerHTML = '';
   wrap.appendChild(buildMatDocBlock());
+  // Встановлюємо сьогоднішню дату
+  const mdDate = document.getElementById('md-doc-date');
+  if (mdDate) {
+    const d = getReportDate ? getReportDate() : new Date();
+    mdDate.value = d.toISOString().split('T')[0];
+  }
+  refreshMdPrevDocs();
 }
 
 function buildMatDocBlock() {
@@ -2039,13 +2066,21 @@ function buildMatDocBlock() {
       <input type="text" id="md-desc" placeholder="напр. «щебінь і пісок», «асфальт 20т», «цемент, блоки», «саморізи, дюбелі»"
         style="width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box"
         onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input type="text" id="md-supplier" placeholder="Постачальник"
-          style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
-          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-        <input type="text" id="md-doc" placeholder="№ ТТН / накладної / чеку"
-          style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
-          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div id="md-prev-docs" style="display:none;flex-wrap:wrap;gap:6px"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="md-supplier" placeholder="Постачальник"
+            style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
+            oninput="refreshMdPrevDocs()">
+          <input type="text" id="md-doc-num" placeholder="№ документа"
+            style="flex:1;min-width:100px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          <input type="date" id="md-doc-date"
+            style="flex:1;min-width:140px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          <input type="hidden" id="md-doc" value="">
+        </div>
       </div>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2);user-select:none">
         <input type="checkbox" id="md-car-chk" onchange="toggleMdCar(this.checked)" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer">
@@ -2101,17 +2136,83 @@ function toggleMdCar(show) {
 
 function toggleMListExtra(type, show) {
   const row = document.getElementById('m-' + type + '-row');
-  if (row) row.style.display = show ? 'flex' : 'none';
+  if (row) row.style.display = show ? (type === 'doc' ? 'flex' : 'flex') : 'none';
   if (show && type === 'car') {
     buildCarSelect('m-car-sel', 'm-car');
   }
   if (!show && type === 'car') {
-    // скидаємо при закритті
     const sel = document.getElementById('m-car-sel');
     const inp = document.getElementById('m-car');
     if (sel) { sel.value = ''; sel.style.display = ''; }
     if (inp) { inp.value = ''; inp.style.display = 'none'; }
   }
+  if (show && type === 'doc') {
+    // Встановлюємо сьогоднішню дату за замовчуванням
+    const dateEl = document.getElementById('m-doc-date');
+    if (dateEl && !dateEl.value) {
+      const d = getReportDate();
+      dateEl.value = d.toISOString().split('T')[0];
+    }
+    // Показуємо раніше введені документи цього рапорту
+    refreshPrevDocs();
+  }
+}
+
+// Збирає унікальні документи вже доданих матеріалів
+function getSessionDocs() {
+  const docs = [];
+  state.mats.forEach(m => {
+    if (m.doc && m.doc.trim()) {
+      const key = (m.supplier || '') + '|||' + m.doc;
+      if (!docs.find(d => d.key === key)) {
+        docs.push({ key, supplier: m.supplier || '', doc: m.doc, label: (m.supplier ? m.supplier + ' · ' : '') + m.doc });
+      }
+    }
+  });
+  return docs;
+}
+
+function refreshMdPrevDocs() {
+  const container = document.getElementById('md-prev-docs');
+  if (!container) return;
+  const docs = getSessionDocs();
+  if (!docs.length) { container.style.display = 'none'; return; }
+  container.style.display = 'flex';
+  container.innerHTML = '<span style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;align-self:center">Попередні:</span>' +
+    docs.map(d => `<div onclick="fillMdDocFromPrev(${JSON.stringify(d.supplier)},${JSON.stringify(d.doc)})"
+      style="padding:4px 10px;border:1px solid var(--tag-border);border-radius:20px;font-size:12px;color:var(--tag-text);background:var(--tag-bg);cursor:pointer;white-space:nowrap">${d.label}</div>`).join('');
+}
+
+function fillMdDocFromPrev(supplier, doc) {
+  const supEl = document.getElementById('md-supplier');
+  if (supEl) supEl.value = supplier;
+  const parts = doc.replace(/^№/, '').split('/').map(s => s.trim());
+  const numEl = document.getElementById('md-doc-num');
+  const dateEl = document.getElementById('md-doc-date');
+  if (numEl) numEl.value = parts[0] || '';
+  if (dateEl && parts[1]) dateEl.value = parts[1];
+}
+
+function refreshPrevDocs() {
+  const container = document.getElementById('m-prev-docs');
+  if (!container) return;
+  const docs = getSessionDocs();
+  if (!docs.length) { container.style.display = 'none'; return; }
+  container.style.display = 'flex';
+  container.innerHTML = '<span style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;align-self:center">Попередні:</span>' +
+    docs.map(d => `<div onclick="fillDocFromPrev(${JSON.stringify(d.supplier)},${JSON.stringify(d.doc)})"
+      style="padding:4px 10px;border:1px solid var(--tag-border);border-radius:20px;font-size:12px;color:var(--tag-text);background:var(--tag-bg);cursor:pointer;white-space:nowrap">${d.label}</div>`).join('');
+}
+
+function fillDocFromPrev(supplier, doc) {
+  const supEl = document.getElementById('m-supplier');
+  if (supEl) supEl.value = supplier;
+  // doc може бути "№123 / 2026-04-09" — розбираємо
+  const parts = doc.split('/').map(s => s.trim());
+  const numEl = document.getElementById('m-doc-num');
+  const dateEl = document.getElementById('m-doc-date');
+  if (numEl) numEl.value = parts[0] || '';
+  if (dateEl && parts[1]) dateEl.value = parts[1];
 }
 
 let mdPhotos = [];
@@ -2175,7 +2276,11 @@ function removeMdPhoto(idx, el) {
 function addMatDoc() {
   const desc     = document.getElementById('md-desc').value.trim();
   const supplier = document.getElementById('md-supplier').value.trim();
-  const doc      = document.getElementById('md-doc').value.trim();
+  const mdDocNum  = document.getElementById('md-doc-num')?.value.trim() || '';
+  const mdDocDate = document.getElementById('md-doc-date')?.value || '';
+  const doc = (mdDocNum || mdDocDate)
+    ? [mdDocNum ? '№' + mdDocNum : '', mdDocDate].filter(Boolean).join(' / ')
+    : '';
   const carChk   = document.getElementById('md-car-chk').checked;
   const car      = carChk ? (document.getElementById('md-car').value.trim()) : '';
   const trips    = carChk ? (document.getElementById('md-trips').value.trim() || '1') : '';
@@ -2201,6 +2306,8 @@ function addMatDoc() {
   toggleMdCar(false);
   const carEl = document.getElementById('md-car'); if (carEl) { carEl.value = ''; carEl.style.display = 'none'; }
   const carSelEl2 = document.getElementById('md-car-sel'); if (carSelEl2) { carSelEl2.value = ''; carSelEl2.style.display = ''; }
+  // Документ НЕ скидаємо — може ще додаватись до того ж документа
+  setTimeout(refreshMdPrevDocs, 100);
   const trEl  = document.getElementById('md-trips'); if (trEl) trEl.value = '1';
   document.getElementById('md-photos-preview').innerHTML = '';
 }
