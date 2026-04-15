@@ -512,7 +512,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
                 style="flex:2;min-width:150px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
                 onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
               <input type="text" id="m-doc-num" placeholder="№ документа"
-                style="flex:1;min-width:100px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+                style="flex:1;min-width:100px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
                 onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
               <input type="date" id="m-doc-date"
                 style="flex:1;min-width:140px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
@@ -2074,7 +2074,7 @@ function buildMatDocBlock() {
             onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
             oninput="refreshMdPrevDocs()">
           <input type="text" id="md-doc-num" placeholder="№ документа"
-            style="flex:1;min-width:100px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
+            style="flex:1;min-width:100px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
             onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
           <input type="date" id="md-doc-date"
             style="flex:1;min-width:140px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
@@ -2186,7 +2186,8 @@ function refreshMdPrevDocs() {
 function fillMdDocFromPrev(supplier, doc) {
   const supEl = document.getElementById('md-supplier');
   if (supEl) supEl.value = supplier;
-  const parts = doc.replace(/^№/, '').split('/').map(s => s.trim());
+  const clean = doc.replace(/^№/, '').trim();
+  const parts = clean.split('/').map(s => s.trim());
   const numEl = document.getElementById('md-doc-num');
   const dateEl = document.getElementById('md-doc-date');
   if (numEl) numEl.value = parts[0] || '';
@@ -2207,8 +2208,9 @@ function refreshPrevDocs() {
 function fillDocFromPrev(supplier, doc) {
   const supEl = document.getElementById('m-supplier');
   if (supEl) supEl.value = supplier;
-  // doc може бути "№123 / 2026-04-09" — розбираємо
-  const parts = doc.split('/').map(s => s.trim());
+  // doc формат: "№123 / 2026-04-09"
+  const clean = doc.replace(/^№/, '').trim();
+  const parts = clean.split('/').map(s => s.trim());
   const numEl = document.getElementById('m-doc-num');
   const dateEl = document.getElementById('m-doc-date');
   if (numEl) numEl.value = parts[0] || '';
@@ -2322,7 +2324,7 @@ function renderOtherMats() {
       `<img src="${p.dataUrl}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">`
     ).join('');
     const tags = [
-      m.doc      ? `<span class="mat-tag mat-tag-blue">№ ${m.doc}</span>` : '',
+      m.doc      ? `<span class="mat-tag mat-tag-blue">${m.doc}</span>` : '',
       m.supplier ? `<span class="mat-tag">${m.supplier}</span>` : '',
       m.car      ? `<span class="mat-tag">${m.car}${m.trips > 1 ? ' · ' + m.trips + ' ходок' : ''}</span>` : '',
     ].filter(Boolean).join('');
@@ -2486,7 +2488,7 @@ function addManual(type) {
 // ================================================================
 function renderWorks() {
   document.getElementById('works-list').innerHTML = state.works.map((w,i)=>`
-    <div class="added-item" style="margin-bottom:6px">
+    <div class="added-item">
       <div class="added-main">
         <div class="added-info">
           <div class="added-name" title="${w.name}">${w.name}</div>
@@ -2507,6 +2509,7 @@ function renderWorks() {
   // відступ між списком і пошуком
   const wList = document.getElementById('works-list');
   wList.style.marginBottom = state.works.length > 0 ? '14px' : '0';
+  wList.style.display = 'flex'; wList.style.flexDirection = 'column'; wList.style.gap = '8px';
 }
 
 function renderMats() {
@@ -2515,7 +2518,7 @@ function renderMats() {
     const i = state.mats.indexOf(m);
     const tags = [
       m.car      ? `<span class="mat-tag">${m.car}${m.trips > 1 ? ' · ' + m.trips + ' ходок' : ''}</span>` : '',
-      m.doc      ? `<span class="mat-tag mat-tag-blue">№ ${m.doc}</span>` : '',
+      m.doc      ? `<span class="mat-tag mat-tag-blue">${m.doc}</span>` : '',
       m.supplier ? `<span class="mat-tag">${m.supplier}</span>` : '',
     ].filter(Boolean).join('');
     return `
@@ -2538,6 +2541,9 @@ function renderMats() {
   }).join('');
   const matList = document.getElementById('mats-list');
   matList.style.marginBottom = listMats.length > 0 ? '14px' : '0';
+  matList.style.display = 'flex';
+  matList.style.flexDirection = 'column';
+  matList.style.gap = '8px';
 }
 
 function removeItem(type, idx) {
