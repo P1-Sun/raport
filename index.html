@@ -1292,19 +1292,19 @@ function toggleTechCard(safeId, techName, techNum) {
     <div class="tech-panel-row">
       <div>
         <label>Годин роботи <span style="color:var(--danger);font-size:10px">обов'язково</span></label>
-        <input type="number" id="hrs_${safeId}" min="0" step="0.1" placeholder="0.0">
+        <input type="text" id="hrs_${safeId}" inputmode="decimal" placeholder="0,0" oninput="normalizeQty(this)">
       </div>
       <div>
         <label>Заправлено (л)</label>
-        <input type="number" id="fuel_${safeId}" min="0" placeholder="0"
-          oninput="onFuelInput('${safeId}', this.value)">
+        <input type="text" id="fuel_${safeId}" inputmode="decimal" placeholder="0"
+          oninput="onFuelInput('${safeId}', normalizeQty(this))">
       </div>
     </div>
     <div id="moto_row_${safeId}" style="display:none;margin-top:8px">
       <label style="font-size:12px;color:var(--text2);font-weight:500;display:block;margin-bottom:5px">
         Лічильник мотогодин при заправці
       </label>
-      <input type="number" id="moto_${safeId}" min="0" step="0.1" placeholder="напр. 1253.5"
+      <input type="text" id="moto_${safeId}" inputmode="decimal" placeholder="напр. 1253,5" oninput="normalizeQty(this)"
         style="width:180px;font-family:'IBM Plex Mono',monospace;font-size:15px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
         onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
     </div>
@@ -2422,11 +2422,11 @@ function toggleTransCard(safeId, transName) {
     <div class="tech-panel-row">
       <div>
         <label>Заправлено (л)</label>
-        <input type="number" id="tfuel_${safeId}" min="0" placeholder="0">
+        <input type="text" id="tfuel_${safeId}" inputmode="decimal" placeholder="0" oninput="normalizeQty(this)">
       </div>
       <div>
         <label>Одометр при заправці (км) <span style="color:var(--danger);font-size:10px">обов'язково</span></label>
-        <input type="number" id="tkm_${safeId}" min="0" placeholder="напр. 125430">
+        <input type="text" id="tkm_${safeId}" inputmode="decimal" placeholder="напр. 125430" oninput="normalizeQty(this)">
       </div>
     </div>
     <div style="margin-top:10px">
