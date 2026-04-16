@@ -396,7 +396,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
               onblur="setTimeout(()=>document.getElementById('work-dd').style.display='none',300);this.style.borderColor='var(--border)'">
             <div class="dd-list" id="work-dd" style="display:none"></div>
           </div>
-          <input type="number" id="w-qty" placeholder="К-сть" min="0"
+          <input type="text" id="w-qty" placeholder="К-сть" inputmode="decimal" oninput="normalizeQty(this)"
             style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
             onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
           <input type="text" id="w-unit" placeholder="од."
@@ -412,7 +412,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <input type="text" id="ew-name" placeholder="Назва роботи"
             style="flex:1;min-width:160px;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s"
             onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-          <input type="number" id="ew-qty" placeholder="К-сть" min="0"
+          <input type="text" id="ew-qty" placeholder="К-сть" inputmode="decimal" oninput="normalizeQty(this)"
             style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s"
             onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
           <input type="text" id="ew-unit" placeholder="од."
@@ -472,7 +472,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
                 onblur="setTimeout(()=>document.getElementById('mat-dd').style.display='none',300);this.style.borderColor='var(--border)'">
               <div class="dd-list" id="mat-dd" style="display:none"></div>
             </div>
-            <input type="number" id="m-qty" placeholder="К-сть" min="0"
+            <input type="text" id="m-qty" placeholder="К-сть" inputmode="decimal" oninput="normalizeQty(this)"
               style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;text-align:center;transition:border-color .15s;flex-shrink:0"
               onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
             <input type="text" id="m-unit" placeholder="од."
@@ -1812,7 +1812,7 @@ function addWorkFromSearch() {
 
 function addWorkFromFields() {
   const name = document.getElementById('work-search').value.trim();
-  const qty  = document.getElementById('w-qty').value;
+  const qty  = parseQty(document.getElementById('w-qty').value);
   const unit = document.getElementById('w-unit').value.trim();
   if (!name) { document.getElementById('work-search').focus(); return; }
   if (!qty)  { document.getElementById('w-qty').focus(); return; }
@@ -1868,7 +1868,7 @@ function updateWorkTypeLabel() {
 
 function addManualWork() {
   const name  = document.getElementById('ew-name').value.trim();
-  const qty   = document.getElementById('ew-qty').value;
+  const qty   = parseQty(document.getElementById('ew-qty').value);
   const unit  = document.getElementById('ew-unit').value.trim() || '—';
   const type  = document.querySelector('input[name="work-type"]:checked')?.value || 'partial';
   const extra = type === 'extra';
@@ -1904,7 +1904,7 @@ function addMat(item) {
 
 function addMatFromFields() {
   const name = document.getElementById('mat-search').value.trim();
-  const qty  = document.getElementById('m-qty').value;
+  const qty  = parseQty(document.getElementById('m-qty').value);
   const unit = document.getElementById('m-unit').value.trim();
   if (!name) { document.getElementById('mat-search').focus(); return; }
   if (!qty)  { document.getElementById('m-qty').focus(); return; }
@@ -1998,6 +1998,32 @@ function handleMListPhoto(input) {
 function removeMListPhoto(idx, el) {
   mListPhotos.splice(idx, 1);
   el.closest('div[style*="position:relative"]').remove();
+}
+
+// ================================================================
+// Нормалізація кількості — замінює крапку на кому, забороняє літери
+// ================================================================
+function normalizeQty(input) {
+  let v = input.value;
+  // Замінюємо крапку на кому
+  v = v.replace('.', ',');
+  // Залишаємо тільки цифри і кому
+  v = v.replace(/[^0-9,]/g, '');
+  // Не більше однієї коми
+  const parts = v.split(',');
+  if (parts.length > 2) v = parts[0] + ',' + parts.slice(1).join('');
+  input.value = v;
+  // Підказка якщо введено некоректно
+  const hint = input.parentElement?.querySelector('.qty-hint');
+  if (hint) hint.style.display = v && isNaN(parseFloat(v.replace(',','.'))) ? 'block' : 'none';
+  return v;
+}
+
+// Перетворює рядок кількості в число для відправки
+function parseQty(str) {
+  if (!str) return '';
+  const n = parseFloat(String(str).replace(',', '.'));
+  return isNaN(n) ? str : n;
 }
 
 // ================================================================
@@ -2508,8 +2534,8 @@ function renderWorks() {
           </div>
         </div>
         <div class="qty-wrap">
-          <input class="qty-input" type="number" value="${w.qty}" placeholder="0" min="0"
-            oninput="state.works[${i}].qty=this.value">
+          <input class="qty-input" type="text" inputmode="decimal" value="${w.qty}" placeholder="0"
+            oninput="state.works[${i}].qty=normalizeQty(this)">
           <input class="unit-input-small" type="text" value="${w.unit}"
             oninput="state.works[${i}].unit=this.value">
         </div>
@@ -2540,8 +2566,8 @@ function renderMats() {
           ${tags ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${tags}</div>` : ''}
         </div>
         <div class="qty-wrap">
-          <input class="qty-input" type="number" value="${m.qty}" placeholder="0" min="0"
-            oninput="state.mats[${i}].qty=this.value">
+          <input class="qty-input" type="text" inputmode="decimal" value="${m.qty}" placeholder="0"
+            oninput="state.mats[${i}].qty=normalizeQty(this)">
           <input class="unit-input-small" type="text" value="${m.unit}"
             oninput="state.mats[${i}].unit=this.value">
         </div>
