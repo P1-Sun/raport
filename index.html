@@ -20,8 +20,8 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 
 /* ===== THREE-COLUMN LAYOUT ===== */
 .layout-outer{display:flex;align-items:flex-start;width:100%;gap:0}
-.layout-form{flex:0 0 50%;min-width:0;max-width:760px}
-.layout-panel{flex:0 0 25%;min-width:0;position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;background:var(--surface);border-left:1px solid var(--border)}
+.layout-form{flex:1 1 0;min-width:0}
+.layout-panel{flex:0 0 25%;min-width:220px;position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;background:var(--surface);border-left:1px solid var(--border)}
 .layout-panel-header{padding:10px 12px;background:var(--surface2);border-bottom:1px solid var(--border);flex-shrink:0}
 .layout-panel-title{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;padding-left:8px;border-left:3px solid var(--accent)}
 .layout-panel-count{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:var(--accent-l);color:var(--accent);margin-left:6px;border:1px solid var(--tag-border)}
@@ -37,10 +37,12 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 .panel-entry-qty{font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap}
 .panel-empty{text-align:center;padding:32px 12px;color:var(--text3);font-size:12px;line-height:1.6}
 .panel-loading{text-align:center;padding:24px 12px;color:var(--text3);font-size:12px}
-.panel-date-filter{padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;flex-wrap:wrap;gap:4px;background:var(--surface2)}
+.panel-date-filter{padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;flex-wrap:wrap;gap:4px;background:var(--surface2);align-items:center}
 .pdf-btn{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .12s;white-space:nowrap;font-family:inherit}
 .pdf-btn:hover{border-color:var(--accent);color:var(--accent)}
 .pdf-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pdf-date-input{border:1px solid var(--border);border-radius:12px;font-size:10px;font-weight:600;padding:2px 6px;background:var(--surface);color:var(--text2);outline:none;cursor:pointer;font-family:inherit;transition:border-color .12s}
+.pdf-date-input:focus{border-color:var(--accent);color:var(--accent)}
 
 /* Hide panel on mobile */
 @media(max-width:900px){
@@ -2942,10 +2944,22 @@ function buildDateFilter(type, items) {
   if (dates.length <= 1) { container.style.display='none'; return; }
   container.style.display = 'flex';
   let html = '<button class="pdf-btn active" onclick="setDateFilter(\'\')">Всі</button>';
-  dates.forEach(function(d) {
+  // Show last 14 dates as buttons
+  const btnDates = dates.slice(0, 14);
+  btnDates.forEach(function(d) {
     html += '<button class="pdf-btn" onclick="setDateFilter(\''+d+'\')" data-date="'+d+'">'+d.substring(0,5)+'</button>';
   });
+  // Calendar picker for any date
+  html += '<input type="date" class="pdf-date-input" id="panel-'+type+'-datepick" title="Обрати дату" onchange="onDatePickerChange(\''+type+'\', this)">';
   container.innerHTML = html;
+}
+
+function onDatePickerChange(type, input) {
+  if (!input.value) return;
+  // Convert yyyy-mm-dd to dd.mm.yyyy
+  const parts = input.value.split('-');
+  const formatted = parts[2]+'.'+parts[1]+'.'+parts[0];
+  setDateFilter(formatted);
 }
 
 function setDateFilter(date) {
@@ -2956,6 +2970,16 @@ function setDateFilter(date) {
     c.querySelectorAll('.pdf-btn').forEach(function(btn) {
       btn.classList.toggle('active', (btn.getAttribute('data-date')||'') === date);
     });
+    // Sync calendar input
+    const picker = document.getElementById('panel-'+type+'-datepick');
+    if (picker) {
+      if (date && /^\d{2}\.\d{2}\.\d{4}$/.test(date)) {
+        const p = date.split('.');
+        picker.value = p[2]+'-'+p[1]+'-'+p[0];
+      } else {
+        picker.value = '';
+      }
+    }
   });
   renderPanelWorks(getPanelFilteredWorks());
   renderPanelMats(getPanelFilteredMats());
