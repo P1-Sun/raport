@@ -28,6 +28,13 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 
 .main{max-width:1600px;margin:0 auto;padding:16px 18px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .stats-row{gap:6px}
+  .stat-val{font-size:18px}
+  .header-controls{gap:6px}
+  .pbtn{padding:7px 16px;font-size:13px}
+}
 
 .card{background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .12s;animation:fadeIn .3s ease}
 .card:hover{border-color:var(--accent);transform:translateY(-2px)}
@@ -128,7 +135,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwa1iwstCwELWKBH15DidwfQbSWcmzlUD9McR_1WIweZIriQGzZSI69_kuuD2-y5WBEyw/exec';
-const SKIP_KEYS  = ['olsh'];
+const SKIP_KEYS  = ['milan'];
 const DAY_NAMES  = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
 
 let currentPeriod = 'week';
@@ -255,7 +262,7 @@ function renderDetail(data, body) {
     return '<div class="report-card">'+
       '<div class="report-card-head">'+
         '<div><div class="report-date">'+esc(r.date)+'</div><div class="report-obj">'+esc(r.object)+'</div></div>'+
-        '<div class="report-time">'+esc(r.timeStart)+' – '+esc(r.timeEnd)+' ('+esc(r.duration)+')</div>'+
+        '<div class="report-time">'+esc(fmtTime(r.timeStart))+' – '+esc(fmtTime(r.timeEnd))+' ('+esc(r.duration)+')</div>'+
       '</div>'+
       (wChips?'<div class="report-section"><div class="rs-title">Працівники</div><div class="workers-list">'+wChips+'</div></div>':'')+
       (wRows?'<div class="report-section"><div class="rs-title">Роботи</div><table class="work-table">'+wRows+'</table></div>':'')+
@@ -268,6 +275,16 @@ function closeDetail() {
   document.getElementById('detail-view').style.display = 'none';
   document.getElementById('main-view').style.display = 'block';
   window.scrollTo(0,0);
+}
+
+function fmtTime(t) {
+  if (!t) return '—';
+  // Already HH:MM format
+  if (/^\d{1,2}:\d{2}$/.test(String(t))) return t;
+  // Date object string like "Sat Dec 30 1899 08:00:00 GMT+..."
+  var m = String(t).match(/(\d{2}):(\d{2}):(\d{2})/);
+  if (m) return m[1] + ':' + m[2];
+  return String(t).substring(0, 5);
 }
 
 function fmtQty(n) {
