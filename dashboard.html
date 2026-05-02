@@ -17,14 +17,15 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.header{background:var(--accent);padding:20px 28px 18px}
-.header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
-.header-title{color:#fff;font-size:24px;font-weight:600;letter-spacing:-.4px}
-.header-sub{font-size:13px;color:rgba(255,255,255,.55);margin-top:4px;font-family:'IBM Plex Mono',monospace}
-.refresh-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.75);font-size:13px;padding:7px 16px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0}
+.header{background:var(--accent);padding:24px 28px 20px}
+.header-inner{max-width:1600px;margin:0 auto}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.header-title{color:#fff;font-size:26px;font-weight:600;letter-spacing:-.5px}
+.header-sub{font-size:13px;color:rgba(255,255,255,.55);margin-top:5px;font-family:'IBM Plex Mono',monospace}
+.refresh-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.75);font-size:13px;padding:8px 18px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0}
 .refresh-btn:hover{background:rgba(255,255,255,.22);color:#fff}
 .period-row{display:flex;gap:8px}
-.pbtn{padding:9px 24px;border-radius:24px;font-size:14px;font-weight:500;cursor:pointer;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.65);background:transparent;transition:all .15s;font-family:inherit}
+.pbtn{padding:10px 28px;border-radius:24px;font-size:15px;font-weight:500;cursor:pointer;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.65);background:transparent;transition:all .15s;font-family:inherit}
 .pbtn:hover{color:rgba(255,255,255,.9);border-color:rgba(255,255,255,.6)}
 .pbtn.active{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.85);font-weight:600}
 
@@ -97,17 +98,19 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 
 <div id="main-view">
   <div class="header">
-    <div class="header-top">
-      <div>
-        <div class="header-title">Дашборд керівника</div>
-        <div class="header-sub" id="h-period">—</div>
+    <div class="header-inner">
+      <div class="header-top">
+        <div>
+          <div class="header-title">Дашборд керівника</div>
+          <div class="header-sub" id="h-period">—</div>
+        </div>
+        <button class="refresh-btn" onclick="loadData()">↺ Оновити</button>
       </div>
-      <button class="refresh-btn" onclick="loadData()">↺ Оновити</button>
-    </div>
-    <div class="period-row">
-      <button class="pbtn" data-period="yesterday" onclick="selectPeriod('yesterday')">Вчора</button>
-      <button class="pbtn active" data-period="week" onclick="selectPeriod('week')">Цей тиждень</button>
-      <button class="pbtn" data-period="month" onclick="selectPeriod('month')">Цей місяць</button>
+      <div class="period-row">
+        <button class="pbtn" data-period="yesterday" onclick="selectPeriod('yesterday')">Вчора</button>
+        <button class="pbtn active" data-period="week" onclick="selectPeriod('week')">Цей тиждень</button>
+        <button class="pbtn" data-period="month" onclick="selectPeriod('month')">Цей місяць</button>
+      </div>
     </div>
   </div>
 
