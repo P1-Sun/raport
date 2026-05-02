@@ -16,11 +16,11 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
-.app-wrap{max-width:760px;margin:0 auto}
+.app-wrap{max-width:none;margin:0}
 
 /* ===== THREE-COLUMN LAYOUT ===== */
-.layout-outer{display:flex;align-items:flex-start;max-width:1400px;margin:0 auto;gap:0}
-.layout-form{flex:0 0 50%;min-width:0}
+.layout-outer{display:flex;align-items:flex-start;width:100%;gap:0}
+.layout-form{flex:0 0 50%;min-width:0;max-width:760px}
 .layout-panel{flex:0 0 25%;min-width:0;position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;background:var(--surface);border-left:1px solid var(--border)}
 .layout-panel-header{padding:10px 12px;background:var(--surface2);border-bottom:1px solid var(--border);flex-shrink:0}
 .layout-panel-title{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;padding-left:8px;border-left:3px solid var(--accent)}
@@ -33,10 +33,14 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 .panel-entry-name{font-size:12px;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:3px;word-break:break-word}
 .panel-entry-group{font-size:10px;color:var(--text3);margin-bottom:3px}
 .panel-entry-meta{display:flex;justify-content:space-between;align-items:center;gap:4px}
-.panel-entry-date{font-size:10px;color:var(--text3)}
+.panel-entry-date{font-size:10px;font-weight:600;color:#1a5c34;background:#e6f4ed;border:0.5px solid #9dd4b5;border-radius:4px;padding:1px 6px;white-space:nowrap;flex-shrink:0}
 .panel-entry-qty{font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap}
 .panel-empty{text-align:center;padding:32px 12px;color:var(--text3);font-size:12px;line-height:1.6}
 .panel-loading{text-align:center;padding:24px 12px;color:var(--text3);font-size:12px}
+.panel-date-filter{padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;flex-wrap:wrap;gap:4px;background:var(--surface2)}
+.pdf-btn{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .12s;white-space:nowrap;font-family:inherit}
+.pdf-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pdf-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 
 /* Hide panel on mobile */
 @media(max-width:900px){
@@ -57,7 +61,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 
 /* HEADER */
 .header{background:var(--accent);padding:20px 24px 16px;position:sticky;top:0;z-index:100;text-align:center}
-.header-inner{max-width:760px;margin:0 auto}
+.header-inner{max-width:none;margin:0 auto}
 .header-name{color:#fff;font-size:22px;font-weight:600;letter-spacing:-0.3px;line-height:1.2}
 .header-date{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px;font-family:'IBM Plex Mono',monospace}
 .date-btn{padding:4px 11px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.55);transition:all .15s;user-select:none}
@@ -671,6 +675,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="layout-panel-search">
     <input type="text" id="panel-works-search" placeholder="Пошук..." oninput="filterPanel('works')">
   </div>
+  <div class="panel-date-filter" id="panel-works-dates"></div>
   <div class="layout-panel-body" id="panel-works-body">
     <div class="panel-empty">Увійдіть в систему<br>щоб побачити дані</div>
   </div>
@@ -685,6 +690,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="layout-panel-search">
     <input type="text" id="panel-mats-search" placeholder="Пошук..." oninput="filterPanel('mats')">
   </div>
+  <div class="panel-date-filter" id="panel-mats-dates"></div>
   <div class="layout-panel-body" id="panel-mats-body">
     <div class="panel-empty">Увійдіть в систему<br>щоб побачити дані</div>
   </div>
@@ -2883,31 +2889,41 @@ function newReport() {
 }
 
 // ================================================================
+// ================================================================
 // HISTORY PANELS — завантаження даних з бази рапортів
 // ================================================================
 let _panelWorksData = [];
 let _panelMatsData  = [];
+let _panelDateFilter = '';
+
+function fmtDate(raw) {
+  if (!raw) return '';
+  if (/^\d{2}\.\d{2}\.\d{4}$/.test(String(raw))) return raw;
+  var d = new Date(raw);
+  if (isNaN(d.getTime())) return String(raw);
+  return ('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear();
+}
 
 function loadHistoryPanels(userKey) {
   const wBody = document.getElementById('panel-works-body');
   const mBody = document.getElementById('panel-mats-body');
   if (wBody) wBody.innerHTML = '<div class="panel-loading">Завантаження...</div>';
   if (mBody) mBody.innerHTML = '<div class="panel-loading">Завантаження...</div>';
-
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
-
   fetch(SCRIPT_URL + '?action=getHistory&brigade=' + userKey)
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.works) {
-        _panelWorksData = data.works;
-        renderPanelWorks(_panelWorksData);
+        _panelWorksData = data.works.map(function(w) { return Object.assign({}, w, {date: fmtDate(w.date)}); });
+        buildDateFilter('works', _panelWorksData);
+        renderPanelWorks(getPanelFilteredWorks());
       } else {
         if (wBody) wBody.innerHTML = '<div class="panel-empty">Немає даних</div>';
       }
       if (data.mats) {
-        _panelMatsData = data.mats;
-        renderPanelMats(_panelMatsData);
+        _panelMatsData = data.mats.map(function(m) { return Object.assign({}, m, {date: fmtDate(m.date)}); });
+        buildDateFilter('mats', _panelMatsData);
+        renderPanelMats(getPanelFilteredMats());
       } else {
         if (mBody) mBody.innerHTML = '<div class="panel-empty">Немає даних</div>';
       }
@@ -2918,23 +2934,61 @@ function loadHistoryPanels(userKey) {
     });
 }
 
+function buildDateFilter(type, items) {
+  const container = document.getElementById('panel-' + type + '-dates');
+  if (!container) return;
+  const seen = {}, dates = [];
+  items.forEach(function(x) { if (x.date && !seen[x.date]) { seen[x.date]=true; dates.push(x.date); } });
+  if (dates.length <= 1) { container.style.display='none'; return; }
+  container.style.display = 'flex';
+  let html = '<button class="pdf-btn active" onclick="setDateFilter(\'\')">Всі</button>';
+  dates.forEach(function(d) {
+    html += '<button class="pdf-btn" onclick="setDateFilter(\''+d+'\')" data-date="'+d+'">'+d.substring(0,5)+'</button>';
+  });
+  container.innerHTML = html;
+}
+
+function setDateFilter(date) {
+  _panelDateFilter = date;
+  ['works','mats'].forEach(function(type) {
+    const c = document.getElementById('panel-'+type+'-dates');
+    if (!c) return;
+    c.querySelectorAll('.pdf-btn').forEach(function(btn) {
+      btn.classList.toggle('active', (btn.getAttribute('data-date')||'') === date);
+    });
+  });
+  renderPanelWorks(getPanelFilteredWorks());
+  renderPanelMats(getPanelFilteredMats());
+}
+
+function getPanelFilteredWorks() {
+  const q = (document.getElementById('panel-works-search')?.value||'').toLowerCase().trim();
+  let items = _panelDateFilter ? _panelWorksData.filter(function(x){return x.date===_panelDateFilter;}) : _panelWorksData;
+  if (q) items = items.filter(function(x){return (x.name||'').toLowerCase().includes(q)||(x.group||'').toLowerCase().includes(q);});
+  return items;
+}
+
+function getPanelFilteredMats() {
+  const q = (document.getElementById('panel-mats-search')?.value||'').toLowerCase().trim();
+  let items = _panelDateFilter ? _panelMatsData.filter(function(x){return x.date===_panelDateFilter;}) : _panelMatsData;
+  if (q) items = items.filter(function(x){return (x.name||'').toLowerCase().includes(q)||(x.group||'').toLowerCase().includes(q);});
+  return items;
+}
+
 function renderPanelWorks(items) {
   const body = document.getElementById('panel-works-body');
   const count = document.getElementById('panel-works-count');
   if (!body) return;
   if (count) count.textContent = items.length;
-  if (!items.length) {
-    body.innerHTML = '<div class="panel-empty">Робіт ще не внесено</div>';
-    return;
-  }
+  if (!items.length) { body.innerHTML = '<div class="panel-empty">Робіт ще не внесено</div>'; return; }
   body.innerHTML = items.map(function(w) {
-    return '<div class="panel-entry">' +
-      '<div class="panel-entry-name">' + escHtml(w.name) + '</div>' +
-      (w.group ? '<div class="panel-entry-group">' + escHtml(w.group) + '</div>' : '') +
-      '<div class="panel-entry-meta">' +
-        '<span class="panel-entry-date">' + escHtml(w.date || '') + '</span>' +
-        '<span class="panel-entry-qty">' + escHtml(w.qty || '') + ' ' + escHtml(w.unit || '') + '</span>' +
-      '</div>' +
+    return '<div class="panel-entry">'+
+      '<div class="panel-entry-name">'+escHtml(w.name)+'</div>'+
+      (w.group?'<div class="panel-entry-group">'+escHtml(w.group)+'</div>':'')+
+      '<div class="panel-entry-meta">'+
+        '<span class="panel-entry-date">'+escHtml(w.date||'')+'</span>'+
+        '<span class="panel-entry-qty">'+escHtml(w.qty||'')+' '+escHtml(w.unit||'')+'</span>'+
+      '</div>'+
     '</div>';
   }).join('');
 }
@@ -2944,36 +2998,28 @@ function renderPanelMats(items) {
   const count = document.getElementById('panel-mats-count');
   if (!body) return;
   if (count) count.textContent = items.length;
-  if (!items.length) {
-    body.innerHTML = '<div class="panel-empty">Матеріалів ще не внесено</div>';
-    return;
-  }
+  if (!items.length) { body.innerHTML = '<div class="panel-empty">Матеріалів ще не внесено</div>'; return; }
   body.innerHTML = items.map(function(m) {
-    return '<div class="panel-entry">' +
-      '<div class="panel-entry-name">' + escHtml(m.name) + '</div>' +
-      (m.group ? '<div class="panel-entry-group">' + escHtml(m.group) + '</div>' : '') +
-      '<div class="panel-entry-meta">' +
-        '<span class="panel-entry-date">' + escHtml(m.date || '') + '</span>' +
-        '<span class="panel-entry-qty">' + escHtml(m.qty || '') + ' ' + escHtml(m.unit || '') + '</span>' +
-      '</div>' +
+    return '<div class="panel-entry">'+
+      '<div class="panel-entry-name">'+escHtml(m.name)+'</div>'+
+      (m.group?'<div class="panel-entry-group">'+escHtml(m.group)+'</div>':'')+
+      '<div class="panel-entry-meta">'+
+        '<span class="panel-entry-date">'+escHtml(m.date||'')+'</span>'+
+        '<span class="panel-entry-qty">'+escHtml(m.qty||'')+' '+escHtml(m.unit||'')+'</span>'+
+      '</div>'+
     '</div>';
   }).join('');
 }
 
 function filterPanel(type) {
-  const q = (document.getElementById('panel-' + type + '-search')?.value || '').toLowerCase().trim();
-  const source = type === 'works' ? _panelWorksData : _panelMatsData;
-  const filtered = q ? source.filter(function(x) {
-    return (x.name || '').toLowerCase().includes(q) ||
-           (x.group || '').toLowerCase().includes(q);
-  }) : source;
-  if (type === 'works') renderPanelWorks(filtered);
-  else renderPanelMats(filtered);
+  if (type==='works') renderPanelWorks(getPanelFilteredWorks());
+  else renderPanelMats(getPanelFilteredMats());
 }
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
 
 // Запуск — тільки після правильного пін-коду (checkPin → startApp)
 
