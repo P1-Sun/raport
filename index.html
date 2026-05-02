@@ -281,6 +281,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div class="date-btn-today active" id="dbtn-0" data-fn="selectReportDate" data-arg="0">Сьогодні</div>
         <div class="date-btn" id="dbtn-1" data-fn="selectReportDate" data-arg="1">Вчора</div>
         <div class="date-btn" id="dbtn-2" data-fn="selectReportDate" data-arg="2">Позавчора</div>
+        <input type="date" id="custom-date-pick"
+          style="margin-left:4px;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-family:inherit;cursor:pointer;outline:none;color-scheme:dark"
+          onchange="selectCustomDate(this.value)"
+          title="Інша дата">
       </div>
       <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
     </div>
@@ -804,7 +808,22 @@ function selectReportDate(offset) {
   document.getElementById('dbtn-0').classList.toggle('active', offset === 0);
   document.getElementById('dbtn-1').classList.toggle('active', offset === 1);
   document.getElementById('dbtn-2').classList.toggle('active', offset === 2);
+  const picker = document.getElementById('custom-date-pick');
+  if (picker) picker.value = '';
   updateHeaderDate();
+}
+
+function selectCustomDate(val) {
+  if (!val) return;
+  const p = val.split('-');
+  const d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  const today = new Date(); today.setHours(0,0,0,0);
+  reportDateOffset = Math.round((today - d) / 86400000);
+  document.getElementById('dbtn-0').classList.remove('active');
+  document.getElementById('dbtn-1').classList.remove('active');
+  document.getElementById('dbtn-2').classList.remove('active');
+  updateHeaderDate();
+  updateProgress();
 }
 
 function updateHeaderDate() {
