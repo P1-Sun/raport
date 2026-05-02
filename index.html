@@ -18,6 +18,34 @@
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
 .app-wrap{max-width:760px;margin:0 auto}
 
+/* ===== THREE-COLUMN LAYOUT ===== */
+.layout-outer{display:flex;align-items:flex-start;max-width:1400px;margin:0 auto;gap:0}
+.layout-form{flex:0 0 50%;min-width:0}
+.layout-panel{flex:0 0 25%;min-width:0;position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;background:var(--surface);border-left:1px solid var(--border)}
+.layout-panel-header{padding:10px 12px;background:var(--surface2);border-bottom:1px solid var(--border);flex-shrink:0}
+.layout-panel-title{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;padding-left:8px;border-left:3px solid var(--accent)}
+.layout-panel-count{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:var(--accent-l);color:var(--accent);margin-left:6px;border:1px solid var(--tag-border)}
+.layout-panel-search{padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.layout-panel-search input{width:100%;font-family:inherit;font-size:12px;padding:6px 9px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box}
+.layout-panel-search input:focus{border-color:var(--accent)}
+.layout-panel-body{flex:1;overflow-y:auto;padding:8px 10px}
+.panel-entry{padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;animation:fadeIn .2s ease}
+.panel-entry-name{font-size:12px;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:3px;word-break:break-word}
+.panel-entry-group{font-size:10px;color:var(--text3);margin-bottom:3px}
+.panel-entry-meta{display:flex;justify-content:space-between;align-items:center;gap:4px}
+.panel-entry-date{font-size:10px;color:var(--text3)}
+.panel-entry-qty{font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap}
+.panel-empty{text-align:center;padding:32px 12px;color:var(--text3);font-size:12px;line-height:1.6}
+.panel-loading{text-align:center;padding:24px 12px;color:var(--text3);font-size:12px}
+
+/* Hide panel on mobile */
+@media(max-width:900px){
+  .layout-outer{display:block}
+  .layout-form{flex:none;width:100%}
+  .layout-panel{display:none}
+}
+
+
 .brig-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .brig-btn{padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface);cursor:pointer;text-align:left;transition:all .15s;font-family:inherit}
 .brig-btn:hover{border-color:var(--accent);background:var(--accent-l)}
@@ -234,7 +262,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="pin-msg" id="pin-msg"></div>
 </div>
 
-<div class="app-wrap" id="app-wrap" style="display:none">
+<div id="layout-outer" class="layout-outer" style="display:none">
+<div class="layout-form">
+<div class="app-wrap" id="app-wrap">
 <!-- ==================== MAIN FORM ==================== -->
 <div id="main-form">
   <div class="header">
@@ -630,6 +660,37 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 </div>
 
 </div><!-- /app-wrap -->
+</div><!-- /layout-form -->
+
+<!-- PANEL: РОБОТИ -->
+<div class="layout-panel" id="panel-works">
+  <div class="layout-panel-header">
+    <span class="layout-panel-title">Роботи з бази</span>
+    <span class="layout-panel-count" id="panel-works-count">0</span>
+  </div>
+  <div class="layout-panel-search">
+    <input type="text" id="panel-works-search" placeholder="Пошук..." oninput="filterPanel('works')">
+  </div>
+  <div class="layout-panel-body" id="panel-works-body">
+    <div class="panel-empty">Увійдіть в систему<br>щоб побачити дані</div>
+  </div>
+</div>
+
+<!-- PANEL: МАТЕРІАЛИ -->
+<div class="layout-panel" id="panel-mats">
+  <div class="layout-panel-header">
+    <span class="layout-panel-title">Матеріали з бази</span>
+    <span class="layout-panel-count" id="panel-mats-count">0</span>
+  </div>
+  <div class="layout-panel-search">
+    <input type="text" id="panel-mats-search" placeholder="Пошук..." oninput="filterPanel('mats')">
+  </div>
+  <div class="layout-panel-body" id="panel-mats-body">
+    <div class="panel-empty">Увійдіть в систему<br>щоб побачити дані</div>
+  </div>
+</div>
+
+</div><!-- /layout-outer -->
 
 <style>
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -796,7 +857,7 @@ function checkPin() {
   if (key && USERS[key]) {
     // Правильний пін — входимо
     document.getElementById('pin-screen').style.display = 'none';
-    document.getElementById('app-wrap').style.display = 'block';
+    document.getElementById('layout-outer').style.display = 'flex';
     startApp(key);
   } else {
     // Неправильний пін
@@ -828,8 +889,8 @@ function startApp(userKey) {
   updateHeaderDate();
 
   // Показуємо форму з лоадером
+  document.getElementById('layout-outer').style.display = 'flex';
   document.getElementById('app-wrap').style.display = 'block';
-  document.getElementById('main-form').style.display = 'block';
   const brigSection = document.querySelector('.section:has(#brig-grid)');
   if (brigSection) brigSection.style.display = 'none';
 
@@ -879,6 +940,9 @@ function startApp(userKey) {
       buildTimeSelects();
       updateProgress();
       window.scrollTo(0, 0);
+
+      // Завантажуємо панелі з бази рапортів
+      loadHistoryPanels(userKey);
     })
     .catch(function(err) {
       hideFormLoader();
@@ -2816,6 +2880,99 @@ function newReport() {
   document.getElementById('notes').value = '';
   updateProgress();
   window.scrollTo(0, 0);
+}
+
+// ================================================================
+// HISTORY PANELS — завантаження даних з бази рапортів
+// ================================================================
+let _panelWorksData = [];
+let _panelMatsData  = [];
+
+function loadHistoryPanels(userKey) {
+  const wBody = document.getElementById('panel-works-body');
+  const mBody = document.getElementById('panel-mats-body');
+  if (wBody) wBody.innerHTML = '<div class="panel-loading">Завантаження...</div>';
+  if (mBody) mBody.innerHTML = '<div class="panel-loading">Завантаження...</div>';
+
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
+
+  fetch(SCRIPT_URL + '?action=getHistory&brigade=' + userKey)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.works) {
+        _panelWorksData = data.works;
+        renderPanelWorks(_panelWorksData);
+      } else {
+        if (wBody) wBody.innerHTML = '<div class="panel-empty">Немає даних</div>';
+      }
+      if (data.mats) {
+        _panelMatsData = data.mats;
+        renderPanelMats(_panelMatsData);
+      } else {
+        if (mBody) mBody.innerHTML = '<div class="panel-empty">Немає даних</div>';
+      }
+    })
+    .catch(function() {
+      if (wBody) wBody.innerHTML = '<div class="panel-empty">Помилка завантаження</div>';
+      if (mBody) mBody.innerHTML = '<div class="panel-empty">Помилка завантаження</div>';
+    });
+}
+
+function renderPanelWorks(items) {
+  const body = document.getElementById('panel-works-body');
+  const count = document.getElementById('panel-works-count');
+  if (!body) return;
+  if (count) count.textContent = items.length;
+  if (!items.length) {
+    body.innerHTML = '<div class="panel-empty">Робіт ще не внесено</div>';
+    return;
+  }
+  body.innerHTML = items.map(function(w) {
+    return '<div class="panel-entry">' +
+      '<div class="panel-entry-name">' + escHtml(w.name) + '</div>' +
+      (w.group ? '<div class="panel-entry-group">' + escHtml(w.group) + '</div>' : '') +
+      '<div class="panel-entry-meta">' +
+        '<span class="panel-entry-date">' + escHtml(w.date || '') + '</span>' +
+        '<span class="panel-entry-qty">' + escHtml(w.qty || '') + ' ' + escHtml(w.unit || '') + '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderPanelMats(items) {
+  const body = document.getElementById('panel-mats-body');
+  const count = document.getElementById('panel-mats-count');
+  if (!body) return;
+  if (count) count.textContent = items.length;
+  if (!items.length) {
+    body.innerHTML = '<div class="panel-empty">Матеріалів ще не внесено</div>';
+    return;
+  }
+  body.innerHTML = items.map(function(m) {
+    return '<div class="panel-entry">' +
+      '<div class="panel-entry-name">' + escHtml(m.name) + '</div>' +
+      (m.group ? '<div class="panel-entry-group">' + escHtml(m.group) + '</div>' : '') +
+      '<div class="panel-entry-meta">' +
+        '<span class="panel-entry-date">' + escHtml(m.date || '') + '</span>' +
+        '<span class="panel-entry-qty">' + escHtml(m.qty || '') + ' ' + escHtml(m.unit || '') + '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function filterPanel(type) {
+  const q = (document.getElementById('panel-' + type + '-search')?.value || '').toLowerCase().trim();
+  const source = type === 'works' ? _panelWorksData : _panelMatsData;
+  const filtered = q ? source.filter(function(x) {
+    return (x.name || '').toLowerCase().includes(q) ||
+           (x.group || '').toLowerCase().includes(q);
+  }) : source;
+  if (type === 'works') renderPanelWorks(filtered);
+  else renderPanelMats(filtered);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // Запуск — тільки після правильного пін-коду (checkPin → startApp)
