@@ -675,7 +675,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <!-- PANEL: РОБОТИ -->
 <div class="layout-panel" id="panel-works">
   <div class="layout-panel-header">
-    <span class="layout-panel-title">Роботи з бази</span>
+    <span class="layout-panel-title">Раніше внесені роботи</span>
     <span class="layout-panel-count" id="panel-works-count">0</span>
   </div>
   <div class="layout-panel-search">
@@ -690,7 +690,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <!-- PANEL: МАТЕРІАЛИ -->
 <div class="layout-panel" id="panel-mats">
   <div class="layout-panel-header">
-    <span class="layout-panel-title">Матеріали з бази</span>
+    <span class="layout-panel-title">Раніше внесені матеріали</span>
     <span class="layout-panel-count" id="panel-mats-count">0</span>
   </div>
   <div class="layout-panel-search">
@@ -1735,6 +1735,11 @@ function onObjChanged() {
   if (cnt) {
     const total = getFilteredWorks().length;
     cnt.textContent = total + ' робіт у вибірці';
+  }
+  // Оновлюємо панелі під новий об'єкт
+  if (_panelWorksData.length || _panelMatsData.length) {
+    renderPanelWorks(getPanelFilteredWorks());
+    renderPanelMats(getPanelFilteredMats());
   }
 }
 
@@ -3005,15 +3010,27 @@ function setDateFilter(date) {
 }
 
 function getPanelFilteredWorks() {
-  const q = (document.getElementById('panel-works-search')?.value||'').toLowerCase().trim();
-  let items = _panelDateFilter ? _panelWorksData.filter(function(x){return x.date===_panelDateFilter;}) : _panelWorksData;
+  const q   = (document.getElementById('panel-works-search')?.value||'').toLowerCase().trim();
+  const obj = getObjLabel();
+  let items = _panelWorksData;
+  // Фільтр по об'єкту якщо обрано
+  if (obj && obj !== '—') {
+    items = items.filter(function(x){ return (x.object||'').toLowerCase().includes(obj.toLowerCase()); });
+  }
+  if (_panelDateFilter) items = items.filter(function(x){return x.date===_panelDateFilter;});
   if (q) items = items.filter(function(x){return (x.name||'').toLowerCase().includes(q)||(x.group||'').toLowerCase().includes(q);});
   return items;
 }
 
 function getPanelFilteredMats() {
-  const q = (document.getElementById('panel-mats-search')?.value||'').toLowerCase().trim();
-  let items = _panelDateFilter ? _panelMatsData.filter(function(x){return x.date===_panelDateFilter;}) : _panelMatsData;
+  const q   = (document.getElementById('panel-mats-search')?.value||'').toLowerCase().trim();
+  const obj = getObjLabel();
+  let items = _panelMatsData;
+  // Фільтр по об'єкту якщо обрано
+  if (obj && obj !== '—') {
+    items = items.filter(function(x){ return (x.object||'').toLowerCase().includes(obj.toLowerCase()); });
+  }
+  if (_panelDateFilter) items = items.filter(function(x){return x.date===_panelDateFilter;});
   if (q) items = items.filter(function(x){return (x.name||'').toLowerCase().includes(q)||(x.group||'').toLowerCase().includes(q);});
   return items;
 }
@@ -3023,7 +3040,7 @@ function renderPanelWorks(items) {
   const count = document.getElementById('panel-works-count');
   if (!body) return;
   if (count) count.textContent = items.length;
-  if (!items.length) { body.innerHTML = '<div class="panel-empty">Робіт ще не внесено</div>'; return; }
+  if (!items.length) { body.innerHTML = '<div class="panel-empty">Робіт по цьому об\'єкту ще не внесено</div>'; return; }
   body.innerHTML = items.map(function(w) {
     return '<div class="panel-entry">'+
       '<div class="panel-entry-name">'+escHtml(w.name)+'</div>'+
@@ -3041,7 +3058,7 @@ function renderPanelMats(items) {
   const count = document.getElementById('panel-mats-count');
   if (!body) return;
   if (count) count.textContent = items.length;
-  if (!items.length) { body.innerHTML = '<div class="panel-empty">Матеріалів ще не внесено</div>'; return; }
+  if (!items.length) { body.innerHTML = '<div class="panel-empty">Матеріалів по цьому об\'єкту ще не внесено</div>'; return; }
   body.innerHTML = items.map(function(m) {
     return '<div class="panel-entry">'+
       '<div class="panel-entry-name">'+escHtml(m.name)+'</div>'+
