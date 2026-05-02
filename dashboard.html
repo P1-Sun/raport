@@ -10,125 +10,114 @@
   --bg:#F4F2ED;--surface:#fff;--surface2:#F0EDE6;--border:#D8D4CC;
   --accent:#2A5C3F;--accent-l:#E8F2EC;--accent-d:#1E4A2E;
   --text:#1A1A18;--text2:#5A5750;--text3:#9A958E;
-  --tag-bg:#EFF7F2;--tag-border:#B8D9C4;--tag-text:#1E4A2E;
+  --tag-bg:#EFF7F2;--tag-border:#B8D9C4;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* HEADER */
-.header{background:var(--accent);padding:16px 24px;position:sticky;top:0;z-index:100}
-.header-inner{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:16px}
-.header-title{color:#fff;font-size:18px;font-weight:600;letter-spacing:-.3px}
-.header-sub{font-size:12px;color:rgba(255,255,255,.55);margin-top:2px;font-family:'IBM Plex Mono',monospace}
-.period-btns{display:flex;gap:6px}
-.pbtn{padding:6px 16px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.6);background:transparent;transition:all .15s;font-family:inherit}
-.pbtn:hover{color:rgba(255,255,255,.9);border-color:rgba(255,255,255,.6)}
-.pbtn.active{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.75)}
-.refresh-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);font-size:12px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .15s}
+.header{background:var(--accent);padding:20px 28px 18px}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.header-title{color:#fff;font-size:24px;font-weight:600;letter-spacing:-.4px}
+.header-sub{font-size:13px;color:rgba(255,255,255,.55);margin-top:4px;font-family:'IBM Plex Mono',monospace}
+.refresh-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.75);font-size:13px;padding:7px 16px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0}
 .refresh-btn:hover{background:rgba(255,255,255,.22);color:#fff}
+.period-row{display:flex;gap:8px}
+.pbtn{padding:9px 24px;border-radius:24px;font-size:14px;font-weight:500;cursor:pointer;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.65);background:transparent;transition:all .15s;font-family:inherit}
+.pbtn:hover{color:rgba(255,255,255,.9);border-color:rgba(255,255,255,.6)}
+.pbtn.active{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.85);font-weight:600}
 
-/* MAIN */
-.main{max-width:1400px;margin:0 auto;padding:16px 20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:12px}
+.main{padding:18px 20px;max-width:1600px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 
-/* CARD */
-.card{background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .1s;animation:fadeIn .3s ease}
-.card:hover{border-color:var(--accent);transform:translateY(-1px)}
-.card.no-data{opacity:.7}
+.card{background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .12s;animation:fadeIn .3s ease}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card.no-data{opacity:.72}
 .card.no-data:hover{transform:none;border-color:var(--border)}
 
-.card-head{padding:12px 16px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--surface2)}
-.card-name{font-size:15px;font-weight:600;color:var(--text)}
-.card-objects{font-size:11px;color:var(--text3);margin-top:2px}
-.card-badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:10px;white-space:nowrap;flex-shrink:0;margin-left:8px;margin-top:2px}
+.card-head{padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--surface2);background:var(--surface)}
+.card-name{font-size:16px;font-weight:600;color:var(--text);line-height:1.2}
+.card-objects{font-size:12px;color:var(--text3);margin-top:3px;line-height:1.4}
+.card-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:10px;white-space:nowrap;flex-shrink:0;margin-left:10px;margin-top:2px}
 .badge-ok{background:var(--accent-l);color:var(--accent-d)}
 .badge-none{background:var(--surface2);color:var(--text3)}
 
-/* STATS ROW */
-.stats-row{display:flex;padding:10px 16px;gap:8px;border-bottom:1px solid var(--surface2)}
-.stat{flex:1;text-align:center;padding:8px 6px;background:var(--surface2);border-radius:8px}
-.stat-val{font-size:20px;font-weight:700;color:var(--accent);line-height:1;font-family:'IBM Plex Mono',monospace}
-.stat-val.muted{color:var(--border)}
-.stat-unit{font-size:11px;font-weight:500;color:var(--text3)}
-.stat-lbl{font-size:10px;color:var(--text3);margin-top:3px}
+.stats-row{display:flex;padding:12px 16px;gap:10px;border-bottom:1px solid var(--surface2)}
+.stat{flex:1;text-align:center;padding:10px 8px;background:var(--surface2);border-radius:10px}
+.stat-val{font-size:22px;font-weight:700;color:var(--accent);line-height:1;font-family:'IBM Plex Mono',monospace}
+.stat-val.muted{color:#D0CCC7}
+.stat-unit{font-size:12px;font-weight:500;color:var(--text3)}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:4px}
 
-/* DAYS */
-.days-row{padding:8px 16px 10px;border-bottom:1px solid var(--surface2)}
-.section-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.dots{display:flex;gap:3px;flex-wrap:wrap}
-.dot{width:28px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;cursor:default}
+.days-row{padding:10px 18px 12px;border-bottom:1px solid var(--surface2)}
+.section-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
+.dots{display:flex;gap:4px;flex-wrap:wrap}
+.dot{height:26px;flex:1;min-width:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
 .dot-ok{background:var(--accent);color:#fff}
 .dot-miss{background:var(--surface2);color:#C0B8B0}
 
-/* WORKS */
-.works-row{padding:8px 16px 10px}
-.work-item{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;border-bottom:1px solid var(--surface2);font-size:12px}
+.works-row{padding:10px 18px 14px}
+.work-item{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--surface2);font-size:13px}
 .work-item:last-of-type{border-bottom:none}
-.work-name{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
-.work-qty{font-size:11px;color:var(--text2);white-space:nowrap;margin-left:8px;font-family:'IBM Plex Mono',monospace;flex-shrink:0}
-.no-data-msg{font-size:12px;color:var(--text3);font-style:italic;padding:4px 0}
+.work-name{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.work-qty{font-size:12px;color:var(--text2);white-space:nowrap;margin-left:8px;font-family:'IBM Plex Mono',monospace;flex-shrink:0}
+.no-data-msg{font-size:13px;color:var(--text3);font-style:italic;padding:4px 0}
 
-/* TECH */
-.tech-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
-.tech-tag{font-size:10px;background:#E6F1FB;color:#0C447C;padding:2px 8px;border-radius:10px}
+.tech-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.tech-tag{font-size:11px;background:#E6F1FB;color:#0C447C;padding:3px 9px;border-radius:10px}
 
-/* LOADING */
-#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:14px}
+#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
 .spinner{animation:spin 1s linear infinite}
 
-/* DETAIL VIEW */
+/* DETAIL */
 #detail-view{display:none;animation:fadeIn .25s ease}
-.detail-header{background:var(--accent);padding:14px 20px;display:flex;align-items:center;gap:14px}
-.back-btn{color:#fff;font-size:13px;font-weight:600;cursor:pointer;padding:5px 12px;border:1px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.1);font-family:inherit;transition:all .15s}
-.back-btn:hover{background:rgba(255,255,255,.2)}
-.detail-name{color:#fff;font-size:16px;font-weight:600}
-.detail-period{color:rgba(255,255,255,.6);font-size:12px;margin-top:2px}
-.detail-body{max-width:900px;margin:0 auto;padding:16px 20px}
-.report-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden}
-.report-card-head{background:var(--surface2);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
-.report-date{font-size:13px;font-weight:600;color:var(--accent)}
-.report-obj{font-size:12px;color:var(--text2)}
-.report-time{font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace}
-.report-section{padding:10px 14px;border-top:1px solid var(--surface2)}
-.rs-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.workers-list{display:flex;flex-wrap:wrap;gap:5px}
-.worker-chip{font-size:11px;padding:2px 9px;background:var(--surface2);border-radius:6px;color:var(--text)}
-.work-table{width:100%;font-size:12px;border-collapse:collapse}
-.work-table td{padding:3px 0;border-bottom:1px solid var(--surface2)}
+.detail-header{background:var(--accent);padding:18px 28px;display:flex;align-items:center;gap:16px}
+.back-btn{color:#fff;font-size:14px;font-weight:600;cursor:pointer;padding:7px 16px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.1);font-family:inherit;transition:all .15s;flex-shrink:0}
+.back-btn:hover{background:rgba(255,255,255,.22)}
+.detail-name{color:#fff;font-size:18px;font-weight:600}
+.detail-period{color:rgba(255,255,255,.6);font-size:13px;margin-top:3px}
+.detail-body{max-width:960px;margin:0 auto;padding:18px 24px}
+.report-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.report-card-head{background:var(--surface2);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.report-date{font-size:14px;font-weight:600;color:var(--accent)}
+.report-obj{font-size:13px;color:var(--text2);margin-top:2px}
+.report-time{font-size:12px;color:var(--text3);font-family:'IBM Plex Mono',monospace;white-space:nowrap;flex-shrink:0;margin-left:12px}
+.report-section{padding:12px 16px;border-top:1px solid var(--surface2)}
+.rs-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.workers-list{display:flex;flex-wrap:wrap;gap:6px}
+.worker-chip{font-size:12px;padding:3px 10px;background:var(--surface2);border-radius:7px;color:var(--text)}
+.work-table{width:100%;font-size:13px;border-collapse:collapse}
+.work-table td{padding:4px 0;border-bottom:1px solid var(--surface2)}
 .work-table tr:last-child td{border-bottom:none}
-.work-table .td-name{color:var(--text)}
-.work-table .td-qty{text-align:right;color:var(--text2);font-family:'IBM Plex Mono',monospace;white-space:nowrap;padding-left:12px}
+.td-qty{text-align:right;color:var(--text2);font-family:'IBM Plex Mono',monospace;white-space:nowrap;padding-left:14px}
 </style>
 </head>
 <body>
 
 <div id="main-view">
   <div class="header">
-    <div class="header-inner">
+    <div class="header-top">
       <div>
         <div class="header-title">Дашборд керівника</div>
         <div class="header-sub" id="h-period">—</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="period-btns">
-          <button class="pbtn" data-period="yesterday" onclick="selectPeriod('yesterday')">Вчора</button>
-          <button class="pbtn active" data-period="week" onclick="selectPeriod('week')">Тиждень</button>
-          <button class="pbtn" data-period="month" onclick="selectPeriod('month')">Місяць</button>
-        </div>
-        <button class="refresh-btn" onclick="loadData()">↺ Оновити</button>
-      </div>
+      <button class="refresh-btn" onclick="loadData()">↺ Оновити</button>
+    </div>
+    <div class="period-row">
+      <button class="pbtn" data-period="yesterday" onclick="selectPeriod('yesterday')">Вчора</button>
+      <button class="pbtn active" data-period="week" onclick="selectPeriod('week')">Цей тиждень</button>
+      <button class="pbtn" data-period="month" onclick="selectPeriod('month')">Цей місяць</button>
     </div>
   </div>
 
   <div class="main">
     <div id="loading">
-      <svg class="spinner" width="40" height="40" viewBox="0 0 40 40">
-        <circle cx="20" cy="20" r="16" fill="none" stroke="#E8F2EC" stroke-width="4"/>
-        <path d="M20 4 a16 16 0 0 1 16 16" fill="none" stroke="#2A5C3F" stroke-width="4" stroke-linecap="round"/>
+      <svg class="spinner" width="44" height="44" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="#E8F2EC" stroke-width="4"/>
+        <path d="M22 4 a18 18 0 0 1 18 18" fill="none" stroke="#2A5C3F" stroke-width="4" stroke-linecap="round"/>
       </svg>
-      <div style="font-size:14px;color:var(--text3)">Завантаження...</div>
+      <div style="font-size:15px;color:var(--text3)">Завантаження...</div>
     </div>
     <div class="grid" id="cards-grid" style="display:none"></div>
   </div>
@@ -147,11 +136,11 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZsfu6sL5gvejDbyr2LPpJgRJv_Jo12iRe9zs6O3HWG2XcvRWM-I3m7N_Ua3L_usdB2Q/exec';
+const SKIP_KEYS  = ['olsh']; // бригадири яких не показуємо
+const DAY_NAMES  = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
 
 let currentPeriod = 'week';
 let currentData   = null;
-
-const DAY_NAMES = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
 
 function selectPeriod(p) {
   currentPeriod = p;
@@ -164,7 +153,6 @@ function selectPeriod(p) {
 function loadData() {
   document.getElementById('loading').style.display = 'flex';
   document.getElementById('cards-grid').style.display = 'none';
-
   fetch(SCRIPT_URL + '?action=getDashboard&period=' + currentPeriod)
     .then(function(r){ return r.json(); })
     .then(function(data){
@@ -177,11 +165,10 @@ function loadData() {
 
 function showError(msg) {
   document.getElementById('loading').innerHTML =
-    '<div style="font-size:14px;color:#C0392B">Помилка завантаження:<br>' + msg + '</div>';
+    '<div style="font-size:14px;color:#C0392B;text-align:center">Помилка завантаження:<br>' + esc(msg) + '</div>';
 }
 
 function renderDashboard(data) {
-  // Заголовок з датами
   const sub = data.dateFrom === data.dateTo
     ? data.dateFrom
     : data.dateFrom + ' — ' + data.dateTo;
@@ -190,85 +177,66 @@ function renderDashboard(data) {
   const grid = document.getElementById('cards-grid');
   grid.innerHTML = '';
 
-  data.brigades.forEach(function(b) {
-    grid.appendChild(buildCard(b, data));
-  });
+  data.brigades
+    .filter(function(b){ return SKIP_KEYS.indexOf(b.key) === -1; })
+    .forEach(function(b){ grid.appendChild(buildCard(b)); });
 
   document.getElementById('loading').style.display = 'none';
   grid.style.display = 'grid';
 }
 
-function buildCard(b, data) {
+function buildCard(b) {
   const card = document.createElement('div');
   card.className = 'card' + (b.hasData ? '' : ' no-data');
   card.onclick = function(){ if(b.hasData) openDetail(b.key); };
 
-  // Визначаємо короткі назви днів для крапок
   const dotsHtml = b.days.map(function(d){
-    // d.date = dd.mm.yyyy, визначаємо день тижня
-    const p = d.date.split('.');
+    const p   = d.date.split('.');
     const dow = new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0])).getDay();
-    const lbl = DAY_NAMES[dow];
     const cls = d.hasReport ? 'dot dot-ok' : 'dot dot-miss';
-    const title = d.date;
-    return '<div class="'+cls+'" title="'+title+'">'+lbl+'</div>';
+    return '<div class="'+cls+'" title="'+d.date+'">'+DAY_NAMES[dow]+'</div>';
   }).join('');
 
-  // Топ-5 робіт
-  let worksHtml = '';
-  if (b.topWorks && b.topWorks.length) {
-    worksHtml = b.topWorks.map(function(w){
-      const qtyStr = formatQty(w.qty) + ' ' + (w.unit||'');
-      return '<div class="work-item"><span class="work-name">'+esc(w.name)+'</span><span class="work-qty">'+esc(qtyStr)+'</span></div>';
-    }).join('');
-  } else {
-    worksHtml = '<div class="no-data-msg">Немає робіт за цей період</div>';
-  }
+  let worksHtml = b.topWorks && b.topWorks.length
+    ? b.topWorks.map(function(w){
+        return '<div class="work-item"><span class="work-name">'+esc(w.name)+'</span><span class="work-qty">'+esc(fmtQty(w.qty)+' '+(w.unit||''))+'</span></div>';
+      }).join('')
+    : '<div class="no-data-msg">Немає робіт за цей період</div>';
 
-  // Техніка
-  let techHtml = '';
-  if (b.tech && b.tech.length) {
-    techHtml = '<div class="tech-row">' +
-      b.tech.map(function(t){ return '<span class="tech-tag">'+esc(t)+'</span>'; }).join('') +
-      '</div>';
-  }
+  const techHtml = b.tech && b.tech.length
+    ? '<div class="tech-row">'+b.tech.map(function(t){ return '<span class="tech-tag">'+esc(t)+'</span>'; }).join('')+'</div>'
+    : '';
 
-  const badgeClass = b.hasData ? 'card-badge badge-ok' : 'card-badge badge-none';
-  const badgeText  = b.hasData ? (b.daysActive + ' з ' + b.daysTotal + ' дн.') : 'немає рапортів';
-
-  const totalVal = b.hasData ? b.totalHrs : '—';
-  const avgVal   = b.hasData ? b.avgHrsPerDay : '—';
-  const wrkVal   = b.hasData ? b.workerCount : '—';
-  const muted    = b.hasData ? '' : ' muted';
+  const muted = b.hasData ? '' : ' muted';
+  const badgeCls  = b.hasData ? 'card-badge badge-ok' : 'card-badge badge-none';
+  const badgeTxt  = b.hasData ? (b.daysActive+' з '+b.daysTotal+' дн.') : 'немає рапортів';
+  const objTxt    = (b.objects||[]).join(' · ') || '—';
 
   card.innerHTML =
-    '<div class="card-head">' +
-      '<div>' +
-        '<div class="card-name">'+esc(b.name)+'</div>' +
-        '<div class="card-objects">'+esc((b.objects||[]).join(' · ')|| '—')+'</div>' +
-      '</div>' +
-      '<div class="'+badgeClass+'">'+badgeText+'</div>' +
-    '</div>' +
-    '<div class="stats-row">' +
-      '<div class="stat"><div class="stat-val'+muted+'">'+totalVal+'<span class="stat-unit">год</span></div><div class="stat-lbl">люд/год всього</div></div>' +
-      '<div class="stat"><div class="stat-val'+muted+'">'+avgVal+'<span class="stat-unit">год</span></div><div class="stat-lbl">середнє/день</div></div>' +
-      '<div class="stat"><div class="stat-val'+muted+'">'+wrkVal+'</div><div class="stat-lbl">працівників</div></div>' +
-    '</div>' +
-    '<div class="days-row">' +
-      '<div class="section-lbl">Активність</div>' +
-      '<div class="dots">'+dotsHtml+'</div>' +
-    '</div>' +
-    '<div class="works-row">' +
-      '<div class="section-lbl">Основні роботи</div>' +
+    '<div class="card-head">'+
+      '<div style="min-width:0">'+
+        '<div class="card-name">'+esc(b.name)+'</div>'+
+        '<div class="card-objects">'+esc(objTxt)+'</div>'+
+      '</div>'+
+      '<div class="'+badgeCls+'">'+esc(badgeTxt)+'</div>'+
+    '</div>'+
+    '<div class="stats-row">'+
+      '<div class="stat"><div class="stat-val'+muted+'">'+(b.hasData?b.totalHrs:'—')+'<span class="stat-unit">год</span></div><div class="stat-lbl">люд/год всього</div></div>'+
+      '<div class="stat"><div class="stat-val'+muted+'">'+(b.hasData?b.avgHrsPerDay:'—')+'<span class="stat-unit">год</span></div><div class="stat-lbl">середнє/день</div></div>'+
+      '<div class="stat"><div class="stat-val'+muted+'">'+(b.hasData?b.workerCount:'—')+'</div><div class="stat-lbl">працівників</div></div>'+
+    '</div>'+
+    '<div class="days-row">'+
+      '<div class="section-lbl">Активність</div>'+
+      '<div class="dots">'+dotsHtml+'</div>'+
+    '</div>'+
+    '<div class="works-row">'+
+      '<div class="section-lbl">Основні роботи</div>'+
       worksHtml + techHtml +
     '</div>';
 
   return card;
 }
 
-// ================================================================
-// ДЕТАЛЬ — відкривається при кліку на картку
-// ================================================================
 function openDetail(brigKey) {
   if (!currentData) return;
   const b = currentData.brigades.find(function(x){ return x.key === brigKey; });
@@ -280,50 +248,44 @@ function openDetail(brigKey) {
     : currentData.dateFrom + ' — ' + currentData.dateTo;
   document.getElementById('detail-period').textContent = sub;
 
-  // Завантажуємо деталі рапортів
   const body = document.getElementById('detail-body');
-  body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text3)">Завантаження...</div>';
-
+  body.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text3)">Завантаження...</div>';
   document.getElementById('main-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'block';
   window.scrollTo(0,0);
 
-  fetch(SCRIPT_URL + '?action=getBrigadeDetail&brigade=' + brigKey +
-        '&dateFrom=' + currentData.dateFrom + '&dateTo=' + currentData.dateTo)
+  fetch(SCRIPT_URL+'?action=getBrigadeDetail&brigade='+brigKey+'&dateFrom='+currentData.dateFrom+'&dateTo='+currentData.dateTo)
     .then(function(r){ return r.json(); })
     .then(function(data){
-      if (!data.ok) { body.innerHTML = '<div style="color:#C0392B;padding:20px">'+data.error+'</div>'; return; }
+      if (!data.ok) { body.innerHTML='<div style="color:#C0392B;padding:20px">'+esc(data.error)+'</div>'; return; }
       renderDetail(data, body);
     })
-    .catch(function(e){
-      body.innerHTML = '<div style="color:#C0392B;padding:20px">Помилка: '+e+'</div>';
-    });
+    .catch(function(e){ body.innerHTML='<div style="color:#C0392B;padding:20px">Помилка: '+esc(String(e))+'</div>'; });
 }
 
 function renderDetail(data, body) {
   if (!data.reports || !data.reports.length) {
-    body.innerHTML = '<div style="padding:20px;color:var(--text3)">Рапортів за цей період немає</div>';
+    body.innerHTML='<div style="padding:24px;color:var(--text3)">Рапортів за цей період немає</div>';
     return;
   }
   body.innerHTML = data.reports.map(function(r){
-    const workRows = (r.works||[]).map(function(w){
-      return '<tr><td class="td-name">'+esc(w.name)+'</td><td class="td-qty">'+esc(formatQty(w.qty)+' '+(w.unit||''))+'</td></tr>';
+    const wRows = (r.works||[]).map(function(w){
+      return '<tr><td>'+esc(w.name)+'</td><td class="td-qty">'+esc(fmtQty(w.qty)+' '+(w.unit||''))+'</td></tr>';
     }).join('');
-    const workers = (r.workers||[]).map(function(w){
+    const wChips = (r.workers||[]).map(function(w){
       return '<span class="worker-chip">'+esc(w)+'</span>';
     }).join('');
-    const techTags = (r.tech||[]).map(function(t){
+    const tTags = (r.tech||[]).map(function(t){
       return '<span class="tech-tag">'+esc(t)+'</span>';
     }).join('');
-
     return '<div class="report-card">'+
       '<div class="report-card-head">'+
         '<div><div class="report-date">'+esc(r.date)+'</div><div class="report-obj">'+esc(r.object)+'</div></div>'+
         '<div class="report-time">'+esc(r.timeStart)+' – '+esc(r.timeEnd)+' ('+esc(r.duration)+')</div>'+
       '</div>'+
-      (workers ? '<div class="report-section"><div class="rs-title">Працівники</div><div class="workers-list">'+workers+'</div></div>' : '')+
-      (workRows ? '<div class="report-section"><div class="rs-title">Роботи</div><table class="work-table">'+workRows+'</table></div>' : '')+
-      (techTags ? '<div class="report-section"><div class="rs-title">Техніка</div><div class="tech-row">'+techTags+'</div></div>' : '')+
+      (wChips?'<div class="report-section"><div class="rs-title">Працівники</div><div class="workers-list">'+wChips+'</div></div>':'')+
+      (wRows?'<div class="report-section"><div class="rs-title">Роботи</div><table class="work-table">'+wRows+'</table></div>':'')+
+      (tTags?'<div class="report-section"><div class="rs-title">Техніка</div><div class="tech-row">'+tTags+'</div></div>':'')+
     '</div>';
   }).join('');
 }
@@ -334,19 +296,17 @@ function closeDetail() {
   window.scrollTo(0,0);
 }
 
-function formatQty(n) {
-  if (n === null || n === undefined || n === '') return '';
+function fmtQty(n) {
+  if (n===null||n===undefined||n==='') return '';
   const f = parseFloat(n);
   if (isNaN(f)) return String(n);
-  if (f === Math.floor(f)) return f.toLocaleString('uk-UA');
-  return f.toLocaleString('uk-UA', {maximumFractionDigits:2});
+  return f===Math.floor(f) ? f.toLocaleString('uk-UA') : f.toLocaleString('uk-UA',{maximumFractionDigits:2});
 }
 
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Запуск
 loadData();
 </script>
 </body>
