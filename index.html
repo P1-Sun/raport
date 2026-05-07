@@ -725,6 +725,7 @@ const USERS = {
   'shulga':    { pass:'Shulga2026',   name:'Шульга Артем',       brigade:'shulga',    objType:'street'  },
   'yura':      { pass:'Yura2026',     name:'Алєксін Юра',        brigade:'yura',      objType:'street'  },
   'olsh':      { pass:'Olsh2026',     name:'Ольшовський Саша',   brigade:'olsh',      objType:'address' },
+  'gur':       { pass:'Gur2026',      name:'Гурин Олександр',    brigade:'gur',       objType:'fixed'   },
 };
 // objType:
 //   'fixed'   — кнопки фіксованих обʼєктів + "+ інший"  (Бесараб, Геннадій, Наливайко)
@@ -735,13 +736,14 @@ const USERS = {
 // OBJ per brigade
 // ================================================================
 const BRIGADE_OBJ = {
-  besarab:   ['ЧОП М-25','Каналізація КІД ЕНЕРГО'],
+  besarab:   ['ЧОП М-25','Каналізація КІД ЕНЕРГО','Тибава міст'],
   nalyvayko: ['Перечин','Ужгород ОВА','Ільниця (дах + фасад)','Ільниця (благоустрій)'],
   gena:      ['Ужгород, вул. Карпатська Україна'],
   milan:     [], // objType:'address' — вводить вручну
   shulga:    [], // objType:'street'  — вводить вручну
-  yura:      [], // objType:'street'  — вводить вручну
+  yura:      ['Мукачево, вул. В.Великого'], // objType:'street'
   olsh:      [], // objType:'address' — вводить вручну
+  gur:       ['Хуст'],
 };
 
 // Всі активні обʼєкти інших бригад — для кнопки "Обʼєкт іншої бригади"
@@ -848,6 +850,7 @@ const PIN_MAP_FALLBACK = {
   '0903': 'shulga',
   '0101': 'yura',
   '2502': 'olsh',
+  '4565': 'gur',
 };
 let PIN_MAP = { ...PIN_MAP_FALLBACK };
 
@@ -1364,6 +1367,14 @@ function buildTechSection() {
     btn.onclick = () => toggleTechCard(safeId, t.name, t.num);
     wrap.appendChild(btn);
   });
+  // Кнопка "+ інша техніка"
+  const customBtn = document.createElement('div');
+  customBtn.className = 'tech-tag-btn';
+  customBtn.id = 'btn_custom_tech';
+  customBtn.innerHTML = '+ інша техніка';
+  customBtn.style.cssText = 'border-style:dashed;color:var(--text2)';
+  customBtn.onclick = () => toggleCustomTechInput();
+  wrap.appendChild(customBtn);
 }
 
 function toggleTechCard(safeId, techName, techNum) {
@@ -2501,6 +2512,14 @@ function buildTransportSection() {
     btn.onclick = () => toggleTransCard(safeId, name);
     wrap.appendChild(btn);
   });
+  // Кнопка "+ інший транспорт"
+  const customBtn = document.createElement('div');
+  customBtn.className = 'tech-tag-btn';
+  customBtn.id = 'tbtn_custom_trans';
+  customBtn.innerHTML = '+ інший транспорт';
+  customBtn.style.cssText = 'border-style:dashed;color:var(--text2)';
+  customBtn.onclick = () => toggleCustomTransInput();
+  wrap.appendChild(customBtn);
 }
 
 function toggleTransCard(safeId, transName) {
@@ -2574,6 +2593,100 @@ function addTransEntry(safeId, transName) {
 }
 
 function addTransport(name) {} // залишаємо для сумісності
+
+function toggleCustomTechInput() {
+  const panels = document.getElementById('tech-panels');
+  const existing = document.getElementById('panel_custom_tech');
+  const btn = document.getElementById('btn_custom_tech');
+  if (existing) { existing.remove(); btn.classList.remove('active'); return; }
+  btn.classList.add('active');
+  const panel = document.createElement('div');
+  panel.className = 'tech-panel';
+  panel.id = 'panel_custom_tech';
+  panel.innerHTML = `
+    <div class="tech-panel-title">Інша техніка</div>
+    <div style="margin-bottom:10px">
+      <label>Назва техніки</label>
+      <input type="text" id="custom_tech_name" placeholder="напр. Кран КС-3577" style="width:100%;font-family:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+    </div>
+    <div class="tech-panel-row">
+      <div>
+        <label>Годин роботи <span style="color:var(--danger);font-size:10px">обов'язково</span></label>
+        <input type="text" id="custom_tech_hrs" inputmode="decimal" placeholder="0,0" oninput="normalizeQty(this)">
+      </div>
+      <div>
+        <label>Заправлено (л)</label>
+        <input type="text" id="custom_tech_fuel" inputmode="decimal" placeholder="0" oninput="normalizeQty(this)">
+      </div>
+    </div>
+    <div style="margin-top:10px;display:flex;justify-content:flex-end">
+      <div onclick="addCustomTechEntry()" style="padding:7px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Додати</div>
+    </div>`;
+  panels.appendChild(panel);
+  setTimeout(() => document.getElementById('custom_tech_name')?.focus(), 50);
+}
+
+function addCustomTechEntry() {
+  const name = document.getElementById('custom_tech_name')?.value.trim() || '';
+  const hrs  = document.getElementById('custom_tech_hrs')?.value || '';
+  const fuel = document.getElementById('custom_tech_fuel')?.value || '';
+  if (!name) { document.getElementById('custom_tech_name')?.focus(); return; }
+  if (!hrs)  { document.getElementById('custom_tech_hrs')?.focus(); return; }
+  const safeId = 'tech_custom_' + Date.now();
+  state.tech[name] = { num: '', hrs, fuel, src: '' };
+  renderTechList();
+  updateProgress();
+  document.getElementById('panel_custom_tech')?.remove();
+  document.getElementById('btn_custom_tech')?.classList.remove('active');
+}
+
+function toggleCustomTransInput() {
+  const panels = document.getElementById('trans-panels');
+  const existing = document.getElementById('tpanel_custom_trans');
+  const btn = document.getElementById('tbtn_custom_trans');
+  if (existing) { existing.remove(); btn.classList.remove('active'); return; }
+  btn.classList.add('active');
+  const panel = document.createElement('div');
+  panel.className = 'tech-panel';
+  panel.id = 'tpanel_custom_trans';
+  panel.innerHTML = `
+    <div class="tech-panel-title">Інший транспорт</div>
+    <div style="margin-bottom:10px">
+      <label>Марка та держ. номер</label>
+      <input type="text" id="custom_trans_name" placeholder="напр. Scania АВ1234ВС" style="width:100%;font-family:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+    </div>
+    <div class="tech-panel-row">
+      <div>
+        <label>Заправлено (л)</label>
+        <input type="text" id="custom_trans_fuel" inputmode="decimal" placeholder="0" oninput="normalizeQty(this)">
+      </div>
+      <div>
+        <label>Одометр (км)</label>
+        <input type="text" id="custom_trans_km" inputmode="decimal" placeholder="напр. 125430" oninput="normalizeQty(this)">
+      </div>
+    </div>
+    <div style="margin-top:10px;display:flex;justify-content:flex-end">
+      <div onclick="addCustomTransEntry()" style="padding:7px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Додати</div>
+    </div>`;
+  panels.appendChild(panel);
+  setTimeout(() => document.getElementById('custom_trans_name')?.focus(), 50);
+}
+
+function addCustomTransEntry() {
+  const name = document.getElementById('custom_trans_name')?.value.trim() || '';
+  const fuel = document.getElementById('custom_trans_fuel')?.value || '';
+  const km   = document.getElementById('custom_trans_km')?.value || '';
+  if (!name) { document.getElementById('custom_trans_name')?.focus(); return; }
+  if (!fuel) { document.getElementById('custom_trans_fuel')?.focus(); return; }
+  if (!km)   { document.getElementById('custom_trans_km')?.focus(); return; }
+  state.transport.push({ name, fuel, km, src: 'Інше' });
+  renderTransport();
+  updateProgress();
+  document.getElementById('tpanel_custom_trans')?.remove();
+  document.getElementById('tbtn_custom_trans')?.classList.remove('active');
+}
 
 function renderTransport() {
   const list = document.getElementById('transport-list');
